@@ -1,0 +1,34 @@
+# Macのシステムファイル
+.DS_Store
+
+*.swp
+/build/
+__pycache__/
+.python-version
+/log/
+/.mypy_cache/
+
+# supervisor関連
+matome-api.ini
+operations.ini
+
+.tox
+mytoxtest.egg-info/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
+app/config/mail/env/*
+app/config/gdrive/env/*
+app/config/kintone/env/*
+
+# 最後に書く
+!.gitkeep

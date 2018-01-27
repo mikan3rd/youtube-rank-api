@@ -1,0 +1,20 @@
+debug: true
+sql_debug: true
+server_debug: true
+
+log_dir: log
+connection_info:
+  r:
+    -
+      user: develop
+      password: develop
+      host: localhost
+      database: youtube-rank
+
+  rw:
+    -
+      user: develop
+      password: develop
+      host: localhost
+      database: youtube-rank
+

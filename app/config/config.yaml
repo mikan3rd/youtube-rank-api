@@ -1,0 +1,11 @@
+# デバッグログの出力
+debug: false
+# SQLログの出力
+sql_debug: false
+# Flaskのデバッグモード
+server_debug: false
+
+# ログの出力先
+log_dir: /log
+
+dburl: mysql+mysqlconnector://
