@@ -35,3 +35,4 @@ def get_keyword(*args, **kwargs) -> ApiResponse:
     '''  # NOQA
     area = request.args.get('area')
     print("test:", area)
+    return "SUCCESS!!"
