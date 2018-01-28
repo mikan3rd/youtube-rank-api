@@ -1,4 +1,0 @@
-# TODO: タスクプログラムがある場合、ここに配置する
-
-実行方法は、ルートディレクトリで
-$ python task.py run [taskname]

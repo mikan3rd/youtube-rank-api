@@ -1,0 +1,57 @@
+version: 1
+disable_existing_loggers: False
+formatters:
+    simple:
+        format: "%(asctime)s - %(name)s:%(lineno)s - %(levelname)s - %(message)s"
+    access:
+        format: "%(asctime)s - %(message)s"
+
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: DEBUG
+        formatter: simple
+        stream: ext://sys.stdout
+
+    app_log_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: DEBUG
+        formatter: simple
+        filename: server.log
+        maxBytes: 52428800 # 50MB
+        backupCount: 20
+        encoding: utf8
+
+    app_error_log_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: ERROR
+        formatter: simple
+        filename: server_error.log
+        maxBytes: 52428800 # 50MB
+        backupCount: 20
+        encoding: utf8
+
+    access_log_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: access
+        filename: access.log
+        maxBytes: 52428800 # 50MB
+        backupCount: 20
+        encoding: utf8
+
+    null_handler:
+        class: logging.NullHandler
+
+loggers:
+    app:
+        level: INFO
+        handlers: [console, app_log_handler, app_error_log_handler]
+
+    werkzeug:
+        level: INFO
+        handlers: [console, access_log_handler]
+
+root:
+    level: INFO
+    handlers: [null_handler]
