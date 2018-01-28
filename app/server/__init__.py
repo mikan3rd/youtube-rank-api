@@ -41,7 +41,7 @@ def run(port=None) -> None:
 
     flask_server.run(
         host=config.get('server').get('host'),
-        port=port,
+        port=int(port),
         threaded=config.get('server').get('threaded'),
         debug=config.get('server_debug'),
     )
