@@ -4,6 +4,10 @@ from app.config import current_config
 from app.server.helpers.request import after_request
 from app.server.views import get_blueprints
 
+import os
+from os.path import join, dirname
+from dotenv import load_dotenv
+
 
 def init_server():
     '''サーバーの初期化'''
@@ -30,9 +34,14 @@ def run(port=None) -> None:
     flask_server = init_server()
 
     config = current_config()
+    dotenv_path = join(dirname(__file__), '.env')
+    load_dotenv(dotenv_path)
+    port = os.environ.get('PORT', 5000)
+    print("port:", port)
+
     flask_server.run(
         host=config.get('server').get('host'),
-        port=port if port else config.get('server').get('port'),
+        port=port,
         threaded=config.get('server').get('threaded'),
         debug=config.get('server_debug'),
     )
