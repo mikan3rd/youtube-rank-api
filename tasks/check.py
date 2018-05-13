@@ -1,6 +1,7 @@
 import argparse
 import subprocess
 
+
 parser = argparse.ArgumentParser(description='リポジトリプッシュ前の確認実行')
 
 

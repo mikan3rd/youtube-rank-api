@@ -5,6 +5,7 @@ import argparse
 from app.config import current_config, init_config
 from app.logger import setup_logger
 
+
 # 起動パラメータの取得
 parser = argparse.ArgumentParser()
 parser.add_argument(

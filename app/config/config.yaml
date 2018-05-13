@@ -8,4 +8,4 @@ server_debug: false
 # ログの出力先
 log_dir: /log
 
-dburl: mysql+mysqlconnector://
+dburl: postgres://ppzjqoephdegpo:9367c01121596435cfc67f5950e820c7c9ea2e42b5c9496bbbddbe4f14ecd6d7@ec2-54-163-237-249.compute-1.amazonaws.com:5432/deumv3jpp2j0nd

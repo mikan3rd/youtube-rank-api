@@ -12,6 +12,7 @@ from sqlalchemy.orm.exc import DetachedInstanceError
 
 from app.config import current_config
 
+
 log = getLogger(__name__)
 
 

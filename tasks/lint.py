@@ -1,6 +1,7 @@
 import argparse
 import subprocess
 
+
 commands = [
     ('flake8', 'flake8 . --exclude=.tox,.git'),
     ('mypy', 'mypy . --ignore-missing-imports'),

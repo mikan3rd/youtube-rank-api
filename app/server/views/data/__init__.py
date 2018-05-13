@@ -1,1 +1,1 @@
-from . import daily  # NOQA
+from . import stats_daily  # NOQA

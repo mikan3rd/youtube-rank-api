@@ -1,12 +1,12 @@
+import os
+from os.path import dirname, join
+
+from dotenv import load_dotenv
 from flask import Flask
 
 from app.config import current_config
 from app.server.helpers.request import after_request
 from app.server.views import get_blueprints
-
-import os
-from os.path import join, dirname
-from dotenv import load_dotenv
 
 
 def init_server():
@@ -36,11 +36,13 @@ def run(port=None) -> None:
     config = current_config()
     dotenv_path = join(dirname(__file__), '.env')
     load_dotenv(dotenv_path)
-    port = os.environ.get('PORT', 5000)
+    host = config.get('server').get('host')
+    port = os.environ.get('PORT', 3333)
+    print("host:", host)
     print("port:", port)
 
     flask_server.run(
-        host=config.get('server').get('host'),
+        host=host,
         port=int(port),
         threaded=config.get('server').get('threaded'),
         debug=config.get('server_debug'),

@@ -5,6 +5,7 @@ from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from app.config import get_db_url
 
+
 parser = argparse.ArgumentParser(description='データベースのマイグレーション管理')
 parser.add_argument(
     '-s', '--status', help='リビジョン/ヒストリの確認', action="store_true")
