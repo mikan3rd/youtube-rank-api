@@ -73,9 +73,9 @@ def get_search_result(query=None):
         video = video_response['items'][index]
         video['rank'] = index + 1
         view_count = video['statistics']['viewCount']
-        print(
-            index + 1, view_count, '回',
-            snippet['channelTitle'], snippet['title'])
+        # print(
+        #     index + 1, view_count, '回',
+        #     snippet['channelTitle'], snippet['title'])
 
         results.append(video)
 

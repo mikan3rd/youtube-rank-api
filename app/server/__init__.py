@@ -3,6 +3,7 @@ from os.path import dirname, join
 
 from dotenv import load_dotenv
 from flask import Flask
+from flask_cors import CORS
 
 from app.config import current_config
 from app.server.helpers.request import after_request
@@ -12,6 +13,7 @@ from app.server.views import get_blueprints
 def init_server():
     '''サーバーの初期化'''
     flask_server = Flask(__name__)
+    CORS(flask_server)
 
     blueprints = get_blueprints()
     for blueprint in blueprints:
