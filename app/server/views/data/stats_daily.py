@@ -18,6 +18,5 @@ def search(*args, **kwargs) -> ApiResponse:
     '''
     ランキング検索
     '''  # NOQA
-    params = request.args
-    print(params)
-    return get_search_result(params)
+    print(request.args)
+    return get_search_result(request.args)

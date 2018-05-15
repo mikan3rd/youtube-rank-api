@@ -16,10 +16,10 @@ JST = timezone(timedelta(hours=+9), 'JST')
 tz = pytz.timezone('Asia/Tokyo')
 
 
-def get_search_result(params={}):
+def get_search_result(args={}):
     search_time = datetime.now(tz).date()
 
-    period = params.get('period')
+    period = args.get('period')
     if period == 'yesterday':
         search_time = search_time - timedelta(days=1)
 
@@ -38,20 +38,21 @@ def get_search_result(params={}):
         published_after = None
 
     params = {
-        'q': params.get('query', ''),
+        'q': args.get('query', ''),
         'part': "id,snippet",
         'type': "video",
-        'order': params.get('order', 'viewCount'),
+        'order': args.get('order', 'viewCount'),
         'maxResults': 20,
         'publishedAfter': published_after,
         'regionCode': 'JP',
         'relevanceLanguage': 'ja',
-        'videoCategoryId': params.get('videoCategoryId'),
+        'videoCategoryId': args.get('videoCategoryId'),
         # 'location': '35.39,139.44',
         # 'locationRadius': '1000km',
     }
 
     pprint(params)
+    print('channelFilter', args.get('channelFilter'))
 
     youtube = build(
         YOUTUBE_API_SERVICE_NAME,
@@ -66,7 +67,9 @@ def get_search_result(params={}):
     for res in search_response['items']:
         snippet = res['snippet']
         channel_id = snippet['channelId']
-        if channel_id not in channel_list:
+
+        if args.get('channelFilter') == 'false' or \
+                channel_id not in channel_list:
             channel_list.append(channel_id)
             video_list.append(res)
 
@@ -82,7 +85,6 @@ def get_search_result(params={}):
         snippet = res['snippet']
         video = video_response['items'][index]
         video['rank'] = index + 1
-        print(video['statistics'])
         # view_count = video['statistics']['viewCount']
         # print(
         #     index + 1, view_count, '回',
