@@ -16,27 +16,37 @@ JST = timezone(timedelta(hours=+9), 'JST')
 tz = pytz.timezone('Asia/Tokyo')
 
 
-def get_search_result(query=None):
+def get_search_result(params={}):
     search_time = datetime.now(tz).date()
-    yesterday = search_time - timedelta(days=1)
-    weeks = search_time - timedelta(weeks=1)
-    month = search_time - timedelta(weeks=4)
 
-    search_time = tz.localize(
-        datetime.combine(weeks, time(0, 0)),
+    period = params.get('period')
+    if period == 'yesterday':
+        search_time = search_time - timedelta(days=1)
+
+    elif period == 'weeks':
+        search_time = search_time - timedelta(weeks=1)
+
+    elif period == 'month':
+        search_time = search_time - timedelta(weeks=4)
+
+    published_after = tz.localize(
+        datetime.combine(search_time, time(0, 0)),
         is_dst=None
-    )
+    ).isoformat()
+
+    if period == 'all':
+        published_after = None
 
     params = {
-        'q': query or '',
+        'q': params.get('query', ''),
         'part': "id,snippet",
         'type': "video",
-        'order': 'viewCount',
+        'order': params.get('order', 'viewCount'),
         'maxResults': 20,
-        'publishedAfter': search_time.isoformat(),
+        'publishedAfter': published_after,
         'regionCode': 'JP',
         'relevanceLanguage': 'ja',
-        'videoCategoryId': None,
+        'videoCategoryId': params.get('videoCategoryId'),
         # 'location': '35.39,139.44',
         # 'locationRadius': '1000km',
     }
@@ -72,7 +82,8 @@ def get_search_result(query=None):
         snippet = res['snippet']
         video = video_response['items'][index]
         video['rank'] = index + 1
-        view_count = video['statistics']['viewCount']
+        print(video['statistics'])
+        # view_count = video['statistics']['viewCount']
         # print(
         #     index + 1, view_count, '回',
         #     snippet['channelTitle'], snippet['title'])
