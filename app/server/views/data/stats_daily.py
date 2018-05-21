@@ -3,8 +3,8 @@ from logging import getLogger
 from flask import Blueprint, request
 
 from app.server.helpers.api import ApiResponse, jsonify
-
 from app.server.helpers.youtube_data import get_search_result
+
 
 log = getLogger(__name__)
 
