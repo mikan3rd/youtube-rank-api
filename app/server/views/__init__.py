@@ -4,6 +4,7 @@ from . import data
 blueprints = [
     data.stats_daily,
     data.charge,
+    data.gnavi,
 ]
 
 
