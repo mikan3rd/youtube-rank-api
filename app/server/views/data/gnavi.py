@@ -52,10 +52,12 @@ def hotpeper(args) -> ApiResponse:
         'format': 'json',
         'lat': args['latitude'],
         'lng': args['longitude'],
+        'lunch': args['lunch'],
+        'range': args['range'],
     }
 
     response = requests.get(endpoint, params=params)
     result = response.json()
-    pprint(result)
+    # pprint(result)
 
     return result
