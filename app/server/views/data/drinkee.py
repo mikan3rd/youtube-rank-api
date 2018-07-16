@@ -7,14 +7,15 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     ConfirmTemplate,
     ImageMessage,
-    MessageAction,
     MessageEvent,
     PostbackAction,
     PostbackEvent,
     TemplateSendMessage,
     TextMessage,
-    TextSendMessage,
+    TextSendMessage
 )
+
+from app.server.helpers.custom_vision import post_predict_image
 
 
 api_bp = Blueprint('drinkee_api', __name__)
@@ -22,6 +23,9 @@ api_bp = Blueprint('drinkee_api', __name__)
 
 line_bot_api = LineBotApi(settings.DRINKEE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(settings.DRINKEE_CHANNEL_SECRET)
+
+CUSTOM_VISION_PREDICTION_KEY_DRINKEE = settings.CUSTOM_VISION_PREDICTION_KEY_DRINKEE
+CUSTOM_VISION_PROJECT_ID_DRINKEE = settings.CUSTOM_VISION_PROJECT_ID_DRINKEE
 
 
 @api_bp.route("/drinkee/line", methods=['POST'])
@@ -62,6 +66,12 @@ def handle_image(event):
     message_content = line_bot_api.get_message_content(message_id)
     image = BytesIO(message_content.content)
 
+    result = post_predict_image(
+        CUSTOM_VISION_PROJECT_ID_DRINKEE,
+        CUSTOM_VISION_PREDICTION_KEY_DRINKEE,
+        image=image,
+    )
+
     confirm_template_message = TemplateSendMessage(
         alt_text='Confirm template',
         template=ConfirmTemplate(
@@ -81,7 +91,12 @@ def handle_image(event):
         )
     )
 
-    reply_message(event, confirm_template_message)
+    messages = [
+        TextSendMessage(text=result),
+        confirm_template_message,
+    ]
+
+    reply_message(event, messages)
 
 
 @handler.add(PostbackEvent)
