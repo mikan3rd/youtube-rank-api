@@ -5,6 +5,7 @@ blueprints = [
     data.stats_daily,
     data.charge,
     data.gnavi,
+    data.drinkee,
 ]
 
 

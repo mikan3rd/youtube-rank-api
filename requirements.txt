@@ -59,3 +59,5 @@ google-auth-httplib2==0.0.3
 google-auth-oauthlib==0.2.0
 Flask-Cors==3.0.3
 stripe==1.82.1
+line-bot-sdk==1.7.2
+future==0.16.0

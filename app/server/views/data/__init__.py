@@ -1,1 +1,1 @@
-from . import charge, gnavi, stats_daily  # NOQA
+from . import charge, drinkee, gnavi, stats_daily  # NOQA
