@@ -1,11 +1,11 @@
 from logging import getLogger
 
+import requests
 from flask import Blueprint
 from settings import GNAVI_API_KEY, HOTPEPPER_API_KEY
-import requests
 
 from app.server.helpers.api import ApiResponse, jsonify, parse_params
-from pprint import pprint
+
 
 log = getLogger(__name__)
 
@@ -32,7 +32,6 @@ def gnavi(args) -> ApiResponse:
 
     response = requests.get(endpoint, params=params)
     result = response.json()
-    pprint(result)
 
     return result
 
