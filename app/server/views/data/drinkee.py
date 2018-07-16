@@ -46,7 +46,7 @@ def callback():
 
 @handler.add(PostbackEvent, message=TextMessage)
 def handle_postback(event):
-    print(event)
+    print("postbackEvent", event)
 
     messages = [
         TextSendMessage(text='PostBack!'),
@@ -56,6 +56,7 @@ def handle_postback(event):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    print("event:", event)
     # text = event.message.text
 
     messages = [
@@ -75,16 +76,17 @@ def handle_image(event):
     confirm_template_message = TemplateSendMessage(
         alt_text='Confirm template',
         template=ConfirmTemplate(
-            text='Are you sure?',
+            text='画像を学習させますか?',
             actions=[
                 PostbackAction(
-                    label='postback',
-                    text='postback text',
-                    data='action=buy&itemid=1'
+                    label='YES',
+                    displayText='YES',
+                    data='yes',
                 ),
-                MessageAction(
-                    label='message',
-                    text='message text'
+                PostbackAction(
+                    label='NO',
+                    displayText='NO',
+                    data='no',
                 )
             ]
         )
