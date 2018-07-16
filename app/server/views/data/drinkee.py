@@ -89,7 +89,7 @@ def handle_postback(event):
     print("postbackEvent", event)
 
     messages = [
-        TextSendMessage(text='postback: %s' % (event['postback'].get('data'))),
+        TextSendMessage(text='postback: %s' % (event.postback.data)),
     ]
     reply_message(event, messages)
 
