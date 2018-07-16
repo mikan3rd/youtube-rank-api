@@ -10,6 +10,7 @@ from linebot.models import (
     MessageAction,
     MessageEvent,
     PostbackAction,
+    PostbackEvent,
     TemplateSendMessage,
     TextMessage,
     TextSendMessage
@@ -80,6 +81,16 @@ def handle_image(event):
     )
 
     reply_message(event, confirm_template_message)
+
+
+@handler.add(PostbackEvent, message=TextMessage)
+def handle_postback(event):
+    print(event)
+
+    messages = [
+        TextSendMessage(text='PostBack!'),
+    ]
+    reply_message(event, messages)
 
 
 def reply_message(event, messages):
