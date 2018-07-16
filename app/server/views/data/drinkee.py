@@ -44,16 +44,6 @@ def callback():
     return 'OK'
 
 
-@handler.add(PostbackEvent, message=TextMessage)
-def handle_postback(event):
-    print("postbackEvent", event)
-
-    messages = [
-        TextSendMessage(text='PostBack!'),
-    ]
-    reply_message(event, messages)
-
-
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("event:", event)
@@ -93,6 +83,16 @@ def handle_image(event):
     )
 
     reply_message(event, confirm_template_message)
+
+
+@handler.add(PostbackEvent)
+def handle_postback(event):
+    print("postbackEvent", event)
+
+    messages = [
+        TextSendMessage(text='PostBack!'),
+    ]
+    reply_message(event, messages)
 
 
 def reply_message(event, messages):
