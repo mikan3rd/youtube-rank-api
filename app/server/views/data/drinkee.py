@@ -13,7 +13,7 @@ from linebot.models import (
     PostbackEvent,
     TemplateSendMessage,
     TextMessage,
-    TextSendMessage
+    TextSendMessage,
 )
 
 
@@ -70,12 +70,12 @@ def handle_image(event):
             actions=[
                 PostbackAction(
                     label='YES',
-                    displayText='YES',
+                    text='YES',
                     data='yes',
                 ),
                 PostbackAction(
                     label='NO',
-                    displayText='NO',
+                    text='NO',
                     data='no',
                 )
             ]
