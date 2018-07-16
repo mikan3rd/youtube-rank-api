@@ -46,7 +46,6 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    print("event:", event)
     # text = event.message.text
 
     messages = [
@@ -70,12 +69,12 @@ def handle_image(event):
             actions=[
                 PostbackAction(
                     label='YES',
-                    text='YES',
+                    display_text='YES',
                     data='yes',
                 ),
                 PostbackAction(
                     label='NO',
-                    text='NO',
+                    display_text='NO',
                     data='no',
                 )
             ]
@@ -90,7 +89,7 @@ def handle_postback(event):
     print("postbackEvent", event)
 
     messages = [
-        TextSendMessage(text='PostBack!'),
+        TextSendMessage(text='postback: %s' % (event['postback'].get('data'))),
     ]
     reply_message(event, messages)
 
