@@ -117,6 +117,7 @@ def handle_image(event):
                 'person_id': person_id,
                 'confidence': candidate['confidence']
             }
+            print(content)
             contents.append(content)
 
         columns = [
@@ -163,6 +164,8 @@ def handle_postback(event):
 
 
 def reply_message(event, messages):
+    print(event.reply_token)
+    print(messages)
     line_bot_api.reply_message(
         event.reply_token,
         messages=messages,
