@@ -73,7 +73,7 @@ def get_face_detect(image_url=None, image=None):
     return data
 
 
-def get_face_identify(face_ids, person_group_id=person_group_id):
+def get_face_identify(face_ids, confidenceThreshold=0, person_group_id=person_group_id):
 
     headers = {
         'Ocp-Apim-Subscription-Key': FACE_API_KEY,
@@ -83,6 +83,7 @@ def get_face_identify(face_ids, person_group_id=person_group_id):
     _json = {
         'faceIds': face_ids[:10],
         'largePersonGroupId': person_group_id,
+        'confidenceThreshold': confidenceThreshold,
     }
 
     res = requests.post(

@@ -135,6 +135,10 @@ def handle_image(event):
                     URIAction(
                         label='Wikipediaを開く',
                         uri='%s/%s' % (wiki_url, content['name']),
+                    ),
+                    URIAction(
+                        label='画像出典元',
+                        uri=content['image'],
                     )
                 ]
             )
