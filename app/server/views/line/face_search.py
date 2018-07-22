@@ -124,7 +124,7 @@ def handle_image(event):
             CarouselColumn(
                 thumbnail_image_url=content['image'],
                 title=content['name'],
-                text='類似度：%s\n画像出典：%s' % (
+                text='類似度：%s' % (
                     str(content['confidence'] * 100) + '%', content['image']),
                 actions=[
                     # PostbackAction(
