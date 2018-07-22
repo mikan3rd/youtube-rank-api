@@ -125,7 +125,7 @@ def handle_image(event):
                 thumbnail_image_url=content['image'],
                 title=content['name'],
                 text='類似度：%s' % (
-                    str(round(content['confidence'] * 100), 2) + '%'),
+                    str(round(content['confidence'] * 100, 2)) + '%'),
                 actions=[
                     # PostbackAction(
                     #     label='postback1',
