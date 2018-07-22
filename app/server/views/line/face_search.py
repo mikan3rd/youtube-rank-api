@@ -127,11 +127,11 @@ def handle_image(event):
                 text='類似度：%s' % (
                     str(round(content['confidence'] * 100, 2)) + '%'),
                 actions=[
-                    # PostbackAction(
-                    #     label='postback1',
-                    #     text='postback text1',
-                    #     data='action=buy&itemid=1'
-                    # ),
+                    PostbackAction(
+                        label='postback1',
+                        display_text='画像をもっと見る',
+                        data='person_id=%s' % (person_id),
+                    ),
                     URIAction(
                         label='Wikipediaを開く',
                         uri='%s/%s' % (wiki_url, content['name']),
