@@ -18,7 +18,8 @@ from linebot.models import (
     TextMessage,
     TextSendMessage,
     URIAction,
-    ImageCarouselColumn
+    ImageCarouselColumn,
+    ImageCarouselTemplate
 )
 
 from app.server.helpers.face import get_face_detect, get_face_identify
@@ -165,7 +166,6 @@ def handle_postback(event):
     if event.postback.data:
 
         person_id = event.postback.data
-        print(person_id)
 
         r = redis.from_url(settings.REDIS_URL)
         rcache = r.get(person_id)
@@ -174,7 +174,6 @@ def handle_postback(event):
             return
 
         data = json.loads(rcache.decode())
-        print(data)
 
         images = data.get('images')
 
@@ -182,8 +181,6 @@ def handle_postback(event):
         for image_url in images:
             if image_url.startswith('https://'):
                 image_urls.append(image_url)
-
-        print(image_urls)
 
         if not len(image_urls):
             return
@@ -201,7 +198,7 @@ def handle_postback(event):
 
         messages = TemplateSendMessage(
             alt_text='template',
-            template=CarouselTemplate(columns=columns),
+            template=ImageCarouselTemplate(columns=columns),
         )
 
         reply_message(event, messages)
