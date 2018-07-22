@@ -1,11 +1,11 @@
-from . import data
+from . import data, line
 
 
 blueprints = [
     data.stats_daily,
     data.charge,
     data.gnavi,
-    data.drinkee,
+    line.face_search,
 ]
 
 
