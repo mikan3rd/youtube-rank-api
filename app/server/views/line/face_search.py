@@ -1,25 +1,26 @@
+import json
 from io import BytesIO
 
+import redis
 import settings
 from flask import Blueprint, abort, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
-    ConfirmTemplate,
+    CarouselColumn,
+    CarouselTemplate,
+    # ConfirmTemplate,
     ImageMessage,
     MessageEvent,
-    PostbackAction,
+    # PostbackAction,
     PostbackEvent,
     TemplateSendMessage,
     TextMessage,
     TextSendMessage,
-    URIAction,
-    CarouselColumn,
-    CarouselTemplate
+    URIAction
 )
 
 from app.server.helpers.face import get_face_detect, get_face_identify
-import redis
 
 
 api_bp = Blueprint('face_search_api', __name__)
@@ -100,8 +101,10 @@ def handle_image(event):
             if not rcache:
                 continue
 
+            data = json.loads(rcache.decode())
+
             image = no_image_url
-            images = rcache.get('images')
+            images = data.get('images')
 
             for image_url in images:
                 if image_url.startswith('https://'):
@@ -109,7 +112,7 @@ def handle_image(event):
                     break
 
             content = {
-                'name': rcache.get('name'),
+                'name': data.get('name'),
                 'image': image,
                 'person_id': person_id,
                 'confidence': candidate['confidence']
