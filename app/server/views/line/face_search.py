@@ -165,6 +165,7 @@ def handle_postback(event):
     if event.postback.data:
 
         person_id = event.postback.data
+        print(person_id)
 
         r = redis.from_url(settings.REDIS_URL)
         rcache = r.get(person_id)
@@ -173,12 +174,19 @@ def handle_postback(event):
             return
 
         data = json.loads(rcache.decode())
+        print(data)
+
         images = data.get('images')
 
         image_urls = []
         for image_url in images:
             if image_url.startswith('https://'):
                 image_urls.append(image_url)
+
+        print(image_urls)
+
+        if not len(image_urls):
+            return
 
         columns = [
             ImageCarouselColumn(
