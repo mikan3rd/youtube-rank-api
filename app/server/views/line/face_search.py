@@ -17,7 +17,8 @@ from linebot.models import (
     TemplateSendMessage,
     TextMessage,
     TextSendMessage,
-    URIAction
+    URIAction,
+    ImageCarouselColumn
 )
 
 from app.server.helpers.face import get_face_detect, get_face_identify
@@ -128,9 +129,9 @@ def handle_image(event):
                     str(round(content['confidence'] * 100, 2)) + '%'),
                 actions=[
                     PostbackAction(
-                        label='postback1',
+                        label='画像をもっと見る',
                         display_text='画像をもっと見る',
-                        data='person_id=%s' % (person_id),
+                        data=person_id,
                     ),
                     URIAction(
                         label='Wikipediaを開く',
@@ -161,10 +162,41 @@ def handle_image(event):
 def handle_postback(event):
     print("postbackEvent", event)
 
-    messages = [
-        TextSendMessage(text='postback: %s' % (event.postback.data)),
-    ]
-    reply_message(event, messages)
+    if event.postback.data:
+
+        person_id = event.postback.data
+
+        r = redis.from_url(settings.REDIS_URL)
+        rcache = r.get(person_id)
+
+        if not rcache:
+            return
+
+        data = json.loads(rcache.decode())
+        images = data.get('images')
+
+        image_urls = []
+        for image_url in images:
+            if image_url.startswith('https://'):
+                image_urls.append(image_url)
+
+        columns = [
+            ImageCarouselColumn(
+                image_url=image_url,
+                action=URIAction(
+                    label='画像出典元',
+                    uri=image_url,
+                )
+            )
+            for image_url in image_urls
+        ]
+
+        messages = TemplateSendMessage(
+            alt_text='template',
+            template=CarouselTemplate(columns=columns),
+        )
+
+        reply_message(event, messages)
 
 
 def reply_message(event, messages):
