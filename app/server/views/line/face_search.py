@@ -12,7 +12,7 @@ from linebot.models import (
     # ConfirmTemplate,
     ImageMessage,
     MessageEvent,
-    # PostbackAction,
+    PostbackAction,
     PostbackEvent,
     TemplateSendMessage,
     TextMessage,
