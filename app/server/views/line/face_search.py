@@ -193,7 +193,7 @@ def handle_postback(event):
                     uri=image_url,
                 )
             )
-            for image_url in image_urls
+            for image_url in image_urls[:10]
         ]
 
         messages = TemplateSendMessage(
