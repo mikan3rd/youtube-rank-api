@@ -64,7 +64,7 @@ def handle_message(event):
 
     if not rcache:
         messages = [
-            TextSendMessage(text='画像を送ってみてね!'),
+            TextSendMessage(text='女性の画像か名前を送ってみてね!'),
         ]
         reply_message(event, messages)
         return
