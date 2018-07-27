@@ -57,11 +57,38 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    # text = event.message.text
+    text = event.message.text
 
-    messages = [
-        TextSendMessage(text='画像を送ってみてね!'),
+    r = redis.from_url(settings.REDIS_URL)
+    rcache = r.get(text)
+
+    if not rcache:
+        messages = [
+            TextSendMessage(text='画像を送ってみてね!'),
+        ]
+        reply_message(event, messages)
+        return
+
+    image_urls = json.loads(rcache.decode())
+
+    if not len(image_urls):
+        return
+
+    columns = [
+        ImageCarouselColumn(
+            image_url=image_url,
+            action=URIAction(
+                label='画像出典元',
+                uri=image_url,
+            )
+        )
+        for image_url in image_urls[:10]
     ]
+
+    messages = TemplateSendMessage(
+        alt_text='%sの画像一覧' % (text),
+        template=ImageCarouselTemplate(columns=columns),
+    )
 
     reply_message(event, messages)
 
@@ -148,7 +175,7 @@ def handle_image(event):
         ]
 
         messages = TemplateSendMessage(
-            alt_text='template',
+            alt_text='似ている顔を見つけました',
             template=CarouselTemplate(columns=columns),
         )
 
@@ -174,13 +201,8 @@ def handle_postback(event):
             return
 
         data = json.loads(rcache.decode())
-
-        images = data.get('images')
-
-        image_urls = []
-        for image_url in images:
-            if image_url.startswith('https://'):
-                image_urls.append(image_url)
+        name = data.get('name')
+        image_urls = data.get('images')
 
         if not len(image_urls):
             return
@@ -197,7 +219,7 @@ def handle_postback(event):
         ]
 
         messages = TemplateSendMessage(
-            alt_text='template',
+            alt_text='%sの画像一覧' % (name),
             template=ImageCarouselTemplate(columns=columns),
         )
 
