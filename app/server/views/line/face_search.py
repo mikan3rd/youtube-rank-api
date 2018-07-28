@@ -132,17 +132,18 @@ def handle_image(event):
 
             data = json.loads(rcache.decode())
 
-            image = no_image_url
-            images = data.get('images')
+            if data.get('times'):
+                data['times'] += 1
 
-            for image_url in images:
-                if image_url.startswith('https://'):
-                    image = image_url
-                    break
+            else:
+                data['times'] = 0
+
+            r.set(person_id, json.dumps(data))
 
             content = {
                 'name': data.get('name'),
-                'image': image,
+                'image': data.get('images')[0],
+                'times': data['times'],
                 'person_id': person_id,
                 'confidence': candidate['confidence']
             }
@@ -153,8 +154,10 @@ def handle_image(event):
             CarouselColumn(
                 thumbnail_image_url=content['image'],
                 title=content['name'],
-                text='類似度：%s' % (
-                    str(round(content['confidence'] * 100, 2)) + '%'),
+                text='類似度：%s\n検索回数：%s' % (
+                    str(round(content['confidence'] * 100, 2)) + '%',
+                    content['times']
+                ),
                 actions=[
                     PostbackAction(
                         label='画像をもっと見る',
