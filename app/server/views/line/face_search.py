@@ -136,7 +136,7 @@ def handle_image(event):
                 data['times'] += 1
 
             else:
-                data['times'] = 0
+                data['times'] = 1
 
             r.set(person_id, json.dumps(data))
 
