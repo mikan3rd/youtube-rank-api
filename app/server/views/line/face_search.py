@@ -113,42 +113,47 @@ def handle_image(event):
             reply_message(event, TextSendMessage(text=identify_results))
             return
 
-        results = identify_results[0]
-        candidates = results['candidates']
+        # results = identify_results[0]
+        # candidates = results['candidates']
 
-        if len(candidates) == 0:
+        if len(identify_results) == 0:
             reply_message(event, TextSendMessage(text='似ている顔が見つかりませんでした'))
             return
 
         r = redis.from_url(settings.REDIS_URL)
         contents = []
 
-        for candidate in candidates:
-            person_id = candidate['personId']
-            rcache = r.get(person_id)
+        for result in identify_results:
+            for candidate in result['candidates']:
+                person_id = candidate['personId']
+                rcache = r.get(person_id)
 
-            if not rcache:
-                continue
+                if not rcache:
+                    continue
 
-            data = json.loads(rcache.decode())
+                data = json.loads(rcache.decode())
 
-            if data.get('times'):
-                data['times'] += 1
+                if data.get('times'):
+                    data['times'] += 1
 
-            else:
-                data['times'] = 1
+                else:
+                    data['times'] = 1
 
-            r.set(person_id, json.dumps(data))
+                r.set(person_id, json.dumps(data))
 
-            content = {
-                'name': data.get('name'),
-                'image': data.get('images')[0],
-                'times': data['times'],
-                'person_id': person_id,
-                'confidence': candidate['confidence']
-            }
-            print(content)
-            contents.append(content)
+                content = {
+                    'name': data.get('name'),
+                    'image': data.get('images')[0],
+                    'times': data['times'],
+                    'person_id': person_id,
+                    'confidence': candidate['confidence']
+                }
+                print(content)
+                contents.append(content)
+
+        if len(contents) == 0:
+            reply_message(event, TextSendMessage(text='似ている顔が見つかりませんでした'))
+            return
 
         columns = [
             CarouselColumn(
