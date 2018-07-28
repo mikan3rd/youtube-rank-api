@@ -109,6 +109,10 @@ def handle_image(event):
 
         identify_results = get_face_identify([detect_results[0]['faceId']])
 
+        from pprint import pprint
+        pprint(identify_results)
+        print()
+
         if isinstance(identify_results, str):
             reply_message(event, TextSendMessage(text=identify_results))
             return
@@ -124,6 +128,7 @@ def handle_image(event):
         contents = []
 
         for result in identify_results:
+            print(result)
             for candidate in result['candidates']:
                 person_id = candidate['personId']
                 rcache = r.get(person_id)
