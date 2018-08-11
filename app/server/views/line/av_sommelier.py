@@ -69,217 +69,217 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
 
-    try:
-        text = event.message.text
+    # try:
+    text = event.message.text
 
-        # r = redis.from_url(settings.REDIS_URL)
-        # reply_message(event, messages)
+    # r = redis.from_url(settings.REDIS_URL)
+    # reply_message(event, messages)
 
-        response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier')
-        person_label_list, person_list = gspread.convert_to_dict_data(response)
+    response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier')
+    person_label_list, person_list = gspread.convert_to_dict_data(response)
 
-        response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier_images')
-        image_label_list, image_list = gspread.convert_to_dict_data(response)
+    response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier_images')
+    image_label_list, image_list = gspread.convert_to_dict_data(response)
 
-        results = []
-        for person in person_list:
+    results = []
+    for person in person_list:
 
-            if text in person['name']:
-                results.append(person)
-                continue
+        if text in person['name']:
+            results.append(person)
+            continue
 
-            if text in person['name_ruby']:
-                results.append(person)
-                continue
+        if text in person['name_ruby']:
+            results.append(person)
+            continue
 
-        messages = []
-        if len(results) == 0:
-            results = random.sample(person_list, 10)
-            messages.append({
-                "type": "text",
-                "text": "ランダム"
-            })
+    messages = []
+    if len(results) == 0:
+        results = random.sample(person_list, 10)
+        messages.append({
+            "type": "text",
+            "text": "ランダム"
+        })
+
+    else:
+        messages.append({
+            "type": "text",
+            "text": "%s人の名前が見つかりました" % (len(results))
+        })
+
+    if len(results) > 10:
+        messages.append({
+            "type": "text",
+            "text": "最初の10件を表示します"
+        })
+
+    flex_list = []
+    for person in results[:10]:
+
+        name = person['name']
+        image = next((image for image in image_list if image['name'] == name), None)
+
+        if not image:
+            image_url = no_image_url
 
         else:
-            messages.append({
+            image_url = image['image_url']
+
+        body_contents = []
+        body_content_base = {
+            "type": "box",
+            "layout": "baseline",
+            "spacing": "sm",
+            "contents": [{
                 "type": "text",
-                "text": "%s人の名前が見つかりました" % (len(results))
-            })
-
-        if len(results) > 10:
-            messages.append({
+                "text": " ",
+                "color": "#aaaaaa",
+                "size": "sm",
+                "flex": 1
+            }, {
                 "type": "text",
-                "text": "最初の10件を表示します"
-            })
+                "text": " ",
+                "wrap": True,
+                "color": "#666666",
+                "size": "sm",
+                "flex": 5
+            }]
+        }
 
-        flex_list = []
-        for person in results[:10]:
+        if person.get('height'):
+            body_content_base['contents'][0]['text'] = "身長"
+            body_content_base['contents'][1]['text'] = "%scm" % (person.get('height', ' '))
+            body_contents.append(body_content_base)
 
-            name = person['name']
-            image = next((image for image in image_list if image['name'] == name), None)
+        if person.get('cup'):
+            body_content_base['contents'][0]['text'] = "カップ"
+            body_content_base['contents'][1]['text'] = person.get('cup', ' ')
+            body_contents.append(body_content_base)
 
-            if not image:
-                image_url = no_image_url
+        if person.get('measurements'):
+            body_content_base['contents'][0]['text'] = "サイズ"
+            body_content_base['contents'][1]['text'] = person('measurements', ' ')
+            body_contents.append(body_content_base)
 
-            else:
-                image_url = image['image_url']
+        if person.get('birthday'):
+            body_content_base['contents'][0]['text'] = "誕生日"
+            body_content_base['contents'][1]['text'] = person.get('birthday', ' ')
+            body_contents.append(body_content_base)
 
-            body_contents = []
-            body_content_base = {
-                "type": "box",
-                "layout": "baseline",
-                "spacing": "sm",
-                "contents": [{
-                    "type": "text",
-                    "text": " ",
-                    "color": "#aaaaaa",
-                    "size": "sm",
-                    "flex": 1
-                }, {
-                    "type": "text",
-                    "text": " ",
-                    "wrap": True,
-                    "color": "#666666",
-                    "size": "sm",
-                    "flex": 5
-                }]
-            }
+        if person.get('prefectures'):
+            body_content_base['contents'][0]['text'] = "出身地"
+            body_content_base['contents'][1]['text'] = person.get('prefectures',  ' ')
+            body_contents.append(body_content_base)
 
-            if person.get('height'):
-                body_content_base['contents'][0]['text'] = "身長"
-                body_content_base['contents'][1]['text'] = "%scm" % (person.get('height', ' '))
-                body_contents.append(body_content_base)
+        if person.get('hobby'):
+            body_content_base['contents'][0]['text'] = "趣味"
+            body_content_base['contents'][1]['text'] = person.get('hobby',  ' ')
+            body_contents.append(body_content_base)
 
-            if person.get('cup'):
-                body_content_base['contents'][0]['text'] = "カップ"
-                body_content_base['contents'][1]['text'] = person.get('cup', ' ')
-                body_contents.append(body_content_base)
-
-            if person.get('measurements'):
-                body_content_base['contents'][0]['text'] = "サイズ"
-                body_content_base['contents'][1]['text'] = person('measurements', ' ')
-                body_contents.append(body_content_base)
-
-            if person.get('birthday'):
-                body_content_base['contents'][0]['text'] = "誕生日"
-                body_content_base['contents'][1]['text'] = person.get('birthday', ' ')
-                body_contents.append(body_content_base)
-
-            if person.get('prefectures'):
-                body_content_base['contents'][0]['text'] = "出身地"
-                body_content_base['contents'][1]['text'] = person.get('prefectures',  ' ')
-                body_contents.append(body_content_base)
-
-            if person.get('hobby'):
-                body_content_base['contents'][0]['text'] = "趣味"
-                body_content_base['contents'][1]['text'] = person.get('hobby',  ' ')
-                body_contents.append(body_content_base)
-
-            body = {
+        body = {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [{
+                "type": "text",
+                "text": person.get('name_ruby', ' '),
+                "size": "xxs",
+                "wrap": True
+            }, {
+                "type": "text",
+                "text": person['name'],
+                "size": "xl",
+                "weight": "bold"
+            }, {
+                "type": "text",
+                "text": " ",
+                "size": "md"
+            }, {
                 "type": "box",
                 "layout": "vertical",
-                "contents": [{
-                    "type": "text",
-                    "text": person.get('name_ruby', ' '),
-                    "size": "xxs",
-                    "wrap": True
-                }, {
-                    "type": "text",
-                    "text": person['name'],
-                    "size": "xl",
-                    "weight": "bold"
-                }, {
-                    "type": "text",
-                    "text": " ",
-                    "size": "md"
-                }, {
-                    "type": "box",
-                    "layout": "vertical",
-                    "margin": "lg",
-                    "spacing": "sm",
-                    "contents": body_contents
-                }]
-            },
+                "margin": "lg",
+                "spacing": "sm",
+                "contents": body_contents
+            }]
+        },
 
-            bubble_container = {
-                "type": "bubble",
-                "hero": {
-                    "type": "image",
-                    "url": image_url,
-                    "size": "full",
-                    "aspectRatio": "20:13",
-                    "aspectMode": "cover",
-                    "action": {
-                        "type": "uri",
-                        "uri": image_url,
-                    }
-                },
-                "body": body,
-            }
-
-            if person.get('dmm_affiliate_url'):
-                unit_url = person.get('dmm_affiliate_url').replace("/mikan3rd-990", dmm_unit_quey + "/mikan3rd-990")
-                bubble_container['footer'] = {
-                    "type": "box",
-                    "layout": "vertical",
-                    "spacing": "md",
-                    "contents": [
-                        {
-                            "type": "button",
-                            "style": "primary",
-                            "color": "#c10100",
-                            "action": {
-                                "type": "uri",
-                                "label": "動画を検索",
-                                "uri": person.get('dmm_affiliate_url')
-                            }
-                        },
-                        {
-                            "type": "button",
-                            "style": "secondary",
-                            "action": {
-                                "type": "uri",
-                                "label": "単体動画を検索",
-                                "uri": unit_url
-                            }
-                        }
-                    ]
+        bubble_container = {
+            "type": "bubble",
+            "hero": {
+                "type": "image",
+                "url": image_url,
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover",
+                "action": {
+                    "type": "uri",
+                    "uri": image_url,
                 }
+            },
+            "body": body,
+        }
 
-            flex_list.append(bubble_container)
-
-        flex_message = {
-            "type": "flex",
-            "altText": "%sの検索結果" % (text),
-            "contents": {
-                "type": "carousel",
-                "contents": flex_list,
+        if person.get('dmm_affiliate_url'):
+            unit_url = person.get('dmm_affiliate_url').replace("/mikan3rd-990", dmm_unit_quey + "/mikan3rd-990")
+            bubble_container['footer'] = {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "md",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#c10100",
+                        "action": {
+                            "type": "uri",
+                            "label": "動画を検索",
+                            "uri": person.get('dmm_affiliate_url')
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "action": {
+                            "type": "uri",
+                            "label": "単体動画を検索",
+                            "uri": unit_url
+                        }
+                    }
+                ]
             }
+
+        flex_list.append(bubble_container)
+
+    flex_message = {
+        "type": "flex",
+        "altText": "%sの検索結果" % (text),
+        "contents": {
+            "type": "carousel",
+            "contents": flex_list,
         }
+    }
 
-        messages.append(flex_message)
+    messages.append(flex_message)
 
-        headers = {
-            "Authorization": "Bearer " + AV_SOMMELIER_ACCESS_TOKEN,
-            'Content-Type': 'application/json',
-        }
+    headers = {
+        "Authorization": "Bearer " + AV_SOMMELIER_ACCESS_TOKEN,
+        'Content-Type': 'application/json',
+    }
 
-        _json = {
-            'replyToken': event.reply_token,
-            'messages': messages,
-        }
+    _json = {
+        'replyToken': event.reply_token,
+        'messages': messages,
+    }
 
-        response = requests.post(
-            reply_endpoint,
-            headers=headers,
-            json=_json,
-        )
+    response = requests.post(
+        reply_endpoint,
+        headers=headers,
+        json=_json,
+    )
 
-        pprint(response.json())
+    pprint(response.json())
 
-    except Exception as e:
-        pprint(e)
-        reply_message(event, messages=TextSendMessage(text='エラーが発生しました'))
+    # except Exception as e:
+    #     pprint(e)
+    #     reply_message(event, messages=TextSendMessage(text='エラーが発生しました'))
 
 
 # @handler.add(MessageEvent, message=ImageMessage)
