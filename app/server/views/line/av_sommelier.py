@@ -199,7 +199,7 @@ def handle_message(event):
                 "spacing": "sm",
                 "contents": body_contents
             }]
-        },
+        }
 
         bubble_container = {
             "type": "bubble",
@@ -214,7 +214,7 @@ def handle_message(event):
                     "uri": image_url,
                 }
             },
-            # "body": body,
+            "body": body,
         }
 
         if person.get('dmm_affiliate_url'):
