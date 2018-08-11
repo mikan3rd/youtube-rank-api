@@ -28,6 +28,8 @@ from settings import AV_SOMMELIER_ACCESS_TOKEN, AV_SOMMELIER_CHANNEL_SECRET
 
 from app.server.helpers import gspread
 
+import requests
+
 
 # from app.server.helpers.face import get_face_detect, get_face_identify
 
@@ -37,6 +39,8 @@ api_bp = Blueprint('av_sommelier_api', __name__)
 
 line_bot_api = LineBotApi(AV_SOMMELIER_ACCESS_TOKEN)
 handler = WebhookHandler(AV_SOMMELIER_CHANNEL_SECRET)
+
+reply_endpoint = "https://api.line.me/v2/bot/message/reply"
 
 
 @api_bp.route("/line/av_sommelier", methods=['POST'])
@@ -87,6 +91,8 @@ def handle_message(event):
     #     contents=FlexContainer(contents),
     # )
 
+    # reply_message(event, messages)
+
     messages = {
         "type": "flex",
         "altText": "this is a flex message",
@@ -109,7 +115,23 @@ def handle_message(event):
         }
     }
 
-    reply_message(event, messages)
+    headers = {
+        "Authorization": "Bearer " + AV_SOMMELIER_ACCESS_TOKEN,
+        'Content-Type': 'application/json',
+    }
+
+    _json = {
+        'replyToken': event.reply_token,
+        'messages': messages,
+    }
+
+    response = requests.post(
+        reply_endpoint,
+        headers=headers,
+        json=_json,
+    )
+
+    pprint(response)
 
 
 # @handler.add(MessageEvent, message=ImageMessage)
