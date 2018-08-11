@@ -3,7 +3,6 @@ from io import BytesIO
 from pprint import pprint
 
 import redis
-import settings
 from flask import Blueprint, abort, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -22,6 +21,7 @@ from linebot.models import (
     TextSendMessage,
     URIAction
 )
+from settings import AV_SOMMELIER_ACCESS_TOKEN, AV_SOMMELIER_CHANNEL_SECRET
 
 from app.server.helpers import gspread
 
@@ -32,8 +32,8 @@ from app.server.helpers import gspread
 api_bp = Blueprint('av_sommelier_api', __name__)
 
 
-line_bot_api = LineBotApi(settings.DRINKEE_CHANNEL_ACCESS_TOKEN)
-handler = WebhookHandler(settings.DRINKEE_CHANNEL_SECRET)
+line_bot_api = LineBotApi(AV_SOMMELIER_ACCESS_TOKEN)
+handler = WebhookHandler(AV_SOMMELIER_CHANNEL_SECRET)
 
 
 @api_bp.route("/line/av_sommelier", methods=['POST'])
