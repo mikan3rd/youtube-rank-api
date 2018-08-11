@@ -98,17 +98,204 @@ def handle_message(event):
         "altText": "this is a flex message",
         "contents": {
             "type": "bubble",
+            "hero": {
+                "type": "image",
+                "url": "https://images15.wav.tv/113/5abcb85cd2699f.jpg",
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover",
+                "action": {
+                    "type": "uri",
+                    "uri": "http://linecorp.com/"
+                }
+            },
             "body": {
                 "type": "box",
                 "layout": "vertical",
                 "contents": [
                     {
                         "type": "text",
-                        "text": "hello"
+                        "text": "なるせここみ（ここみ）",
+                        "size": "xxs",
+                        "wrap": True
                     },
                     {
                         "type": "text",
-                        "text": "world"
+                        "text": "成瀬心美",
+                        "size": "xl",
+                        "weight": "bold"
+                    },
+                    {
+                        "type": "text",
+                        "text": "65.8%",
+                        "size": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "lg",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "身長",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "147cm",
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "カップ",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "E",
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "サイズ",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "B:89 W:60 H:82",
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "誕生日",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "1989/03/03",
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "出身地",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "新潟県",
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "baseline",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "趣味",
+                                        "color": "#aaaaaa",
+                                        "size": "sm",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": "カラオケ、料理",
+                                        "wrap": True,
+                                        "color": "#666666",
+                                        "size": "sm",
+                                        "flex": 5
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "md",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#c10100",
+                        "action": {
+                            "type": "uri",
+                            "label": "動画を検索",
+                            "uri": "http://www.dmm.co.jp/digital/videoa/-/list/=/article=actress/id=28135/mikan3rd-990"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#c10100",
+                        "action": {
+                            "type": "uri",
+                            "label": "単体動画を検索",
+                            "uri": "http://www.dmm.co.jp/digital/videoa/-/list/=/article=actress/id=28135/n1=DgRJTglEBQ4GpoD6,YyI,qs_/mikan3rd-990"
+                        }
                     }
                 ]
             }
