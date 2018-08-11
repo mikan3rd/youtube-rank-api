@@ -200,11 +200,11 @@ def handle_message(event):
             "type": "box",
             "layout": "vertical",
             "contents": [{
-                "type": "text",
-                "text": person.get('name_ruby', ' '),
-                "size": "xxs",
-                "wrap": True
-            }, {
+                #     "type": "text",
+                #     "text": person.get('name_ruby', ' '),
+                #     "size": "xxs",
+                #     "wrap": True
+                # }, {
                 "type": "text",
                 "text": person['name'],
                 "size": "xl",
@@ -238,34 +238,34 @@ def handle_message(event):
             "body": body,
         }
 
-        # if person.get('dmm_affiliate_url'):
-        #     unit_url = person.get('dmm_affiliate_url').replace("/mikan3rd-990", dmm_unit_quey + "/mikan3rd-990")
-        #     bubble_container['footer'] = {
-        #         "type": "box",
-        #         "layout": "vertical",
-        #         "spacing": "md",
-        #         "contents": [
-        #             {
-        #                 "type": "button",
-        #                 "style": "primary",
-        #                 "color": "#c10100",
-        #                 "action": {
-        #                     "type": "uri",
-        #                     "label": "動画を検索",
-        #                     "uri": person.get('dmm_affiliate_url')
-        #                 }
-        #             },
-        #             {
-        #                 "type": "button",
-        #                 "style": "secondary",
-        #                 "action": {
-        #                     "type": "uri",
-        #                     "label": "単体動画を検索",
-        #                     "uri": unit_url
-        #                 }
-        #             }
-        #         ]
-        #     }
+        if person.get('dmm_affiliate_url'):
+            unit_url = person.get('dmm_affiliate_url').replace("/mikan3rd-990", dmm_unit_quey + "/mikan3rd-990")
+            bubble_container['footer'] = {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "md",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#c10100",
+                        "action": {
+                            "type": "uri",
+                            "label": "動画を検索",
+                            "uri": person.get('dmm_affiliate_url')
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "action": {
+                            "type": "uri",
+                            "label": "単体動画を検索",
+                            "uri": unit_url
+                        }
+                    }
+                ]
+            }
 
         flex_list.append(bubble_container)
 
