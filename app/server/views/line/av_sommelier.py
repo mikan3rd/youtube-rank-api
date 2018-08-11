@@ -10,24 +10,18 @@ from flask import Blueprint, abort, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
-    BoxComponent,
-    BubbleContainer,
-    CarouselColumn,
-    CarouselTemplate,
-    FlexContainer,
-    FlexSendMessage,
-    ImageCarouselColumn,
-    ImageCarouselTemplate,
     ImageMessage,
     MessageEvent,
     PostbackAction,
     PostbackEvent,
     TemplateSendMessage,
     TextMessage,
-    TextSendMessage,
-    URIAction
 )
-from settings import AV_SOMMELIER_ACCESS_TOKEN, AV_SOMMELIER_CHANNEL_SECRET
+from settings import (
+    AV_SOMMELIER_ACCESS_TOKEN,
+    AV_SOMMELIER_CHANNEL_SECRET,
+    REDIS_URL
+)
 
 from app.server.helpers import gspread
 
@@ -46,6 +40,7 @@ SHEET_ID = "1i9IqlJa3lCpNkWBm7_XnYG3QGCbfbQkfzhLk_bFI-rU"
 reply_endpoint = "https://api.line.me/v2/bot/message/reply"
 no_image_url = "https://upload.wikimedia.org/wikipedia/ja/b/b5/Noimage_image.png"
 dmm_unit_quey = "/n1=DgRJTglEBQ4GpoD6,YyI,qs_"
+EXPIRE = 60 * 60 * 3
 
 
 @api_bp.route("/line/av_sommelier", methods=['POST'])
@@ -73,14 +68,28 @@ def handle_message(event):
     # try:
     text = event.message.text
 
-    # r = redis.from_url(settings.REDIS_URL)
-    # reply_message(event, messages)
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get('av_sommelier')
 
-    response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier')
-    person_label_list, person_list = gspread.convert_to_dict_data(response)
+    if rcache:
+        print("cache HIT!! av_sommelier")
+        person_list = json.loads(rcache.decode())
 
-    response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier_images')
-    image_label_list, image_list = gspread.convert_to_dict_data(response)
+    else:
+        response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier')
+        person_label_list, person_list = gspread.convert_to_dict_data(response)
+        r.set('av_sommelier', json.dumps(person_list), ex=EXPIRE)
+
+    rcache2 = r.get('av_sommelier_images')
+
+    if rcache2:
+        print("cache HIT!! av_sommelier_images")
+        image_list = json.loads(rcache2.decode())
+
+    else:
+        response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier_images')
+        image_label_list, image_list = gspread.convert_to_dict_data(response)
+        r.set('av_sommelier_images', json.dumps(image_list), ex=EXPIRE)
 
     results = []
     for person in person_list:
