@@ -298,7 +298,7 @@ def handle_message(event):
 
     if response:
         pprint(response)
-        pprint(_json)
+        pprint(results[:10])
 
     # except Exception as e:
     #     pprint(e)
