@@ -182,6 +182,11 @@ def handle_message(event):
             content['contents'][1]['text'] = person.get('hobby',  ' ')
             body_contents.append(content)
 
+        if len(body_contents) == 0:
+            content = deepcopy(body_content_base)
+            content['contents'][0]['text'] = "情報なし"
+            body_contents.append(content)
+
         body = {
             "type": "box",
             "layout": "vertical",
@@ -257,7 +262,7 @@ def handle_message(event):
 
     flex_message = {
         "type": "flex",
-        "altText": "%sの検索結果" % (text),
+        "altText": '"%s"の検索結果' % (text),
         "contents": {
             "type": "carousel",
             "contents": flex_list,
