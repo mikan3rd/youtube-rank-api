@@ -294,9 +294,11 @@ def handle_message(event):
         reply_endpoint,
         headers=headers,
         json=_json,
-    )
+    ).json()
 
-    pprint(response.json())
+    if response:
+        pprint(response)
+        pprint(_json)
 
     # except Exception as e:
     #     pprint(e)
