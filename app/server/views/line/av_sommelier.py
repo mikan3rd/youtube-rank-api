@@ -146,34 +146,40 @@ def handle_message(event):
         }
 
         if person.get('height'):
-            body_content_base['contents'][0]['text'] = "身長"
-            body_content_base['contents'][1]['text'] = "%scm" % (person.get('height', ' '))
-            body_contents.append(body_content_base)
+            content = body_content_base
+            content['contents'][0]['text'] = "身長"
+            content['contents'][1]['text'] = "%scm" % (person.get('height', ' '))
+            body_contents.append(content)
 
         if person.get('cup'):
-            body_content_base['contents'][0]['text'] = "カップ"
-            body_content_base['contents'][1]['text'] = person.get('cup', ' ')
-            body_contents.append(body_content_base)
+            content = body_content_base
+            content['contents'][0]['text'] = "カップ"
+            content['contents'][1]['text'] = person.get('cup', ' ')
+            body_contents.append(content)
 
         if person.get('measurements'):
-            body_content_base['contents'][0]['text'] = "サイズ"
-            body_content_base['contents'][1]['text'] = person.get('measurements', ' ')
-            body_contents.append(body_content_base)
+            content = body_content_base
+            content['contents'][0]['text'] = "サイズ"
+            content['contents'][1]['text'] = person.get('measurements', ' ')
+            body_contents.append(content)
 
         if person.get('birthday'):
-            body_content_base['contents'][0]['text'] = "誕生日"
-            body_content_base['contents'][1]['text'] = person.get('birthday', ' ')
-            body_contents.append(body_content_base)
+            content = body_content_base
+            content['contents'][0]['text'] = "誕生日"
+            content['contents'][1]['text'] = person.get('birthday', ' ')
+            body_contents.append(content)
 
         if person.get('prefectures'):
-            body_content_base['contents'][0]['text'] = "出身地"
-            body_content_base['contents'][1]['text'] = person.get('prefectures',  ' ')
-            body_contents.append(body_content_base)
+            content = body_content_base
+            content['contents'][0]['text'] = "出身地"
+            content['contents'][1]['text'] = person.get('prefectures',  ' ')
+            body_contents.append(content)
 
         if person.get('hobby'):
-            body_content_base['contents'][0]['text'] = "趣味"
-            body_content_base['contents'][1]['text'] = person.get('hobby',  ' ')
-            body_contents.append(body_content_base)
+            content = body_content_base
+            content['contents'][0]['text'] = "趣味"
+            content['contents'][1]['text'] = person.get('hobby',  ' ')
+            body_contents.append(content)
 
         body = {
             "type": "box",
