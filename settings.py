@@ -11,7 +11,9 @@ load_dotenv(dotenv_path)
 
 REDIS_URL = os.environ.get('REDIS_URL')
 
+# Google
 DEVELOPER_KEY = os.environ.get('DEVELOPER_KEY')
+
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
 GNAVI_API_KEY = os.environ.get('GNAVI_API_KEY')
 HOTPEPPER_API_KEY = os.environ.get('HOTPEPPER_API_KEY')
@@ -27,3 +29,9 @@ FACE_API_KEY = os.environ.get('FACE_API_KEY')
 # LINE
 DRINKEE_CHANNEL_ACCESS_TOKEN = os.environ.get('DRINKEE_CHANNEL_ACCESS_TOKEN')
 DRINKEE_CHANNEL_SECRET = os.environ.get('DRINKEE_CHANNEL_SECRET')
+AV_SOMMELIER_ACCESS_TOKEN = os.environ.get('AV_SOMMELIER_ACCESS_TOKEN')
+AV_SOMMELIER_CHANNEL_SECRET = os.environ.get('AV_SOMMELIER_CHANNEL_SECRET')
+
+# DMM
+DMM_API_ID = os.environ.get('DMM_API_ID')
+DMM_AFFILIATE_ID = os.environ.get('DMM_AFFILIATE_ID')

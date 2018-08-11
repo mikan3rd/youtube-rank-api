@@ -6,6 +6,7 @@ blueprints = [
     data.charge,
     data.gnavi,
     line.face_search,
+    line.av_sommelier,
 ]
 
 

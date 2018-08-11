@@ -6,10 +6,11 @@ import settings
 from flask import Blueprint, abort, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import (
+from linebot.models import (  # ConfirmTemplate,
     CarouselColumn,
     CarouselTemplate,
-    # ConfirmTemplate,
+    ImageCarouselColumn,
+    ImageCarouselTemplate,
     ImageMessage,
     MessageEvent,
     PostbackAction,
@@ -17,9 +18,7 @@ from linebot.models import (
     TemplateSendMessage,
     TextMessage,
     TextSendMessage,
-    URIAction,
-    ImageCarouselColumn,
-    ImageCarouselTemplate
+    URIAction
 )
 
 from app.server.helpers.face import get_face_detect, get_face_identify
@@ -64,7 +63,7 @@ def handle_message(event):
 
     if not rcache:
         messages = [
-            TextSendMessage(text='女性の画像か名前を送ってみてね!'),
+            TextSendMessage(text='画像か名前を送ってみてね!'),
         ]
         reply_message(event, messages)
         return
