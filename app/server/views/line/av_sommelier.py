@@ -93,7 +93,7 @@ def handle_message(event):
 
     # reply_message(event, messages)
 
-    messages = {
+    messages = [{
         "type": "flex",
         "altText": "this is a flex message",
         "contents": {
@@ -113,15 +113,18 @@ def handle_message(event):
                 ]
             }
         }
-    }
+    }]
 
     headers = {
         "Authorization": "Bearer " + AV_SOMMELIER_ACCESS_TOKEN,
         'Content-Type': 'application/json',
     }
 
+    reply_token = event.reply_token
+    print("reply_token:", reply_token)
+
     _json = {
-        'replyToken': event.reply_token,
+        'replyToken': reply_token,
         'messages': messages,
     }
 
@@ -131,7 +134,7 @@ def handle_message(event):
         json=_json,
     )
 
-    pprint(response)
+    pprint(response.json())
 
 
 # @handler.add(MessageEvent, message=ImageMessage)
