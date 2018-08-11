@@ -214,7 +214,7 @@ def handle_message(event):
                     "uri": image_url,
                 }
             },
-            "body": body,
+            # "body": body,
         }
 
         if person.get('dmm_affiliate_url'):
@@ -248,48 +248,12 @@ def handle_message(event):
 
         flex_list.append(bubble_container)
 
-    # flex_message = {
-    #     "type": "flex",
-    #     "altText": "%sの検索結果" % (text),
-    #     "contents": {
-    #         "type": "carousel",
-    #         "contents": flex_list,
-    #     }
-    # }
-
     flex_message = {
         "type": "flex",
         "altText": "%sの検索結果" % (text),
         "contents": {
             "type": "carousel",
-            "contents": [
-                {
-                    "type": "bubble",
-                    "body": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                            {
-                                "type": "text",
-                                "text": "First bubble"
-                            }
-                        ]
-                    }
-                },
-                {
-                    "type": "bubble",
-                    "body": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                            {
-                                "type": "text",
-                                "text": "Second bubble"
-                            }
-                        ]
-                    }
-                }
-            ]
+            "contents": flex_list,
         }
     }
 
