@@ -157,7 +157,7 @@ def handle_message(event):
 
         if person.get('measurements'):
             body_content_base['contents'][0]['text'] = "サイズ"
-            body_content_base['contents'][1]['text'] = person('measurements', ' ')
+            body_content_base['contents'][1]['text'] = person.get('measurements', ' ')
             body_contents.append(body_content_base)
 
         if person.get('birthday'):
