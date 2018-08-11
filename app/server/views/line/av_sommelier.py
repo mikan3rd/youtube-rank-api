@@ -1,12 +1,16 @@
 import json
+import random
 from io import BytesIO
 from pprint import pprint
 
 import redis
+import requests
 from flask import Blueprint, abort, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
+    BoxComponent,
+    BubbleContainer,
     CarouselColumn,
     CarouselTemplate,
     FlexContainer,
@@ -20,15 +24,11 @@ from linebot.models import (
     TemplateSendMessage,
     TextMessage,
     TextSendMessage,
-    URIAction,
-    BubbleContainer,
-    BoxComponent
+    URIAction
 )
 from settings import AV_SOMMELIER_ACCESS_TOKEN, AV_SOMMELIER_CHANNEL_SECRET
 
 from app.server.helpers import gspread
-
-import requests
 
 
 # from app.server.helpers.face import get_face_detect, get_face_identify
@@ -40,7 +40,11 @@ api_bp = Blueprint('av_sommelier_api', __name__)
 line_bot_api = LineBotApi(AV_SOMMELIER_ACCESS_TOKEN)
 handler = WebhookHandler(AV_SOMMELIER_CHANNEL_SECRET)
 
+SHEET_ID = "1i9IqlJa3lCpNkWBm7_XnYG3QGCbfbQkfzhLk_bFI-rU"
+
 reply_endpoint = "https://api.line.me/v2/bot/message/reply"
+no_image_url = "https://upload.wikimedia.org/wikipedia/ja/b/b5/Noimage_image.png"
+dmm_unit_quey = "/n1=DgRJTglEBQ4GpoD6,YyI,qs_"
 
 
 @api_bp.route("/line/av_sommelier", methods=['POST'])
@@ -64,264 +68,218 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    text = event.message.text
-    print(text)
 
-    # r = redis.from_url(settings.REDIS_URL)
+    try:
+        text = event.message.text
 
-    # columns = [
-    #     ImageCarouselColumn(
-    #         image_url=image_url,
-    #         action=URIAction(
-    #             label='画像出典元',
-    #             uri=image_url,
-    #         )
-    #     )
-    #     for image_url in image_urls[:10]
-    # ]
+        # r = redis.from_url(settings.REDIS_URL)
+        # reply_message(event, messages)
 
-    # alt_text = 'test'
+        response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier')
+        person_label_list, person_list = gspread.convert_to_dict_data(response)
 
-    # body = BoxComponent()
+        response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier_images')
+        image_label_list, image_list = gspread.convert_to_dict_data(response)
 
-    # contents = BubbleContainer(body=body)
+        results = []
+        for person in person_list:
 
-    # messages = FlexSendMessage(
-    #     alt_text=alt_text,
-    #     contents=FlexContainer(contents),
-    # )
+            if text in person['name']:
+                results.append(person)
+                continue
 
-    # reply_message(event, messages)
+            if text in person['name_ruby']:
+                results.append(person)
+                continue
 
-    messages = [{
-        "type": "flex",
-        "altText": "this is a flex message",
-        "contents": {
-            "type": "bubble",
-            "hero": {
-                "type": "image",
-                "url": "https://images15.wav.tv/113/5abcb85cd2699f.jpg",
-                "size": "full",
-                "aspectRatio": "20:13",
-                "aspectMode": "cover",
-                "action": {
-                    "type": "uri",
-                    "uri": "http://linecorp.com/"
-                }
-            },
-            "body": {
+        messages = []
+        if len(results) == 0:
+            results = random.sample(person_list, 10)
+            messages.append({
+                "type": "text",
+                "text": "ランダム"
+            })
+
+        else:
+            messages.append({
+                "type": "text",
+                "text": "%s人の名前が見つかりました" % (len(results))
+            })
+
+        if len(results) > 10:
+            messages.append({
+                "type": "text",
+                "text": "最初の10件を表示します"
+            })
+
+        flex_list = []
+        for person in results[:10]:
+
+            name = person['name']
+            image = next((image for image in image_list if image['name'] == name), None)
+
+            if not image:
+                image_url = no_image_url
+
+            else:
+                image_url = image['image_url']
+
+            body_contents = []
+            body_content_base = {
+                "type": "box",
+                "layout": "baseline",
+                "spacing": "sm",
+                "contents": [{
+                    "type": "text",
+                    "text": " ",
+                    "color": "#aaaaaa",
+                    "size": "sm",
+                    "flex": 1
+                }, {
+                    "type": "text",
+                    "text": " ",
+                    "wrap": True,
+                    "color": "#666666",
+                    "size": "sm",
+                    "flex": 5
+                }]
+            }
+
+            if person.get('height'):
+                body_content_base['contents'][0]['text'] = "身長"
+                body_content_base['contents'][1]['text'] = "%scm" % (person.get('height', ' '))
+                body_contents.append(body_content_base)
+
+            if person.get('cup'):
+                body_content_base['contents'][0]['text'] = "カップ"
+                body_content_base['contents'][1]['text'] = person.get('cup', ' ')
+                body_contents.append(body_content_base)
+
+            if person.get('measurements'):
+                body_content_base['contents'][0]['text'] = "サイズ"
+                body_content_base['contents'][1]['text'] = person('measurements', ' ')
+                body_contents.append(body_content_base)
+
+            if person.get('birthday'):
+                body_content_base['contents'][0]['text'] = "誕生日"
+                body_content_base['contents'][1]['text'] = person.get('birthday', ' ')
+                body_contents.append(body_content_base)
+
+            if person.get('prefectures'):
+                body_content_base['contents'][0]['text'] = "出身地"
+                body_content_base['contents'][1]['text'] = person.get('prefectures',  ' ')
+                body_contents.append(body_content_base)
+
+            if person.get('hobby'):
+                body_content_base['contents'][0]['text'] = "趣味"
+                body_content_base['contents'][1]['text'] = person.get('hobby',  ' ')
+                body_contents.append(body_content_base)
+
+            body = {
                 "type": "box",
                 "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "text",
-                        "text": "なるせここみ（ここみ）",
-                        "size": "xxs",
-                        "wrap": True
-                    },
-                    {
-                        "type": "text",
-                        "text": "成瀬心美",
-                        "size": "xl",
-                        "weight": "bold"
-                    },
-                    {
-                        "type": "text",
-                        "text": "65.8%",
-                        "size": "md"
-                    },
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "margin": "lg",
-                        "spacing": "sm",
-                        "contents": [
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "身長",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": "147cm",
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "カップ",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": "E",
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "サイズ",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": "B:89 W:60 H:82",
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "誕生日",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": "1989/03/03",
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "出身地",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": "新潟県",
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "box",
-                                "layout": "baseline",
-                                "spacing": "sm",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "趣味",
-                                        "color": "#aaaaaa",
-                                        "size": "sm",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": "カラオケ、料理",
-                                        "wrap": True,
-                                        "color": "#666666",
-                                        "size": "sm",
-                                        "flex": 5
-                                    }
-                                ]
+                "contents": [{
+                    "type": "text",
+                    "text": person.get('name_ruby', ' '),
+                    "size": "xxs",
+                    "wrap": True
+                }, {
+                    "type": "text",
+                    "text": person['name'],
+                    "size": "xl",
+                    "weight": "bold"
+                }, {
+                    "type": "text",
+                    "text": " ",
+                    "size": "md"
+                }, {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "lg",
+                    "spacing": "sm",
+                    "contents": body_contents
+                }]
+            },
+
+            bubble_container = {
+                "type": "bubble",
+                "hero": {
+                    "type": "image",
+                    "url": image_url,
+                    "size": "full",
+                    "aspectRatio": "20:13",
+                    "aspectMode": "cover",
+                    "action": {
+                        "type": "uri",
+                        "uri": image_url,
+                    }
+                },
+                "body": body,
+            }
+
+            if person.get('dmm_affiliate_url'):
+                unit_url = person.get('dmm_affiliate_url').replace("/mikan3rd-990", dmm_unit_quey + "/mikan3rd-990")
+                bubble_container['footer'] = {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "md",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#c10100",
+                            "action": {
+                                "type": "uri",
+                                "label": "動画を検索",
+                                "uri": person.get('dmm_affiliate_url')
                             }
-                        ]
-                    }
-                ]
-            },
-            "footer": {
-                "type": "box",
-                "layout": "vertical",
-                "spacing": "md",
-                "contents": [
-                    {
-                        "type": "button",
-                        "style": "primary",
-                        "color": "#c10100",
-                        "action": {
-                            "type": "uri",
-                            "label": "動画を検索",
-                            "uri": "http://www.dmm.co.jp/digital/videoa/-/list/=/article=actress/id=28135/mikan3rd-990"
+                        },
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "action": {
+                                "type": "uri",
+                                "label": "単体動画を検索",
+                                "uri": unit_url
+                            }
                         }
-                    },
-                    {
-                        "type": "button",
-                        "style": "primary",
-                        "color": "#c10100",
-                        "action": {
-                            "type": "uri",
-                            "label": "単体動画を検索",
-                            "uri": "http://www.dmm.co.jp/digital/videoa/-/list/=/article=actress/id=28135/n1=DgRJTglEBQ4GpoD6,YyI,qs_/mikan3rd-990"
-                        }
-                    }
-                ]
+                    ]
+                }
+
+            flex_list.append(bubble_container)
+
+        flex_message = {
+            "type": "flex",
+            "altText": "%sの検索結果" % (text),
+            "contents": {
+                "type": "carousel",
+                "contents": flex_list,
             }
         }
-    }]
 
-    headers = {
-        "Authorization": "Bearer " + AV_SOMMELIER_ACCESS_TOKEN,
-        'Content-Type': 'application/json',
-    }
+        messages.append(flex_message)
 
-    reply_token = event.reply_token
-    print("reply_token:", reply_token)
+        headers = {
+            "Authorization": "Bearer " + AV_SOMMELIER_ACCESS_TOKEN,
+            'Content-Type': 'application/json',
+        }
 
-    _json = {
-        'replyToken': reply_token,
-        'messages': messages,
-    }
+        _json = {
+            'replyToken': event.reply_token,
+            'messages': messages,
+        }
 
-    response = requests.post(
-        reply_endpoint,
-        headers=headers,
-        json=_json,
-    )
+        response = requests.post(
+            reply_endpoint,
+            headers=headers,
+            json=_json,
+        )
 
-    pprint(response.json())
+        pprint(response.json())
+
+    except Exception as e:
+        pprint(e)
+        reply_message(event, messages=TextSendMessage(text='エラーが発生しました'))
 
 
 # @handler.add(MessageEvent, message=ImageMessage)
