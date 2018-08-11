@@ -20,7 +20,9 @@ from linebot.models import (
     TemplateSendMessage,
     TextMessage,
     TextSendMessage,
-    URIAction
+    URIAction,
+    BubbleContainer,
+    BoxComponent
 )
 from settings import AV_SOMMELIER_ACCESS_TOKEN, AV_SOMMELIER_CHANNEL_SECRET
 
@@ -74,9 +76,18 @@ def handle_message(event):
     #     for image_url in image_urls[:10]
     # ]
 
-    alt_text = 'test'
+    # alt_text = 'test'
 
-    contents = {
+    # body = BoxComponent()
+
+    # contents = BubbleContainer(body=body)
+
+    # messages = FlexSendMessage(
+    #     alt_text=alt_text,
+    #     contents=FlexContainer(contents),
+    # )
+
+    messages = {
         "type": "flex",
         "altText": "this is a flex message",
         "contents": {
@@ -97,11 +108,6 @@ def handle_message(event):
             }
         }
     }
-
-    messages = FlexSendMessage(
-        alt_text=alt_text,
-        contents=FlexContainer(contents),
-    )
 
     reply_message(event, messages)
 
