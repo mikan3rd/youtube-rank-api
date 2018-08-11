@@ -200,11 +200,11 @@ def handle_message(event):
             "type": "box",
             "layout": "vertical",
             "contents": [{
-                #     "type": "text",
-                #     "text": person.get('name_ruby', ' '),
-                #     "size": "xxs",
-                #     "wrap": True
-                # }, {
+                    "type": "text",
+                    "text": person.get('name_ruby', '*'),
+                    "size": "xxs",
+                    "wrap": True
+            }, {
                 "type": "text",
                 "text": person['name'],
                 "size": "xl",
