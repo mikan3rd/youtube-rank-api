@@ -196,13 +196,13 @@ def handle_message(event):
             content['contents'][0]['text'] = "情報なし"
             body_contents.append(content)
 
+        print("name_ruby:", person.get('name_ruby', '***'))
         body = {
             "type": "box",
             "layout": "vertical",
             "contents": [{
                 "type": "text",
-                # "text": person.get('name_ruby', '*'),
-                "text": "test",
+                "text": person.get('name_ruby', '***'),
                 "size": "xxs",
                 "wrap": True
             }, {
