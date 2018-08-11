@@ -1,5 +1,6 @@
 import json
 import random
+from copy import deepcopy
 from io import BytesIO
 from pprint import pprint
 
@@ -146,37 +147,37 @@ def handle_message(event):
         }
 
         if person.get('height'):
-            content = body_content_base
+            content = deepcopy(body_content_base)
             content['contents'][0]['text'] = "身長"
             content['contents'][1]['text'] = "%scm" % (person.get('height', ' '))
             body_contents.append(content)
 
         if person.get('cup'):
-            content = body_content_base
+            content = deepcopy(body_content_base)
             content['contents'][0]['text'] = "カップ"
             content['contents'][1]['text'] = person.get('cup', ' ')
             body_contents.append(content)
 
         if person.get('measurements'):
-            content = body_content_base
+            content = deepcopy(body_content_base)
             content['contents'][0]['text'] = "サイズ"
             content['contents'][1]['text'] = person.get('measurements', ' ')
             body_contents.append(content)
 
         if person.get('birthday'):
-            content = body_content_base
+            content = deepcopy(body_content_base)
             content['contents'][0]['text'] = "誕生日"
             content['contents'][1]['text'] = person.get('birthday', ' ')
             body_contents.append(content)
 
         if person.get('prefectures'):
-            content = body_content_base
+            content = deepcopy(body_content_base)
             content['contents'][0]['text'] = "出身地"
             content['contents'][1]['text'] = person.get('prefectures',  ' ')
             body_contents.append(content)
 
         if person.get('hobby'):
-            content = body_content_base
+            content = deepcopy(body_content_base)
             content['contents'][0]['text'] = "趣味"
             content['contents'][1]['text'] = person.get('hobby',  ' ')
             body_contents.append(content)
