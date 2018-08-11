@@ -31,7 +31,9 @@ app/config/mail/env/*
 app/config/gdrive/env/*
 app/config/kintone/env/*
 
-.json
+*.json
+av_sommelier.py
+tasks/who.py
 
 # 最後に書く
 !.gitkeep

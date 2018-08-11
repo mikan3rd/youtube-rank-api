@@ -9,6 +9,7 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     CarouselColumn,
     CarouselTemplate,
+    FlexContainer,
     FlexSendMessage,
     ImageCarouselColumn,
     ImageCarouselTemplate,
@@ -74,6 +75,7 @@ def handle_message(event):
     # ]
 
     alt_text = 'test'
+
     contents = {
         "type": "flex",
         "altText": "this is a flex message",
@@ -98,7 +100,7 @@ def handle_message(event):
 
     messages = FlexSendMessage(
         alt_text=alt_text,
-        contents=contents,
+        contents=FlexContainer(contents),
     )
 
     reply_message(event, messages)
