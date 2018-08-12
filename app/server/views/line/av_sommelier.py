@@ -365,6 +365,33 @@ def create_flex_message(results, image_list, alt_text):
         "contents": {
             "type": "carousel",
             "contents": flex_list,
+        },
+        "quickReply": {
+            "items": [
+                {
+                    "type": "action",
+                    "action": {
+                        "type": "message",
+                        "label": "Sushi",
+                        "text": "Sushi"
+                    }
+                },
+                {
+                    "type": "action",
+                    "action": {
+                        "type": "message",
+                        "label": "Tempura",
+                        "text": "Tempura"
+                    }
+                },
+                {
+                    "type": "action",
+                    "action": {
+                        "type": "location",
+                        "label": "Send location"
+                    }
+                }
+            ]
         }
     }
 
