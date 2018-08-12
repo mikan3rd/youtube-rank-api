@@ -14,8 +14,8 @@ from linebot.models import (
     MessageEvent,
     PostbackAction,
     PostbackEvent,
-    TemplateSendMessage,
     TextMessage,
+    TextSendMessage
 )
 from settings import (
     AV_SOMMELIER_ACCESS_TOKEN,
@@ -23,10 +23,7 @@ from settings import (
     REDIS_URL
 )
 
-from app.server.helpers import gspread
-
-
-# from app.server.helpers.face import get_face_detect, get_face_identify
+from app.server.helpers import face, gspread
 
 
 api_bp = Blueprint('av_sommelier_api', __name__)
@@ -68,28 +65,8 @@ def handle_message(event):
     # try:
     text = event.message.text
 
-    r = redis.from_url(REDIS_URL)
-    rcache = r.get('av_sommelier')
-
-    if rcache:
-        print("cache HIT!! av_sommelier")
-        person_list = json.loads(rcache.decode())
-
-    else:
-        response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier')
-        person_label_list, person_list = gspread.convert_to_dict_data(response)
-        r.set('av_sommelier', json.dumps(person_list), ex=EXPIRE)
-
-    rcache2 = r.get('av_sommelier_images')
-
-    if rcache2:
-        print("cache HIT!! av_sommelier_images")
-        image_list = json.loads(rcache2.decode())
-
-    else:
-        response = gspread.get_sheet_values(SHEET_ID, 'av_sommelier_images')
-        image_label_list, image_list = gspread.convert_to_dict_data(response)
-        r.set('av_sommelier_images', json.dumps(image_list), ex=EXPIRE)
+    person_list = get_sheet_values_list('av_sommelier')
+    image_list = get_sheet_values_list('av_sommelier_images')
 
     results = []
     for person in person_list:
@@ -193,7 +170,8 @@ def handle_message(event):
 
         if len(body_contents) == 0:
             content = deepcopy(body_content_base)
-            content['contents'][0]['text'] = "情報なし"
+            content['contents'][0]['text'] = "情報"
+            content['contents'][1]['text'] = person.get('なし')
             body_contents.append(content)
 
         body = {
@@ -305,106 +283,263 @@ def handle_message(event):
     #     reply_message(event, messages=TextSendMessage(text='エラーが発生しました'))
 
 
-# @handler.add(MessageEvent, message=ImageMessage)
-# def handle_image(event):
+@handler.add(MessageEvent, message=ImageMessage)
+def handle_image(event):
 
-#     message_id = event.message.id
-#     message_content = line_bot_api.get_message_content(message_id)
-#     image = BytesIO(message_content.content)
+    message_id = event.message.id
+    message_content = line_bot_api.get_message_content(message_id)
+    image = BytesIO(message_content.content)
 
-#     try:
-#         detect_results = get_face_detect(image=image)
+    try:
+        detect_results = face.get_face_detect(image=image)
 
-#         if isinstance(detect_results, str):
-#             reply_message(event, TextSendMessage(text=detect_results))
-#             return
+        if isinstance(detect_results, str):
+            reply_message(event, TextSendMessage(text=detect_results))
+            return
 
-#         identify_results = get_face_identify([detect_results[0]['faceId']])
+        identify_results = face.get_face_identify(
+            face_ids=[detect_results[0]['faceId']],
+            person_group_id="av_sommelier",
+        )
 
-#         if isinstance(identify_results, str):
-#             reply_message(event, TextSendMessage(text=identify_results))
-#             return
+        if isinstance(identify_results, str):
+            reply_message(event, TextSendMessage(text=identify_results))
+            return
 
-#         # results = identify_results[0]
-#         # candidates = results['candidates']
+        # results = identify_results[0]
+        # candidates = results['candidates']
 
-#         if len(identify_results) == 0:
-#             reply_message(event, TextSendMessage(text='似ている顔が見つかりませんでした'))
-#             return
+        if len(identify_results) == 0:
+            reply_message(event, TextSendMessage(text='似ている顔が見つかりませんでした'))
+            return
 
-#         r = redis.from_url(settings.REDIS_URL)
-#         contents = []
+        results = []
+        person_list = get_sheet_values_list('av_sommelier')
+        for result in identify_results:
+            for candidate in result['candidates']:
+                person_id = candidate['personId']
+                person = next((person for person in person_list if person['person_id'] == person_id), None)
+                if person:
+                    person.update({'confidence': candidate['confidence']})
+                    results.append(person)
 
-#         for result in identify_results:
-#             for candidate in result['candidates']:
-#                 person_id = candidate['personId']
-#                 rcache = r.get(person_id)
+        if len(results) == 0:
+            reply_message(event, TextSendMessage(text='似ている顔が見つかりませんでした'))
+            return
 
-#                 if not rcache:
-#                     continue
+        image_list = get_sheet_values_list('av_sommelier_images')
+        flex_message = create_flex_message(results, image_list, '似ている顔を見つけました')
+        messages = [flex_message]
+        response = reply_raw_message(event, messages)
 
-#                 data = json.loads(rcache.decode())
+        if response:
+            pprint(response)
+            pprint(results[:10])
 
-#                 if data.get('times'):
-#                     data['times'] += 1
+    except Exception as e:
+        print("error:", e)
+        reply_message(event, TextSendMessage(text='エラーが発生しました'))
 
-#                 else:
-#                     data['times'] = 1
 
-#                 r.set(person_id, json.dumps(data))
+def reply_raw_message(event, messages):
+    headers = {
+        "Authorization": "Bearer " + AV_SOMMELIER_ACCESS_TOKEN,
+        'Content-Type': 'application/json',
+    }
 
-#                 content = {
-#                     'name': data['name'].strip(),
-#                     'image': data.get('images')[0],
-#                     'times': data['times'],
-#                     'person_id': person_id,
-#                     'confidence': candidate['confidence']
-#                 }
-#                 print(content)
-#                 contents.append(content)
+    _json = {
+        'replyToken': event.reply_token,
+        'messages': messages,
+    }
 
-#         if len(contents) == 0:
-#             reply_message(event, TextSendMessage(text='似ている顔が見つかりませんでした'))
-#             return
+    response = requests.post(
+        reply_endpoint,
+        headers=headers,
+        json=_json,
+    ).json()
 
-#         columns = [
-#             CarouselColumn(
-#                 thumbnail_image_url=content['image'],
-#                 title=content['name'],
-#                 text='類似度：%s\n検索回数：%s' % (
-#                     str(round(content['confidence'] * 100, 2)) + '%',
-#                     content['times']
-#                 ),
-#                 actions=[
-#                     PostbackAction(
-#                         label='画像をもっと見る',
-#                         display_text='画像をもっと見る',
-#                         data=person_id,
-#                     ),
-#                     URIAction(
-#                         label='Wikipediaを開く',
-#                         uri='%s/%s' % (wiki_url, content['name']),
-#                     ),
-#                     URIAction(
-#                         label='画像出典元',
-#                         uri=content['image'],
-#                     )
-#                 ]
-#             )
-#             for content in contents[:10]
-#         ]
+    return response
 
-#         messages = TemplateSendMessage(
-#             alt_text='似ている顔を見つけました',
-#             template=CarouselTemplate(columns=columns),
-#         )
 
-#         reply_message(event, messages)
+def get_sheet_values_list(sheet_name):
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(sheet_name)
 
-    # except Exception as e:
-    #     print("error:", e)
-    #     reply_message(event, TextSendMessage(text='エラーが発生しました'))
+    if rcache:
+        print("cache HIT!! %s" % (sheet_name))
+        person_list = json.loads(rcache.decode())
 
+    else:
+        response = gspread.get_sheet_values(SHEET_ID, sheet_name)
+        person_label_list, person_list = gspread.convert_to_dict_data(response)
+        r.set(sheet_name, json.dumps(person_list), ex=EXPIRE)
+
+    return person_list
+
+
+def create_flex_message(results, image_list, alt_text):
+    flex_list = []
+    for person in results[:10]:
+
+        name = person['name']
+        image = next((image for image in image_list if image['name'] == name), None)
+
+        if not image:
+            image_url = no_image_url
+
+        else:
+            image_url = image['image_url']
+
+        body_contents = []
+        body_content_base = {
+            "type": "box",
+            "layout": "baseline",
+            "spacing": "sm",
+            "contents": [{
+                "type": "text",
+                "text": " ",
+                "color": "#aaaaaa",
+                "size": "sm",
+                "flex": 1
+            }, {
+                "type": "text",
+                "text": " ",
+                "wrap": True,
+                "color": "#666666",
+                "size": "sm",
+                "flex": 5
+            }]
+        }
+
+        if person.get('height'):
+            content = deepcopy(body_content_base)
+            content['contents'][0]['text'] = "身長"
+            content['contents'][1]['text'] = "%scm" % (person.get('height', ' '))
+            body_contents.append(content)
+
+        if person.get('cup'):
+            content = deepcopy(body_content_base)
+            content['contents'][0]['text'] = "カップ"
+            content['contents'][1]['text'] = person.get('cup', ' ')
+            body_contents.append(content)
+
+        if person.get('measurements'):
+            content = deepcopy(body_content_base)
+            content['contents'][0]['text'] = "サイズ"
+            content['contents'][1]['text'] = person.get('measurements', ' ')
+            body_contents.append(content)
+
+        if person.get('birthday'):
+            content = deepcopy(body_content_base)
+            content['contents'][0]['text'] = "誕生日"
+            content['contents'][1]['text'] = person.get('birthday', ' ')
+            body_contents.append(content)
+
+        if person.get('prefectures'):
+            content = deepcopy(body_content_base)
+            content['contents'][0]['text'] = "出身地"
+            content['contents'][1]['text'] = person.get('prefectures',  ' ')
+            body_contents.append(content)
+
+        if person.get('hobby'):
+            content = deepcopy(body_content_base)
+            content['contents'][0]['text'] = "趣味"
+            content['contents'][1]['text'] = person.get('hobby',  ' ')
+            body_contents.append(content)
+
+        if len(body_contents) == 0:
+            content = deepcopy(body_content_base)
+            content['contents'][0]['text'] = "情報"
+            content['contents'][1]['text'] = person.get('なし')
+            body_contents.append(content)
+
+        confidence = ''
+        if person.get('confidence'):
+            confidence = str(round(person['confidence'] * 100, 2)) + '%'
+
+        body = {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [{
+                "type": "text",
+                "text": person['name_ruby'] if person.get('name_ruby') else ' ',
+                "size": "xxs",
+                "wrap": True
+            }, {
+                "type": "text",
+                "text": person['name'],
+                "size": "xl",
+                "weight": "bold"
+            }, {
+                "type": "text",
+                "text": confidence,
+                "size": "md"
+            }, {
+                "type": "box",
+                "layout": "vertical",
+                "margin": "lg",
+                "spacing": "sm",
+                "contents": body_contents
+            }]
+        }
+
+        bubble_container = {
+            "type": "bubble",
+            "hero": {
+                "type": "image",
+                "url": image_url,
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover",
+                "action": {
+                    "type": "uri",
+                    "uri": image_url,
+                }
+            },
+            "body": body,
+        }
+
+        if person.get('dmm_affiliate_url'):
+            unit_url = person.get('dmm_affiliate_url').replace("/mikan3rd-990", dmm_unit_quey + "/mikan3rd-990")
+            bubble_container['footer'] = {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "md",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#c10100",
+                        "action": {
+                            "type": "uri",
+                            "label": "動画を検索",
+                            "uri": person.get('dmm_affiliate_url')
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "action": {
+                            "type": "uri",
+                            "label": "単体動画を検索",
+                            "uri": unit_url
+                        }
+                    }
+                ]
+            }
+
+        flex_list.append(bubble_container)
+
+    flex_message = {
+        "type": "flex",
+        "altText": alt_text,
+        "contents": {
+            "type": "carousel",
+            "contents": flex_list,
+        }
+    }
+
+    return flex_message
 
 # @handler.add(PostbackEvent)
 # def handle_postback(event):
