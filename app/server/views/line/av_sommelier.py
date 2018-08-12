@@ -496,7 +496,7 @@ def send_video_list(event, keyword_list):
                     label_content_list = item_info.get(label_ascii, [])
                     label_content_name_list = []
                     for content in label_content_list:
-                        _id = content.get('id')
+                        _id = str(content.get('id'), '')
                         if 'ruby' in _id or 'classify' in _id:
                             continue
                         name = content.get('name')
