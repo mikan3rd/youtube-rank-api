@@ -421,8 +421,20 @@ def send_video_list(event, keyword_list):
     item_list = response['result']['items']
 
     if len(item_list) == 0:
-        reply_message(event, TextSendMessage(text='該当する商品が見つかりませんでした'))
+        reply_message(event, TextSendMessage(text='該当する動画が見つかりませんでした'))
         return
+
+    messages = []
+    messages.append({
+        "type": "text",
+        "text": "%s件の動画が見つかりました" % (len(item_list))
+    })
+
+    if len(item_list) > 10:
+        messages.append({
+            "type": "text",
+            "text": "最初の10件を表示します"
+        })
 
     flex_list = []
     for item in item_list:
@@ -593,7 +605,7 @@ def send_video_list(event, keyword_list):
         },
     }
 
-    messages = [flex_message]
+    messages.appen(flex_message)
     response = reply_raw_message(event, messages)
 
     if response:
