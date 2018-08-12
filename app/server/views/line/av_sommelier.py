@@ -166,6 +166,7 @@ def send_face_detect(event, image=None, image_url=None):
 
     try:
         detect_results = face.get_face_detect(image=image, image_url=image_url)
+        pprint(detect_results)
 
         if isinstance(detect_results, str):
             reply_message(event, TextSendMessage(text=detect_results))
