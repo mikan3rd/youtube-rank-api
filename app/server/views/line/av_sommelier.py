@@ -279,7 +279,7 @@ def create_flex_message(results, image_list, alt_text):
         if len(body_contents) == 0:
             content = deepcopy(body_content_base)
             content['contents'][0]['text'] = "情報"
-            content['contents'][1]['text'] = person.get('なし')
+            content['contents'][1]['text'] = 'なし'
             body_contents.append(content)
 
         confidence = ' '
