@@ -494,10 +494,15 @@ def send_video_list(event, keyword_list):
 
                 else:
                     label_content_list = item_info.get(label_ascii, [])
-                    label_content_name_list = [
-                        content.get('name') or ' '
-                        for content in label_content_list
-                    ]
+                    label_content_name_list = []
+                    for content in label_content_list:
+                        name = content.get('name')
+                        if name:
+                            label_content_name_list.append(name)
+
+                    if len(label_content_name_list) == 0:
+                        continue
+
                     label_content = '\n'.join(label_content_name_list)
 
                 base_content = {
@@ -544,7 +549,7 @@ def send_video_list(event, keyword_list):
                 "aspectMode": "cover",
                 "action": {
                     "type": "uri",
-                    "uri": item.get('affiliateURL'),
+                    "uri": item.get('affiliateURL') or image_url,
                 }
             },
             "body": {
@@ -564,7 +569,7 @@ def send_video_list(event, keyword_list):
                         "action": {
                             "type": "uri",
                             "label": "詳細を見る",
-                            "uri": item.get('affiliateURL')
+                            "uri": item.get('affiliateURL') or image_url
                         }
                     }
                 ]
@@ -572,6 +577,9 @@ def send_video_list(event, keyword_list):
         }
 
         flex_list.append(bubble_container)
+
+    # pprint(flex_list)
+    # return
 
     flex_message = {
         "type": "flex",
