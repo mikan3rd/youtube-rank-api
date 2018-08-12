@@ -385,34 +385,12 @@ def create_flex_message(results, image_list, alt_text):
             "type": "carousel",
             "contents": flex_list,
         },
-        # "quickReply": {
-        #     "items": [
-        #         {
-        #             "type": "action",
-        #             "action": {
-        #                 "type": "message",
-        #                 "label": "Sushi",
-        #                 "text": "Sushi"
-        #             }
-        #         },
-        #         {
-        #             "type": "action",
-        #             "action": {
-        #                 "type": "message",
-        #                 "label": "Tempura",
-        #                 "text": "Tempura"
-        #             }
-        #         },
-        #         {
-        #             "type": "action",
-        #             "action": {
-        #                 "type": "location",
-        #                 "label": "Send location"
-        #             }
-        #         }
-        #     ]
-        # }
     }
+
+    genre_items = get_genre_items(keyword_list=[results[0]['name']])
+
+    if len(genre_items) > 0:
+        flex_message['quickReply'] = {"items": genre_items[:13]}
 
     return flex_message
 
@@ -621,7 +599,12 @@ def send_video_list(event, keyword_list):
         pprint(response)
 
 
-def get_genre_items(item_list, keyword_list):
+def get_genre_items(keyword_list, item_list=None):
+
+    if not item_list:
+        response = dmm.search_items(keyword=' '.join(keyword_list))
+        item_list = response['result']['items']
+
     genre_list = []
     for item in item_list:
         if item.get('iteminfo') and item['iteminfo'].get('genre'):
