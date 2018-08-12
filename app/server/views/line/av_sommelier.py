@@ -617,19 +617,21 @@ def send_video_list(event, keyword_list):
 
     counter = Counter(genre_list)
     genre_items = []
-    for name, count in counter.most_common()[:13]:
+    for name, count in counter.most_common():
+        if name in keyword_list:
+            continue
         items = {
             "type": "action",
             "action": {
                 "type": "message",
-                "label": '%s:%s' % (name, count),
+                "label": '%s : %s' % (name, count),
                 "text": "%s %s" % (' '.join(keyword_list), name),
             }
         }
         genre_items.append(items)
 
     if len(genre_items) > 0:
-        flex_message['quickReply'] = {"items": genre_items}
+        flex_message['quickReply'] = {"items": genre_items[:13]}
 
     messages.append(flex_message)
     response = reply_raw_message(event, messages)
