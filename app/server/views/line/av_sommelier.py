@@ -1,5 +1,6 @@
 import json
 import random
+from collections import Counter
 from copy import deepcopy
 from io import BytesIO
 from pprint import pprint
@@ -605,7 +606,30 @@ def send_video_list(event, keyword_list):
             "type": "carousel",
             "contents": flex_list,
         },
+
     }
+
+    genre_list = []
+    for item in item_list:
+        if item.get('iteminfo') and item['iteminfo'].get('genre'):
+            genre = item['iteminfo']['genre']
+            genre_list += [_genre['name'] for _genre in genre]
+
+    counter = Counter(genre_list)
+    genre_items = []
+    for name, count in counter.most_common():
+        items = {
+            "type": "action",
+            "action": {
+                "type": "message",
+                "label": '%s:%s' % (name, count),
+                "text": "%s %s" % (' '.join(keyword_list), name),
+            }
+        }
+        genre_items.append(items)
+
+    if len(genre_items) > 0:
+        flex_message['quickReply'] = {"items": genre_items}
 
     messages.append(flex_message)
     response = reply_raw_message(event, messages)
