@@ -79,7 +79,7 @@ def search_items(
     )
     data = res.json()
 
-    from pprint import pprint
-    pprint(data)
+    # from pprint import pprint
+    # pprint(data)
 
     return data
