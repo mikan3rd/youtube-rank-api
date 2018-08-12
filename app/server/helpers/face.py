@@ -27,7 +27,7 @@ def get_face_detect(image_url=None, image=None):
         }
         data = {'url': image_url}
         response = requests.post(
-            endpoint + + '/detect',
+            endpoint + '/detect',
             headers=headers,
             params=params,
             json=data
