@@ -23,7 +23,7 @@ from settings import (
     REDIS_URL
 )
 
-from app.server.helpers import face, gspread
+from app.server.helpers import dmm, face, gspread
 
 
 api_bp = Blueprint('av_sommelier_api', __name__)
@@ -69,11 +69,20 @@ def handle_message(event):
         send_face_detect(event, image_url=text)
         return
 
+    keyword_list = text.split()
+    if len(keyword_list) > 1:
+        send_video_list(event, keyword_list)
+        return
+
     person_list = get_sheet_values_list('av_sommelier')
     image_list = get_sheet_values_list('av_sommelier_images')
 
     results = []
     for person in person_list:
+
+        if text == person['name']:
+            results.insert(0, person)
+            continue
 
         if text in person['name']:
             results.append(person)
@@ -166,7 +175,6 @@ def send_face_detect(event, image=None, image_url=None):
 
     try:
         detect_results = face.get_face_detect(image=image, image_url=image_url)
-        pprint(detect_results)
 
         if isinstance(detect_results, str):
             reply_message(event, TextSendMessage(text=detect_results))
@@ -246,7 +254,7 @@ def create_flex_message(results, image_list, alt_text):
                 "wrap": True,
                 "color": "#666666",
                 "size": "sm",
-                "flex": 5
+                "flex": 4
             }]
         }
 
@@ -332,7 +340,7 @@ def create_flex_message(results, image_list, alt_text):
                 "aspectMode": "cover",
                 "action": {
                     "type": "uri",
-                    "uri": image_url,
+                    "uri": person.get('dmm_affiliate_url') or image_url,
                 }
             },
             "body": body,
@@ -406,6 +414,180 @@ def create_flex_message(results, image_list, alt_text):
     }
 
     return flex_message
+
+
+def send_video_list(event, keyword_list):
+    response = dmm.search_items(keyword=' '.join(keyword_list), hits=10)
+    item_list = response['result']['items']
+
+    if len(item_list) == 0:
+        reply_message(event, TextSendMessage(text='該当する商品が見つかりませんでした'))
+        return
+
+    flex_list = []
+    for item in item_list:
+
+        image = item.get('imageURL')
+        if image:
+            image_url = image.get('large') or no_image_url
+
+        else:
+            image_url = no_image_url
+
+        body_contents = [{
+            "type": "text",
+            "text": item.get('title'),
+            "weight": "bold",
+            "wrap": True,
+            "size": "md"
+        }]
+
+        if item.get('review'):
+            review_list = []
+            average = round(float(item['review']['average']))
+
+            for i in range(5):
+                review_star = {
+                    "type": "icon",
+                    "size": "sm",
+                    "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gray_star_28.png"
+                }
+                if average >= i + 1:
+                    review_star['url'] = "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+
+                review_list.append(review_star)
+
+            review_text = {
+                "type": "text",
+                "text": item['review']['average'],
+                "size": "sm",
+                "color": "#999999",
+                "margin": "md",
+                "flex": 0
+            }
+
+            review_list.append(review_text)
+
+            review_content = {
+                "type": "box",
+                "layout": "baseline",
+                "margin": "md",
+                "contents": review_list,
+            }
+
+            body_contents.append(review_content)
+
+        item_info = item.get('iteminfo')
+        if item_info:
+            content_list = []
+            item_label_list = [
+                {'label': 'genre', 'name': 'ジャンル'},
+                {'label': 'actress', 'name': '女優'},
+                {'label': 'maker', 'name': 'メーカー'},
+                {'label': 'director', 'name': '監督'},
+                {'label': 'sampleMovie', 'name': 'サンプル'}
+            ]
+            for label in item_label_list:
+                label_ascii = label.get('label')
+                if label_ascii == 'sampleMovie':
+                    label_content = 'あり' if item.get('sampleMovieURL') else 'なし'
+
+                else:
+                    label_content_list = item_info.get(label_ascii, [])
+                    label_content_name_list = [
+                        content.get('name') or ' '
+                        for content in label_content_list
+                    ]
+                    label_content = '\n'.join(label_content_name_list)
+
+                base_content = {
+                    "type": "box",
+                    "layout": "baseline",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": label.get('name'),
+                            "color": "#aaaaaa",
+                            "size": "sm",
+                            "flex": 1
+                        },
+                        {
+                            "type": "text",
+                            "text": label_content,
+                            "wrap": True,
+                            "color": "#666666",
+                            "size": "sm",
+                            "flex": 3
+                        }
+                    ]
+                }
+
+                content_list.append(base_content)
+
+            item_content = {
+                "type": "box",
+                "layout": "vertical",
+                "margin": "lg",
+                "spacing": "sm",
+                "contents": content_list,
+            }
+            body_contents.append(item_content)
+
+        bubble_container = {
+            "type": "bubble",
+            "hero": {
+                "type": "image",
+                "url": image_url,
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover",
+                "action": {
+                    "type": "uri",
+                    "uri": item.get('affiliateURL'),
+                }
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": body_contents,
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "md",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#c10100",
+                        "action": {
+                            "type": "uri",
+                            "label": "詳細を見る",
+                            "uri": item.get('affiliateURL')
+                        }
+                    }
+                ]
+            }
+        }
+
+        flex_list.append(bubble_container)
+
+    flex_message = {
+        "type": "flex",
+        "altText": '%sの検索結果' % (' '.join(keyword_list)),
+        "contents": {
+            "type": "carousel",
+            "contents": flex_list,
+        },
+    }
+
+    messages = [flex_message]
+    response = reply_raw_message(event, messages)
+
+    if response:
+        pprint(response)
+
 
 # @handler.add(PostbackEvent)
 # def handle_postback(event):
