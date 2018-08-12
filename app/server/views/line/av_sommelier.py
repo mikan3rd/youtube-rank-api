@@ -418,7 +418,9 @@ def create_flex_message(results, image_list, alt_text):
 
 def send_video_list(event, keyword_list):
     response = dmm.search_items(keyword=' '.join(keyword_list), hits=10)
-    item_list = response['result']['items']
+    result = response['result']
+    item_list = result['items']
+    total_count = result['total_count']
 
     if len(item_list) == 0:
         reply_message(event, TextSendMessage(text='該当する動画が見つかりませんでした'))
@@ -427,17 +429,17 @@ def send_video_list(event, keyword_list):
     messages = []
     messages.append({
         "type": "text",
-        "text": "%s件の動画が見つかりました" % (len(item_list))
+        "text": "%s件の動画が見つかりました" % (total_count)
     })
 
-    if len(item_list) > 10:
+    if total_count > 10:
         messages.append({
             "type": "text",
             "text": "最初の10件を表示します"
         })
 
     flex_list = []
-    for item in item_list:
+    for item in item_list[:10]:
 
         image = item.get('imageURL')
         if image:
