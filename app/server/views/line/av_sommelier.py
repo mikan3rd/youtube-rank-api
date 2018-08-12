@@ -617,7 +617,7 @@ def send_video_list(event, keyword_list):
 
     counter = Counter(genre_list)
     genre_items = []
-    for name, count in counter.most_common():
+    for name, count in counter.most_common()[:13]:
         items = {
             "type": "action",
             "action": {
