@@ -587,7 +587,7 @@ def send_video_list(event, keyword_list):
 
     }
 
-    genre_items = get_genre_items(item_list, keyword_list)
+    genre_items = get_genre_items(keyword_list, item_list)
 
     if len(genre_items) > 0:
         flex_message['quickReply'] = {"items": genre_items[:13]}
