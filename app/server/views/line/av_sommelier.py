@@ -418,7 +418,7 @@ def create_flex_message(results, image_list, alt_text):
 
 
 def send_video_list(event, keyword_list):
-    response = dmm.search_items(keyword=' '.join(keyword_list), hits=10)
+    response = dmm.search_items(keyword=' '.join(keyword_list))
     result = response['result']
     item_list = result['items']
     total_count = result['total_count']
@@ -609,6 +609,19 @@ def send_video_list(event, keyword_list):
 
     }
 
+    genre_items = get_genre_items(item_list, keyword_list)
+
+    if len(genre_items) > 0:
+        flex_message['quickReply'] = {"items": genre_items[:13]}
+
+    messages.append(flex_message)
+    response = reply_raw_message(event, messages)
+
+    if response:
+        pprint(response)
+
+
+def get_genre_items(item_list, keyword_list):
     genre_list = []
     for item in item_list:
         if item.get('iteminfo') and item['iteminfo'].get('genre'):
@@ -630,54 +643,7 @@ def send_video_list(event, keyword_list):
         }
         genre_items.append(items)
 
-    if len(genre_items) > 0:
-        flex_message['quickReply'] = {"items": genre_items[:13]}
-
-    messages.append(flex_message)
-    response = reply_raw_message(event, messages)
-
-    if response:
-        pprint(response)
-
-
-# @handler.add(PostbackEvent)
-# def handle_postback(event):
-#     print("postbackEvent", event)
-
-#     if event.postback.data:
-
-#         person_id = event.postback.data
-
-#         r = redis.from_url(settings.REDIS_URL)
-#         rcache = r.get(person_id)
-
-#         if not rcache:
-#             return
-
-#         data = json.loads(rcache.decode())
-#         name = data.get('name')
-#         image_urls = data.get('images')
-
-#         if not len(image_urls):
-#             return
-
-#         columns = [
-#             ImageCarouselColumn(
-#                 image_url=image_url,
-#                 action=URIAction(
-#                     label='画像出典元',
-#                     uri=image_url,
-#                 )
-#             )
-#             for image_url in image_urls[:10]
-#         ]
-
-#         messages = TemplateSendMessage(
-#             alt_text='%sの画像一覧' % (name),
-#             template=ImageCarouselTemplate(columns=columns),
-#         )
-
-#         reply_message(event, messages)
+    return genre_items
 
 
 def reply_message(event, messages):
