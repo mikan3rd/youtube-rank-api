@@ -65,6 +65,10 @@ def handle_message(event):
     # try:
     text = event.message.text
 
+    if text.startswith('http'):
+        send_face_detect(event, image_url=text)
+        return
+
     person_list = get_sheet_values_list('av_sommelier')
     image_list = get_sheet_values_list('av_sommelier_images')
 
@@ -119,8 +123,49 @@ def handle_image(event):
     message_content = line_bot_api.get_message_content(message_id)
     image = BytesIO(message_content.content)
 
+    send_face_detect(event=event, image=image)
+
+
+def reply_raw_message(event, messages):
+    headers = {
+        "Authorization": "Bearer " + AV_SOMMELIER_ACCESS_TOKEN,
+        'Content-Type': 'application/json',
+    }
+
+    _json = {
+        'replyToken': event.reply_token,
+        'messages': messages,
+    }
+
+    response = requests.post(
+        reply_endpoint,
+        headers=headers,
+        json=_json,
+    ).json()
+
+    return response
+
+
+def get_sheet_values_list(sheet_name):
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(sheet_name)
+
+    if rcache:
+        print("cache HIT!! %s" % (sheet_name))
+        person_list = json.loads(rcache.decode())
+
+    else:
+        response = gspread.get_sheet_values(SHEET_ID, sheet_name)
+        person_label_list, person_list = gspread.convert_to_dict_data(response)
+        r.set(sheet_name, json.dumps(person_list), ex=EXPIRE)
+
+    return person_list
+
+
+def send_face_detect(event, image=None, image_url=None):
+
     try:
-        detect_results = face.get_face_detect(image=image)
+        detect_results = face.get_face_detect(image=image, image_url=image_url)
 
         if isinstance(detect_results, str):
             reply_message(event, TextSendMessage(text=detect_results))
@@ -168,42 +213,6 @@ def handle_image(event):
     except Exception as e:
         print("error:", e)
         reply_message(event, TextSendMessage(text='エラーが発生しました'))
-
-
-def reply_raw_message(event, messages):
-    headers = {
-        "Authorization": "Bearer " + AV_SOMMELIER_ACCESS_TOKEN,
-        'Content-Type': 'application/json',
-    }
-
-    _json = {
-        'replyToken': event.reply_token,
-        'messages': messages,
-    }
-
-    response = requests.post(
-        reply_endpoint,
-        headers=headers,
-        json=_json,
-    ).json()
-
-    return response
-
-
-def get_sheet_values_list(sheet_name):
-    r = redis.from_url(REDIS_URL)
-    rcache = r.get(sheet_name)
-
-    if rcache:
-        print("cache HIT!! %s" % (sheet_name))
-        person_list = json.loads(rcache.decode())
-
-    else:
-        response = gspread.get_sheet_values(SHEET_ID, sheet_name)
-        person_label_list, person_list = gspread.convert_to_dict_data(response)
-        r.set(sheet_name, json.dumps(person_list), ex=EXPIRE)
-
-    return person_list
 
 
 def create_flex_message(results, image_list, alt_text):
@@ -366,33 +375,33 @@ def create_flex_message(results, image_list, alt_text):
             "type": "carousel",
             "contents": flex_list,
         },
-        "quickReply": {
-            "items": [
-                {
-                    "type": "action",
-                    "action": {
-                        "type": "message",
-                        "label": "Sushi",
-                        "text": "Sushi"
-                    }
-                },
-                {
-                    "type": "action",
-                    "action": {
-                        "type": "message",
-                        "label": "Tempura",
-                        "text": "Tempura"
-                    }
-                },
-                {
-                    "type": "action",
-                    "action": {
-                        "type": "location",
-                        "label": "Send location"
-                    }
-                }
-            ]
-        }
+        # "quickReply": {
+        #     "items": [
+        #         {
+        #             "type": "action",
+        #             "action": {
+        #                 "type": "message",
+        #                 "label": "Sushi",
+        #                 "text": "Sushi"
+        #             }
+        #         },
+        #         {
+        #             "type": "action",
+        #             "action": {
+        #                 "type": "message",
+        #                 "label": "Tempura",
+        #                 "text": "Tempura"
+        #             }
+        #         },
+        #         {
+        #             "type": "action",
+        #             "action": {
+        #                 "type": "location",
+        #                 "label": "Send location"
+        #             }
+        #         }
+        #     ]
+        # }
     }
 
     return flex_message
