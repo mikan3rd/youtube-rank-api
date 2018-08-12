@@ -497,7 +497,6 @@ def send_video_list(event, keyword_list):
                     label_content_name_list = []
                     for content in label_content_list:
                         _id = content.get('id')
-                        print("id:", _id)
                         if isinstance(_id, str):
                             continue
                         name = content.get('name')
@@ -507,7 +506,7 @@ def send_video_list(event, keyword_list):
                     if len(label_content_name_list) == 0:
                         continue
 
-                    label_content = '\n'.join(label_content_name_list)
+                    label_content = '\n'.join(label_content_name_list[:10])
 
                 base_content = {
                     "type": "box",
