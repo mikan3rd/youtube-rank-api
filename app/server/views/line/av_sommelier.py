@@ -605,7 +605,7 @@ def send_video_list(event, keyword_list):
         },
     }
 
-    messages.appen(flex_message)
+    messages.append(flex_message)
     response = reply_raw_message(event, messages)
 
     if response:
