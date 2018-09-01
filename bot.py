@@ -13,8 +13,10 @@ sched = BlockingScheduler(timezone="Asia/Tokyo")
 
 @sched.scheduled_job('cron', hour=6)
 def instagram_job():
-    print('Instagram Update!!')
+    print('Instagram START!!')
     instagram.update_hashtag()
+    instagram.add_hashtag_detail()
+    print('Instagram FINISH!!')
 
 
 sched.start()

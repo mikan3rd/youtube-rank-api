@@ -216,8 +216,6 @@ def get_hashtag_detail(driver, hashtag_name):
 
 
 def get_driver():
-    print(GOOGLE_CHROME_PATH)
-    print(DRIVER_PATH)
     options = ChromeOptions()
     options.binary_location = GOOGLE_CHROME_PATH
     options.add_argument('--headless')
