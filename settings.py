@@ -16,7 +16,7 @@ DRIVER_PATH = os.environ.get('DRIVER_PATH')
 DEVELOPER_KEY = os.environ.get('DEVELOPER_KEY')
 GOOGLE_CLIENT_EMAIL = os.environ.get('GOOGLE_CLIENT_EMAIL')
 GOOGLE_PRIVATE_KEY = os.environ.get('GOOGLE_PRIVATE_KEY')
-GOOGLE_CHROME_BIN = os.environ.get('GOOGLE_CHROME_BIN')
+GOOGLE_CHROME_PATH = os.environ.get('GOOGLE_CHROME_PATH')
 
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
 GNAVI_API_KEY = os.environ.get('GNAVI_API_KEY')

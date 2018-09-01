@@ -9,7 +9,7 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.keys import Keys
 from settings import (
     DRIVER_PATH,
-    GOOGLE_CHROME_BIN,
+    GOOGLE_CHROME_PATH,
     INSTAGRAM_PASSWORD,
     INSTAGRAM_USERNAME,
     SHEET_ID_INSTAGRAM
@@ -216,12 +216,13 @@ def get_hashtag_detail(driver, hashtag_name):
 
 
 def get_driver():
-    print(GOOGLE_CHROME_BIN)
+    print(GOOGLE_CHROME_PATH)
     print(DRIVER_PATH)
     options = ChromeOptions()
-    options.binary_location = GOOGLE_CHROME_BIN
+    options.binary_location = GOOGLE_CHROME_PATH
     options.add_argument('--headless')
     options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
     driver = Chrome(executable_path=DRIVER_PATH, chrome_options=options)
     driver.set_page_load_timeout(10)
     driver.set_script_timeout(10)
