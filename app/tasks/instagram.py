@@ -9,6 +9,7 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.keys import Keys
 from settings import (
     DRIVER_PATH,
+    GOOGLE_CHROME_BIN,
     INSTAGRAM_PASSWORD,
     INSTAGRAM_USERNAME,
     SHEET_ID_INSTAGRAM
@@ -58,12 +59,7 @@ def update_hashtag():
 
 def add_hashtag_detail():
     try:
-        options = ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
-        driver = Chrome(DRIVER_PATH, options=options)
-        driver.set_page_load_timeout(10)
-        driver.set_script_timeout(10)
+        driver = get_driver()
 
         # Login
         print("LOGIN START!!")
@@ -122,10 +118,7 @@ def get_hashtag():
     now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
     try:
-        options = ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
-        driver = Chrome(DRIVER_PATH, options=options)
+        driver = get_driver()
 
         results = []
         for x, y in itertools.product(range(X), range(Y)):
@@ -220,3 +213,14 @@ def get_hashtag_detail(driver, hashtag_name):
         pprint(e)
 
     return result
+
+
+def get_driver():
+    options = ChromeOptions()
+    options.binary_location = GOOGLE_CHROME_BIN
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    driver = Chrome(DRIVER_PATH, options=options)
+    driver.set_page_load_timeout(10)
+    driver.set_script_timeout(10)
+    return driver

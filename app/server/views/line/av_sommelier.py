@@ -38,7 +38,7 @@ SHEET_ID = "1i9IqlJa3lCpNkWBm7_XnYG3QGCbfbQkfzhLk_bFI-rU"
 reply_endpoint = "https://api.line.me/v2/bot/message/reply"
 no_image_url = "https://upload.wikimedia.org/wikipedia/ja/b/b5/Noimage_image.png"
 dmm_unit_quey = "/n1=DgRJTglEBQ4GpoD6,YyI,qs_"
-EXPIRE = 60 * 60 * 3
+EXPIRE = 60 * 60 * 24
 
 
 @api_bp.route("/line/av_sommelier", methods=['POST'])
