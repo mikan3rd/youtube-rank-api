@@ -1,18 +1,9 @@
-import os
 from datetime import datetime
 from pprint import pprint
 
 from apiclient.discovery import build
-from oauth2client import client, tools
-from oauth2client.file import Storage
+from google.oauth2 import service_account
 from settings import DEVELOPER_KEY
-
-
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
 
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
@@ -21,7 +12,8 @@ APPLICATION_NAME = 'Google Sheets API Python Quickstart'
 
 
 def get_sheet_values(sheet_id, _range, render='FORMATTED_VALUE'):
-    service = build('sheets', 'v4', developerKey=DEVELOPER_KEY)
+    credentials = get_credentials()
+    service = build('sheets', 'v4', credentials=credentials)
     response = service.spreadsheets().values().get(
         spreadsheetId=sheet_id,
         range=_range,
@@ -96,32 +88,6 @@ def convert_to_sheet_values(label_list, data_list):
 
 
 def get_credentials():
-    """Gets valid user credentials from storage.
-
-    If nothing has been stored, or if the stored credentials are invalid,
-    the OAuth2 flow is completed to obtain the new credentials.
-
-    Returns:
-        Credentials, the obtained credential.
-    """
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
-
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-
-    credential_path = os.path.join(
-        credential_dir,
-        'sheets.googleapis.com-python-quickstart.json')
-
-    store = Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else:  # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
+    credentials = service_account \
+        .Credentials.from_service_account_file('app/config/files/key.json')
     return credentials
