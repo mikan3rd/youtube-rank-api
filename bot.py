@@ -1,20 +1,20 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from app.tasks import test
+from app.tasks import instagram
 
 
-sched = BlockingScheduler()
+sched = BlockingScheduler(timezone="Asia/Tokyo")
 
 
-@sched.scheduled_job('interval', minutes=3)
-def timed_job():
-    print('This job runs every three minutes.')
+# @sched.scheduled_job('interval', minutes=3)
+# def timed_job():
+#     print('This job runs every three minutes.')
 
 
-@sched.scheduled_job('cron', hour=0)
-def job_3min():
+@sched.scheduled_job('cron', hour=6)
+def instagram_job():
     print('Instagram Update!!')
-    test.uptdate_hashtag()
+    instagram.update_hashtag()
 
 
 sched.start()

@@ -32,10 +32,10 @@ app/config/gdrive/env/*
 app/config/kintone/env/*
 
 *.json
-av_sommelier.py
-odpt.py
-qiita.py
-instagram.py
+/av_sommelier.py
+/odpt.py
+/qiita.py
+/instagram.py
 tasks/who.py
 
 # 最後に書く
