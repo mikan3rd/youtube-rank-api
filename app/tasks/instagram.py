@@ -216,11 +216,13 @@ def get_hashtag_detail(driver, hashtag_name):
 
 
 def get_driver():
+    print(GOOGLE_CHROME_BIN)
+    print(DRIVER_PATH)
     options = ChromeOptions()
     options.binary_location = GOOGLE_CHROME_BIN
     options.add_argument('--headless')
     options.add_argument('--disable-gpu')
-    driver = Chrome(DRIVER_PATH, options=options)
+    driver = Chrome(executable_path=DRIVER_PATH, chrome_options=options)
     driver.set_page_load_timeout(10)
     driver.set_script_timeout(10)
     return driver
