@@ -10,6 +10,7 @@ dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 REDIS_URL = os.environ.get('REDIS_URL')
+DRIVER_PATH = os.environ.get('DRIVER_PATH')
 
 # Google
 DEVELOPER_KEY = os.environ.get('DEVELOPER_KEY')
@@ -38,3 +39,7 @@ DMM_AFFILIATE_ID = os.environ.get('DMM_AFFILIATE_ID')
 
 # 東京公共交通オープンデータ
 ACL_CONSUMERKEY = os.environ.get('ACL_CONSUMERKEY')
+
+
+# SHEET_ID
+SHEET_ID_INSTAGRAM = os.environ.get("SHEET_ID_INSTAGRAM")
