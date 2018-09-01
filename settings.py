@@ -35,3 +35,6 @@ AV_SOMMELIER_CHANNEL_SECRET = os.environ.get('AV_SOMMELIER_CHANNEL_SECRET')
 # DMM
 DMM_API_ID = os.environ.get('DMM_API_ID')
 DMM_AFFILIATE_ID = os.environ.get('DMM_AFFILIATE_ID')
+
+# 東京公共交通オープンデータ
+ACL_CONSUMERKEY = os.environ.get('ACL_CONSUMERKEY')

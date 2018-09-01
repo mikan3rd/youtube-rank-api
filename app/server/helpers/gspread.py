@@ -20,11 +20,12 @@ CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Sheets API Python Quickstart'
 
 
-def get_sheet_values(sheet_id, _range):
+def get_sheet_values(sheet_id, _range, render='FORMATTED_VALUE'):
     service = build('sheets', 'v4', developerKey=DEVELOPER_KEY)
     response = service.spreadsheets().values().get(
         spreadsheetId=sheet_id,
         range=_range,
+        valueRenderOption=render,
         key=DEVELOPER_KEY,
     ).execute()
     return response
@@ -59,7 +60,7 @@ def convert_to_dict_data(response):
                 continue
 
             value = sheet[index]
-            if label == 'rank_num' or label == 'trend_num':
+            if label in ['rank_num', 'trend_num', 'followers_count', 'num']:
                 try:
                     value = int(value)
                 except Exception as e:
@@ -79,9 +80,9 @@ def convert_to_sheet_values(label_list, data_list):
 
         for index, label in enumerate(label_list):
 
-            if label == 'update_at':
-                cells.append(now)
-                continue
+            # if label == 'update_at':
+            #     cells.append(now)
+            #     continue
 
             if label == 'create_at' and not data.get(label):
                 cells.append(now)

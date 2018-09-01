@@ -117,9 +117,9 @@ def handle_message(event):
     messages.append(flex_message)
 
     response = reply_raw_message(event, messages)
-    if response:
-        pprint(response)
-        pprint(results[:10])
+    # if response:
+    #     pprint(response)
+    #     pprint(results[:10])
 
     # except Exception as e:
     #     pprint(e)
@@ -216,9 +216,9 @@ def send_face_detect(event, image=None, image_url=None):
         messages = [flex_message]
         response = reply_raw_message(event, messages)
 
-        if response:
-            pprint(response)
-            pprint(results[:10])
+        # if response:
+        #     pprint(response)
+        #     pprint(results[:10])
 
     except Exception as e:
         print("error:", e)
@@ -595,8 +595,8 @@ def send_video_list(event, keyword_list):
     messages.append(flex_message)
     response = reply_raw_message(event, messages)
 
-    if response:
-        pprint(response)
+    # if response:
+    #     pprint(response)
 
 
 def get_genre_items(keyword_list, item_list=None):
