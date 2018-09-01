@@ -12,8 +12,7 @@ APPLICATION_NAME = 'Google Sheets API Python Quickstart'
 
 
 def get_sheet_values(sheet_id, _range, render='FORMATTED_VALUE'):
-    credentials = get_credentials()
-    service = build('sheets', 'v4', credentials=credentials)
+    service = build('sheets', 'v4', developerKey=DEVELOPER_KEY)
     response = service.spreadsheets().values().get(
         spreadsheetId=sheet_id,
         range=_range,
