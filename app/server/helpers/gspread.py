@@ -1,23 +1,22 @@
+import base64
 from datetime import datetime
 from pprint import pprint
 
+import oauth2client.client
 from apiclient.discovery import build
-from google.oauth2 import service_account
-from settings import DEVELOPER_KEY
+from settings import GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY
 
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
-CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Google Sheets API Python Quickstart'
 
 
 def get_sheet_values(sheet_id, _range, render='FORMATTED_VALUE'):
-    service = build('sheets', 'v4', developerKey=DEVELOPER_KEY)
+    credentials = get_credentials()
+    service = build('sheets', 'v4', credentials=credentials)
     response = service.spreadsheets().values().get(
         spreadsheetId=sheet_id,
         range=_range,
         valueRenderOption=render,
-        key=DEVELOPER_KEY,
     ).execute()
     return response
 
@@ -87,6 +86,13 @@ def convert_to_sheet_values(label_list, data_list):
 
 
 def get_credentials():
-    credentials = service_account \
-        .Credentials.from_service_account_file('app/config/files/key.json')
+    # 環境変数で読み込むと"\n"が改行文字として認識されないため
+    private_key = GOOGLE_PRIVATE_KEY.replace("\\n", "\n")
+
+    credentials = oauth2client.client \
+        .SignedJwtAssertionCredentials(
+            GOOGLE_CLIENT_EMAIL,
+            private_key,
+            scope=SCOPES,
+        )
     return credentials
