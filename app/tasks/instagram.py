@@ -206,6 +206,25 @@ def get_hashtag_detail(driver, hashtag_name):
     return result
 
 
+def update_languages():
+    response = gspread.get_sheet_values(SHEET_ID_INSTAGRAM, "hashtag", "FORMULA")
+    label_list, hashtag_list = gspread.convert_to_dict_data(response)
+
+    for index, hashtag in enumerate(hashtag_list[:3]):
+        name = hashtag['name']
+
+        detector = Detector(name, quiet=True)
+        languages = [lang.code for lang in detector.languages if lang.code != 'un']
+
+        new_data = hashtag_list[index]
+        new_data['languages'] = ','.join(languages)
+        hashtag_list[index] = new_data
+
+    body = {'values': gspread.convert_to_sheet_values(label_list, hashtag_list)}
+    gspread.update_sheet_values(SHEET_ID_INSTAGRAM, 'hashtag', body)
+    print("SUCCESS!! update_languages")
+
+
 def get_driver():
     options = ChromeOptions()
     options.binary_location = GOOGLE_CHROME_PATH
