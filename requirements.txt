@@ -44,7 +44,7 @@ packaging==16.8
 pandas==0.20.3
 Pillow==4.2.1
 pluggy==0.5.2
-polyglot==15.10.03
+polyglot==15.5.2
 py==1.4.34
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
