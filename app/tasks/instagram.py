@@ -1,10 +1,10 @@
 import itertools
-import re
 from datetime import datetime
 from pprint import pprint
 from time import sleep
 
 from bs4 import BeautifulSoup
+from polyglot.detect import Detector
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.keys import Keys
 from settings import (
@@ -143,27 +143,17 @@ def get_hashtag():
 
                     text = a_tag.text
 
-                    # 英数字 or 日本語 で始まらない場合はスキップ
-                    if re.match(r'[a-zA-Z0-9ぁ-んァ-ン一-龥]+', text) is None:
+                    detector = Detector(text, quiet=True)
+                    languages = [lang.code for lang in detector.languages if lang.code != 'un']
+
+                    # 日本語を含まないものはスキップ
+                    if 'ja' not in languages:
                         continue
-
-                    language = None
-                    if re.search(r'[ぁ-んァ-ン]+', text) is not None:
-                        language = 'ja'
-
-                    elif re.search(r'[一-龥]+', text) is not None:
-                        language = 'ja, zh'
-
-                    # 一旦、日本語を含まないものはスキップ
-                    if language is None:
-                        continue
-
-                    print(x, y, text)
 
                     results.append({
                         'name': text,
                         'page': '%s-%s' % (x, y),
-                        'language': language,
+                        'languages': ','.join(languages),
                         'update_at': now,
                     })
 
@@ -172,7 +162,8 @@ def get_hashtag():
                 break
 
     except Exception as e:
-        pprint(e)
+        # pprint(e)
+        pass
 
     finally:
         driver.quit()
