@@ -210,7 +210,7 @@ def update_languages():
     response = gspread.get_sheet_values(SHEET_ID_INSTAGRAM, "hashtag", "FORMULA")
     label_list, hashtag_list = gspread.convert_to_dict_data(response)
 
-    for index, hashtag in enumerate(hashtag_list[:3]):
+    for index, hashtag in enumerate(hashtag_list):
         name = hashtag['name']
 
         detector = Detector(name, quiet=True)
