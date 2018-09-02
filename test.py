@@ -1,5 +1,4 @@
-from polyglot.detect import Detector
-from polyglot.text import Text, Word
+# from langdetect import detect, detect_langs
 
 from app.tasks import instagram
 
@@ -8,14 +7,14 @@ if __name__ == '__main__':
     # instagram.update_hashtag()
     instagram.update_languages()
 
-    # detector = Detector('韓國', quiet=True)
-    # print(detector.language.code)
-    # for lang in detector.languages:
-    #     print(lang)
+    # text = "單眼皮手寫歌單"
+    # print(text)
 
-    # try:
-    #     detector = Text("pizza")
-    #     print(detector)
+    # result = detect(text)
+    # print(result)
 
-    # except Exception as e:
-    #     print("ERROR")
+    # results = detect_langs(text)
+    # print(results)
+
+    # for res in results:
+    #     print(res.lang)

@@ -4,7 +4,7 @@ from pprint import pprint
 from time import sleep
 
 from bs4 import BeautifulSoup
-from polyglot.detect import Detector
+from langdetect import detect_langs
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.keys import Keys
 from settings import (
@@ -143,8 +143,12 @@ def get_hashtag():
 
                     text = a_tag.text
 
-                    detector = Detector(text, quiet=True)
-                    languages = [lang.code for lang in detector.languages if lang.code != 'un']
+                    try:
+                        detect_list = detect_langs(text)
+                        languages = [detect.lang for detect in detect_list]
+
+                    except Exception as e:
+                        languages = []
 
                     # 日本語を含まないものはスキップ
                     if 'ja' not in languages:
@@ -212,9 +216,16 @@ def update_languages():
 
     for index, hashtag in enumerate(hashtag_list):
         name = hashtag['name']
+        print(name)
 
-        detector = Detector(name, quiet=True)
-        languages = [lang.code for lang in detector.languages if lang.code != 'un']
+        try:
+            detect_list = detect_langs(name)
+            languages = [detect.lang for detect in detect_list]
+            print(languages)
+
+        except Exception as e:
+            print(e)
+            continue
 
         new_data = hashtag_list[index]
         new_data['languages'] = ','.join(languages)
