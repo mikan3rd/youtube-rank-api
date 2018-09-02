@@ -11,6 +11,11 @@ def timed_job():
     print('This job runs every 20 minutes.')
 
 
+@sched.scheduled_job('interval', seconds=30)
+def timed_job_seconds():
+    print('This job runs every 30 seconds.')
+
+
 @sched.scheduled_job('cron', hour=6)
 def instagram_job():
     print('Instagram START!!')
