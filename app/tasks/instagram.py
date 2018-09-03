@@ -1,8 +1,10 @@
 import itertools
+import re
 from datetime import datetime
 from pprint import pprint
 from time import sleep
 
+from functional import seq
 from bs4 import BeautifulSoup
 from langdetect import detect_langs
 from selenium.webdriver import Chrome, ChromeOptions
@@ -143,12 +145,19 @@ def get_hashtag():
 
                     text = a_tag.text
 
-                    try:
-                        detect_list = detect_langs(text)
-                        languages = [detect.lang for detect in detect_list]
+                    languages = []
+                    if re.search(r'[ぁ-んァ-ン]+', text) is not None:
+                        languages = ['ja']
 
-                    except Exception as e:
-                        languages = []
+                    elif re.search(r'[一-龥]+', text) is not None:
+                        languages = ['ja', 'zh']
+
+                    # try:
+                    #     detect_list = detect_langs(text)
+                    #     languages = [detect.lang for detect in detect_list]
+
+                    # except Exception as e:
+                    #     languages = []
 
                     # 日本語を含まないものはスキップ
                     if 'ja' not in languages:
@@ -156,7 +165,7 @@ def get_hashtag():
 
                     results.append({
                         'name': text,
-                        'page': '%s-%s' % (x, y),
+                        'page': '%s-%s' % (x + 1, y),
                         'languages': ','.join(languages),
                         'update_at': now,
                     })
@@ -191,23 +200,121 @@ def get_hashtag_detail(driver, hashtag_name):
 
         main_tag = soup.find("main")
         header_tag = main_tag.find("header")
+        article_tag = main_tag.find("article")
 
         img_tag = header_tag.find("img")
         span_tag = header_tag.find("span")
         span_tag_inner = span_tag.find("span")
         num = int(span_tag_inner.text.replace(",", ""))
 
+        img_tag_list = article_tag.find_all("img")
+
+        hashtag_set = set()
+        for img in img_tag_list:
+            alt = img.get("alt")
+
+            if not alt:
+                continue
+
+            hashtag_set |= set(get_tag(alt))
+
         result = {
             'icon': '=IMAGE("%s")' % (img_tag.get('src', no_image_url)),
             'num': num,
             'url': BASE_URL + url,
             'update_at': now,
+            'hashtag_set': hashtag_set,
         }
 
     except Exception as e:
         pprint(e)
 
     return result
+
+
+def get_tag(text):
+    ''' インスタグラムのハッシュタグを取得する
+    ルールは`#で始まり、_を除く記号で終わる部分`
+    備考: インスタグラムのハッシュタグルールでは、全角の記号は含まれない
+    ex.) #abc？edfという文字列では、"abc"のみがハッシュタグとなる
+    ただしどの文字が対象であるかがどこにもなく、これをフォローすることが難しいため、
+    このメソッドでは全角記号には現状は対応しない。従って以下の結果となる
+    ex.) #abc？edfという文字列では、"abc？edf"をハッシュタグとして返却する
+    '''
+    pattern = r'#([\S]+?)(?=[ -\/:-@\[-^\`\{-\~])|#([\S]+?)(?=$)'
+    matches = list(
+        seq(re.finditer(pattern, text, re.MULTILINE | re.DOTALL))
+        .map(lambda match: [match.group(1), match.group(2)])
+        .flatten()
+        .filter(lambda match: match)
+    )
+    return matches
+
+
+def add_hashtag_list():
+    try:
+        driver = get_driver()
+
+        # Login
+        print("LOGIN START!!")
+        driver.get(login_url)
+
+        usernameField = driver.find_element_by_xpath(usernamePath)
+        usernameField.send_keys(INSTAGRAM_USERNAME)
+
+        passwordField = driver.find_element_by_xpath(passwordPath)
+        passwordField.send_keys(INSTAGRAM_PASSWORD)
+
+        passwordField.send_keys(Keys.RETURN)
+        print("LOGIN FINISH!!")
+
+        response = gspread.get_sheet_values(SHEET_ID_INSTAGRAM, "hashtag", "FORMULA")
+        label_list, hashtag_list = gspread.convert_to_dict_data(response)
+
+        count = 1
+        new_num = 0
+        for index, hashtag in enumerate(hashtag_list[:10]):
+
+            # 進行状況を表示
+            if index % 100 == 0:
+                print("index:", index)
+
+            # 100件ごとに保存する
+            if count % 100 == 0:
+                body = {'values': gspread.convert_to_sheet_values(label_list, hashtag_list)}
+                gspread.update_sheet_values(SHEET_ID_INSTAGRAM, 'hashtag', body)
+                print("count:", count)
+
+            data = get_hashtag_detail(driver, hashtag['name'])
+            hashtag_set = data.get('hashtag_set', set())
+
+            for new_tag in hashtag_set:
+
+                find = next((index for hashtag in hashtag_list if hashtag['name'] == new_tag), None)
+
+                if find is not None:
+                    continue
+
+                hashtag_list.append({
+                    'name': new_tag,
+                    'update_at': data.get('update_at'),
+                })
+                print(new_tag)
+                new_num += 1
+
+            count += 1
+
+        hashtag_list = sorted(hashtag_list, key=lambda k: k.get('num', 0) or 0, reverse=True)
+        body = {'values': gspread.convert_to_sheet_values(label_list, hashtag_list)}
+        gspread.update_sheet_values(SHEET_ID_INSTAGRAM, 'hashtag', body)
+        print("new:", new_num)
+        print("SUCCESS!! add_hashtag_detail")
+
+    except Exception as e:
+        pprint(e)
+
+    finally:
+        driver.quit()
 
 
 def update_languages():
