@@ -1,11 +1,12 @@
 import itertools
 import re
+import urllib.parse
 from datetime import datetime
 from pprint import pprint
 from time import sleep
 
-from functional import seq
 from bs4 import BeautifulSoup
+from functional import seq
 from langdetect import detect_langs
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.keys import Keys
@@ -54,6 +55,7 @@ def update_hashtag():
         hashtag_list[index] = new_data
 
     print("new:", new_num)
+    hashtag_list = sorted(hashtag_list, key=lambda k: k.get('num', 0) or 0, reverse=True)
     body = {'values': gspread.convert_to_sheet_values(label_list, hashtag_list)}
     gspread.update_sheet_values(SHEET_ID_INSTAGRAM, 'hashtag', body)
     print("SUCCESS!! update_hashtag")
@@ -190,8 +192,9 @@ def get_hashtag_detail(driver, hashtag_name):
     result = {}
 
     try:
-        url = "/explore/tags/%s/" % (hashtag_name)
-        print(url)
+        encode_hashtag = urllib.parse.quote(hashtag_name)
+        url = "/explore/tags/%s/" % (encode_hashtag)
+        print("get_hashtag_detail:", hashtag_name)
 
         driver.get(BASE_URL + url)
         sleep(5)
@@ -273,7 +276,7 @@ def add_hashtag_list():
 
         count = 1
         new_num = 0
-        for index, hashtag in enumerate(hashtag_list[:10]):
+        for index, hashtag in enumerate(hashtag_list[:5]):
 
             # 進行状況を表示
             if index % 100 == 0:
@@ -284,6 +287,9 @@ def add_hashtag_list():
                 body = {'values': gspread.convert_to_sheet_values(label_list, hashtag_list)}
                 gspread.update_sheet_values(SHEET_ID_INSTAGRAM, 'hashtag', body)
                 print("count:", count)
+
+            if 'ja' not in hashtag['languages']:
+                continue
 
             data = get_hashtag_detail(driver, hashtag['name'])
             hashtag_set = data.get('hashtag_set', set())
@@ -352,4 +358,5 @@ def get_driver():
     driver = Chrome(executable_path=DRIVER_PATH, chrome_options=options)
     driver.set_page_load_timeout(10)
     driver.set_script_timeout(10)
+    driver.implicitly_wait(10)
     return driver
