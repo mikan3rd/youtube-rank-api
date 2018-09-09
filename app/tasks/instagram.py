@@ -104,6 +104,7 @@ def add_hashtag_detail():
             hashtag_list[index] = new_hashtag
             count += 1
 
+        print("new:", count)
         hashtag_list = sorted(hashtag_list, key=lambda k: k.get('num', 0) or 0, reverse=True)
         body = {'values': gspread.convert_to_sheet_values(label_list, hashtag_list)}
         gspread.update_sheet_values(SHEET_ID_INSTAGRAM, 'hashtag', body)
@@ -233,6 +234,117 @@ def get_hashtag_detail(driver, hashtag_name):
         pprint(e)
 
     return result
+
+
+def get_location_japan():
+    response = gspread.get_sheet_values(SHEET_ID_INSTAGRAM, "city", "FORMULA")
+    label_list, city_list = gspread.convert_to_dict_data(response)
+    city_names = {city.get('city') for city in city_list}
+
+    url = "/explore/locations/JP/"
+    print(url)
+
+    num = 1
+    while True:
+        try:
+            driver = get_driver()
+            page = '?page=%s' % (num)
+            print("page:", num)
+            driver.get(BASE_URL + url + page)
+            sleep(1)
+            html_source = driver.page_source
+            soup = BeautifulSoup(html_source, "lxml")
+
+            main_tag = soup.find("main")
+            list_tags = main_tag.find_all("li")
+            for li in list_tags:
+                a_tag = li.find("a")
+
+                if not a_tag:
+                    continue
+
+                city = a_tag.text
+                if city in city_names:
+                    continue
+
+                city_list.append({
+                    'city': city,
+                    'page': num,
+                    'href': a_tag.get('href'),
+                })
+                print("NEW!", city)
+
+            num += 1
+
+        except Exception as e:
+            pprint(e)
+            break
+
+        finally:
+            driver.quit()
+
+    body = {'values': gspread.convert_to_sheet_values(label_list, city_list)}
+    gspread.update_sheet_values(SHEET_ID_INSTAGRAM, 'city', body)
+    print("SUCCESS!! get_location_japan")
+
+
+def get_spots():
+    response = gspread.get_sheet_values(SHEET_ID_INSTAGRAM, "city", "FORMULA")
+    _, city_list = gspread.convert_to_dict_data(response)
+
+    response = gspread.get_sheet_values(SHEET_ID_INSTAGRAM, "spot", "FORMULA")
+    label_list, spot_list = gspread.convert_to_dict_data(response)
+    spot_names = {spot.get('spot') for spot in spot_list}
+
+    for city in city_list:
+        num = 1
+        new_num = 0
+        while True:
+            try:
+                driver = get_driver()
+                page = '?page=%s' % (num)
+                print(page)
+                driver.get(BASE_URL + city['href'] + page)
+                sleep(1)
+                html_source = driver.page_source
+                soup = BeautifulSoup(html_source, "lxml")
+
+                main_tag = soup.find("main")
+                list_tags = main_tag.find_all("li")
+                for li in list_tags:
+                    a_tag = li.find("a")
+
+                    if not a_tag:
+                        continue
+
+                    spot = a_tag.text
+                    if spot in spot_names:
+                        continue
+
+                    spot_list.append({
+                        'city': city['city'],
+                        'spot': spot,
+                        'page': num,
+                        'href': a_tag.get('href'),
+                    })
+                    print("NEW!", spot)
+                    new_num += 1
+
+                num += 1
+
+            except Exception as e:
+                pprint(e)
+                break
+
+            finally:
+                driver.quit()
+
+        print("NEW", new_num)
+        values = gspread.convert_to_sheet_values(label_list, spot_list)
+        body = {'values': values}
+        gspread.update_sheet_values(SHEET_ID_INSTAGRAM, 'spot', body)
+
+    print("SUCCESS!! get_spots")
 
 
 def get_tag(text):

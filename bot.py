@@ -25,5 +25,21 @@ def tiktok_job():
     tiktok.get_feed()
 
 
+@sched.scheduled_job('cron', hour=9)
+def qiita_job():
+    print('Qiita START!!')
+    body = tiktok.create_markdown()
+    now = datetime.now().strftime("%Y/%m/%d")
+    title = '【自動更新】TikTokユーザーランキング【%s】' % (now)
+    tags = [{'name': 'Python'}, {'name': 'ランキング'}, {'name': '自動生成'}, {'name': 'tiktok'}]
+
+    qiita.patch_item(
+        item_id="b34002f5a9ecaaaacf09",
+        title=title,
+        body=body,
+        tags=tags,
+    )
+
+
 print("Scheduler START!!")
 sched.start()
