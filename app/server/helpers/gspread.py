@@ -37,7 +37,6 @@ def update_sheet_values(sheet_id, _range, body):
 def convert_to_dict_data(response):
     raw_sheet_data = response['values']
     label_list = raw_sheet_data.pop(0)
-    print(label_list)
 
     results = []
     for sheet in raw_sheet_data:
