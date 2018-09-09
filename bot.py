@@ -21,8 +21,8 @@ def instagram_job():
 @sched.scheduled_job('interval', minutes=10)
 def tiktok_job():
     print('TikTok START!!')
-    tiktok.update_user_detail()
     tiktok.get_feed()
+    tiktok.update_user_detail()
 
 
 @sched.scheduled_job('cron', hour=9)
