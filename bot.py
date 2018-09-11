@@ -30,7 +30,7 @@ def qiita_job():
     print('Qiita START!!')
     body = tiktok.create_markdown()
     now = datetime.now().strftime("%Y/%m/%d")
-    title = '【自動更新】TikTokユーザーランキング【%s】' % (now)
+    title = '【自動更新】TikTok人気ユーザーランキング【%s】' % (now)
     tags = [{'name': 'Python'}, {'name': 'ランキング'}, {'name': '自動生成'}, {'name': 'tiktok'}]
 
     qiita.patch_item(
