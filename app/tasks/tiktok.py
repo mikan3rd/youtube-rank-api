@@ -184,7 +184,7 @@ def create_markdown():
 ※ 現在、iPhoneだと画像が表示されないようです
     '''
 
-    length = 200
+    length = 50
     # agenda_list = []
     # rank_interval = [1, 11, 21]
     # for i, rank in enumerate(rank_interval):
