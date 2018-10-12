@@ -106,18 +106,29 @@ def update_user_detail(skip=True):
             res = requests.get(BASE_URL + url, headers=feed_headers, params=feed_params)
             data = res.json()
 
+            if not data.get('user'):
+                continue
+
             user_data = data['user']
+
+            if not user_data.get('uid'):
+                user['share_url'] = True
+                continue
+
             result = create_user_data(user_data)
 
             if not result:
                 continue
 
             user.update(result)
-            user_list[index] = user
             new_num += 1
             print(index, user.get('nickname'))
 
             sleep(1)
+
+            if new_num % 50 == 0:
+                body = {'values': gspread.convert_to_sheet_values(label_list, user_list)}
+                gspread.update_sheet_values(SHEET_ID, 'users', body)
 
         except Exception as e:
             pprint(e)
