@@ -1,13 +1,5 @@
 
-
-from pprint import pprint
-from time import sleep
-
 import requests
-from bs4 import BeautifulSoup
-from selenium.webdriver import Chrome, ChromeOptions
-
-from app.server.helpers import gspread
 
 
 ACCESS_TOKEN = "Bearer b97a1dffcfb6379f649c3f8f71b17bd6b5d77250"
