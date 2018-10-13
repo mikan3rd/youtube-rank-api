@@ -1,13 +1,16 @@
 import base64
+import json
 from datetime import datetime
 from pprint import pprint
 
 import oauth2client.client
+import redis
 from apiclient.discovery import build
-from settings import GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY
+from settings import GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, REDIS_URL
 
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
+EXPIRE = 60 * 60 * 24
 
 
 def get_sheet_values(sheet_id, _range, render='FORMATTED_VALUE'):
@@ -96,3 +99,19 @@ def get_credentials():
             scope=SCOPES,
         )
     return credentials
+
+
+def get_values_by_chache(sheet_id, sheet_name, expire=EXPIRE):
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(sheet_name)
+
+    if rcache:
+        print("cache HIT!! %s" % (sheet_name))
+        person_list = json.loads(rcache.decode())
+
+    else:
+        response = get_sheet_values(sheet_id, sheet_name)
+        person_label_list, person_list = convert_to_dict_data(response)
+        # r.set(sheet_name, json.dumps(person_list), ex=expire)
+
+    return person_list
