@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from pprint import pprint
 from time import sleep
 
@@ -84,13 +84,14 @@ def get_feed():
     print("SUCCESS!! get_feed")
 
 
-def update_user_detail(skip=True):
+def update_user_detail():
     response = gspread.get_sheet_values(SHEET_ID, 'users', "FORMULA")
     label_list, user_list = gspread.convert_to_dict_data(response)
 
     url = "/user/"
     print(url)
 
+    today = datetime.now()
     new_num = 0
     for index, user in enumerate(user_list):
         try:
@@ -99,8 +100,12 @@ def update_user_detail(skip=True):
             if not uid:
                 continue
 
-            if user.get('share_url') and skip is True:
-                continue
+            update_at = user.get('update_at')
+            if update_at:
+                # 前回の更新から24時間経っていない場合はスキップ
+                time = datetime.strptime(update_at, '%Y/%m/%d %H:%M:%S') + timedelta(days=1)
+                if time > today:
+                    continue
 
             feed_params['user_id'] = uid
             res = requests.get(BASE_URL + url, headers=feed_headers, params=feed_params)

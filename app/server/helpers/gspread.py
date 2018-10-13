@@ -17,6 +17,7 @@ def get_sheet_values(sheet_id, _range, render='FORMATTED_VALUE'):
         spreadsheetId=sheet_id,
         range=_range,
         valueRenderOption=render,
+        dateTimeRenderOption='FORMATTED_STRING',
     ).execute()
     return response
 
