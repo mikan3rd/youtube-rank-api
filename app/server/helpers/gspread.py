@@ -43,8 +43,8 @@ def convert_to_dict_data(response):
     label_list = raw_sheet_data.pop(0)
 
     results = []
-    for sheet in raw_sheet_data:
-        result = {}
+    for i, sheet in enumerate(raw_sheet_data):
+        result = {'index': i}
         for index, label in enumerate(label_list):
             if not label:
                 continue

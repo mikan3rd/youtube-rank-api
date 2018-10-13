@@ -15,6 +15,7 @@ api_bp = Blueprint('tiktok_api', __name__)
 SHEET_ID = "1cA3pIOPfRKw3v8oeArTsVOAszUWUO9cOZ4UKKAZ1RH4"
 EXPIRE = 60 * 60 * 24
 allowed_keys = [
+    'index',
     'avatar_medium',
     'avatar_thumb',
     'aweme_count',
@@ -69,6 +70,8 @@ def get_users_by_chache(key, sheet_name, expire=EXPIRE):
                 for k, v in user.items()
                 if k in allowed_keys
             }
+
+            data['avatar_thumb'] = data['avatar_thumb'].replace('.webp', '.jpeg')
             result.append(data)
 
         r.set(key, json.dumps(result), ex=expire)
