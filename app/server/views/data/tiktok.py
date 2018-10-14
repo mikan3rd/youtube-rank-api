@@ -1,4 +1,5 @@
 import json
+import math
 from logging import getLogger
 
 import redis
@@ -14,6 +15,7 @@ api_bp = Blueprint('tiktok_api', __name__)
 
 SHEET_ID = "1cA3pIOPfRKw3v8oeArTsVOAszUWUO9cOZ4UKKAZ1RH4"
 EXPIRE = 60 * 60 * 24
+PER_PAGE = 20
 allowed_keys = [
     'index',
     'avatar_medium',
@@ -39,18 +41,18 @@ allowed_keys = [
 @parse_params(types=['args'])
 def get_users(args) -> ApiResponse:
     print("args:", args)
-    user_list = get_users_by_chache(str(args), 'users')
+    response = get_users_by_chache(
+        params=args,
+        sheet_name='users',
+    )
 
-    result = {
-        'paging': None,
-        'user_list': user_list,
-    }
-
-    return result
+    return response
 
 
-def get_users_by_chache(key, sheet_name, expire=EXPIRE):
-    print(key)
+def get_users_by_chache(params, sheet_name, expire=EXPIRE):
+    print(params)
+    key = str(params)
+
     r = redis.from_url(REDIS_URL)
     rcache = r.get(key)
     # rcache = False
@@ -58,22 +60,60 @@ def get_users_by_chache(key, sheet_name, expire=EXPIRE):
     if rcache:
         print("cache HIT!! %s" % (key))
         result = json.loads(rcache.decode())
+        return result
 
-    else:
-        response = gspread.get_sheet_values(SHEET_ID, sheet_name)
-        person_label_list, person_list = gspread.convert_to_dict_data(response)
-        result = []
-        for user in person_list[:50]:
-            # 許可されたkeyのみ返す
-            data = {
-                k: v
-                for k, v in user.items()
-                if k in allowed_keys
-            }
+    response = gspread.get_sheet_values(SHEET_ID, sheet_name)
+    person_label_list, person_list = gspread.convert_to_dict_data(response)
 
-            data['avatar_thumb'] = data['avatar_thumb'].replace('.webp', '.jpeg')
-            result.append(data)
+    start_num = 1
 
-        r.set(key, json.dumps(result), ex=expire)
+    page = int(params['page']) if params.get('page') else None
+    if page:
+        start_num = PER_PAGE * (page - 1)
 
-    return result
+    end_num = start_num + PER_PAGE
+
+    result = []
+    for user in person_list[start_num:end_num]:
+        # 許可されたkeyのみ返す
+        data = {
+            k: v
+            for k, v in user.items()
+            if k in allowed_keys
+        }
+
+        data['avatar_thumb'] = data['avatar_thumb'].replace('.webp', '.jpeg')
+        result.append(data)
+
+    response = {
+        'paging': create_paging_data(len(person_list), page),
+        'user_list': result,
+    }
+
+    r.set(key, json.dumps(response), ex=expire)
+
+    return response
+
+
+def create_paging_data(total_count, page=None, per_page=PER_PAGE):
+    '''ページングデータの作成
+    Args:
+        total_count(int): 全件数
+        page(int): 表示対象のページ
+        per_page(int): ページあたりの表示件数
+
+    Returns:
+        metadata(dict):
+    '''
+    if not page or not per_page:
+        return {'total_count': total_count}
+
+    max_page = \
+        int(total_count / per_page) + \
+        (1 if math.ceil(total_count % per_page) else 0)
+    return {
+        'total_count': total_count,
+        'page': page,
+        'max_page': max_page,
+        'per_page': per_page,
+    }
