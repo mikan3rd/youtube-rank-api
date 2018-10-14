@@ -103,7 +103,7 @@ def update_user_detail():
             update_at = user.get('update_at')
             if update_at:
                 # 前回の更新から24時間経っていない場合はスキップ
-                time = datetime.strptime(update_at, '%Y/%m/%d %H:%M:%S') + timedelta(days=1)
+                time = datetime.strptime(update_at, '%Y/%m/%d %H:%M:%S') + timedelta(days=5)
                 if time > today:
                     continue
 
