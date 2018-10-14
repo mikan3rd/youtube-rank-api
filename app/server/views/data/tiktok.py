@@ -27,7 +27,7 @@ allowed_keys = [
     'share_url',
     'signature',
     'total_favorited',
-    'twitter_id',
+    'twitter_name',
     'youtube_channel_id',
     'youtube_channel_title',
     'short_id',
