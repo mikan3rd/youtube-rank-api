@@ -65,8 +65,12 @@ def get_users_by_chache(params, sheet_name, expire=EXPIRE):
     response = gspread.get_sheet_values(SHEET_ID, sheet_name)
     person_label_list, person_list = gspread.convert_to_dict_data(response)
 
-    start_num = 1
+    if params.get('sort'):
+        person_list = sorted(person_list, key=lambda k: int(k.get(params['sort'], 0) or 0), reverse=True)
+        for index, person in enumerate(person_list):
+            person['index'] = index
 
+    start_num = 1
     page = int(params['page']) if params.get('page') else None
     if page:
         start_num = PER_PAGE * (page - 1)
