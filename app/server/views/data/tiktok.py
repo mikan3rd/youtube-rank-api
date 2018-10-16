@@ -67,8 +67,12 @@ def get_users_by_chache(params, sheet_name, expire=EXPIRE):
 
     if params.get('sort'):
         person_list = sorted(person_list, key=lambda k: int(k.get(params['sort'], 0) or 0), reverse=True)
-        for index, person in enumerate(person_list):
-            person['index'] = index
+
+    if params.get('gender'):
+        person_list = [user for user in person_list if user.get('gender') in params['gender']]
+
+    for index, person in enumerate(person_list):
+        person['index'] = index
 
     start_num = 1
     page = int(params['page']) if params.get('page') else None
