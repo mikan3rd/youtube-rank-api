@@ -14,7 +14,7 @@ log = getLogger(__name__)
 api_bp = Blueprint('tiktok_api', __name__)
 
 SHEET_ID = "1cA3pIOPfRKw3v8oeArTsVOAszUWUO9cOZ4UKKAZ1RH4"
-EXPIRE = 60 * 60 * 24
+EXPIRE = 60 * 60 * 24 * 3
 PER_PAGE = 20
 allowed_keys = [
     'index',
@@ -68,8 +68,23 @@ def get_users_by_chache(params, sheet_name, expire=EXPIRE):
     if params.get('sort'):
         person_list = sorted(person_list, key=lambda k: int(k.get(params['sort'], 0) or 0), reverse=True)
 
-    if params.get('gender'):
-        person_list = [user for user in person_list if user.get('gender') in params['gender']]
+    gender = []
+    account = []
+    if params.get('options'):
+        for option in params['options']:
+            if option in ['0', '1', '2']:
+                gender.append(option)
+            else:
+                account.append(option)
+
+    print(gender)
+    print(account)
+
+    if gender:
+        person_list = [user for user in person_list if user.get('gender') in gender]
+
+    if account:
+        person_list = [user for user in person_list if user.get('custom_verify') in account]
 
     for index, person in enumerate(person_list):
         person['index'] = index
