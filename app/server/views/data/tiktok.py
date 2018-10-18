@@ -72,10 +72,15 @@ def get_users_by_chache(params, sheet_name, expire=EXPIRE):
 
     gender = []
     account = []
+    is_none = False
     if params.get('options'):
         for option in params['options']:
             if option in ['0', '1', '2']:
                 gender.append(option)
+
+            elif option in 'バッジなし':
+                is_none = True
+
             else:
                 account.append(option)
 
@@ -83,7 +88,16 @@ def get_users_by_chache(params, sheet_name, expire=EXPIRE):
         person_list = [user for user in person_list if user.get('gender') in gender]
 
     if account:
-        person_list = [user for user in person_list if user.get('custom_verify') in account]
+
+        if is_none is True:
+            person_list = [user for user in person_list if user.get(
+                'custom_verify') in account or not user.get('custom_verify')]
+
+        else:
+            person_list = [user for user in person_list if user.get('custom_verify') in account]
+
+    elif is_none is True:
+        person_list = [user for user in person_list if not user.get('custom_verify')]
 
     for index, person in enumerate(person_list):
         person['index'] = index
