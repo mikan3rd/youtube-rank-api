@@ -65,6 +65,8 @@ def get_users_by_chache(params, sheet_name, expire=EXPIRE):
     response = gspread.get_sheet_values(SHEET_ID, sheet_name)
     person_label_list, person_list = gspread.convert_to_dict_data(response)
 
+    person_list = [user for user in person_list if user.get('share_url') and int(user.get('aweme_count') or 0) > 0]
+
     if params.get('sort'):
         person_list = sorted(person_list, key=lambda k: int(k.get(params['sort'], 0) or 0), reverse=True)
 
@@ -76,9 +78,6 @@ def get_users_by_chache(params, sheet_name, expire=EXPIRE):
                 gender.append(option)
             else:
                 account.append(option)
-
-    print(gender)
-    print(account)
 
     if gender:
         person_list = [user for user in person_list if user.get('gender') in gender]
