@@ -1,5 +1,4 @@
 import json
-from pprint import pprint
 
 import redis
 import requests
@@ -66,7 +65,7 @@ div_tag = soup.find('div', class_="message")
 class_list = div_tag.get('class')
 
 if 'good' in class_list:
-    path = 'normal'
+    path = 'ok'
 
 elif 'minor' in class_list:
     path = 'caution'
@@ -92,7 +91,7 @@ if rcache:
     redis_value = json.loads(rcache.decode())
 
     if redis_value == text:
-        print('GitHubStatus: No Change')
+        print('GitHubStatus: No Change!')
         exit()
 
 api = TwitterApi(TWITTER_GITHUB_ACCESS_TOKEN, TWITTER_GITHUB_SECRET)
@@ -106,6 +105,7 @@ response = api.post_tweet(status=text + "\n#github", media_ids=[media_id])
 # pprint(response)
 
 r.set(redis_key, json.dumps(text), ex=None)
+print("GitHubStatus: SUCCESS!!")
 
 # response = api.get_user_timeline('git_hub_status')
 # pprint(response)
