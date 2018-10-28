@@ -1,1 +1,1 @@
-from . import av_sommelier, face_search  # NOQA
+from . import av_sommelier, face_search, ocr  # NOQA

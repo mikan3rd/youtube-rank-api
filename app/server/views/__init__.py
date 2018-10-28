@@ -8,6 +8,7 @@ blueprints = [
     data.tiktok,
     line.face_search,
     line.av_sommelier,
+    line.ocr,
 ]
 
 
