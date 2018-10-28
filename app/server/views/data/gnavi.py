@@ -40,9 +40,6 @@ def gnavi(args) -> ApiResponse:
 @jsonify
 @parse_params(types=['args'])
 def hotpeper(args) -> ApiResponse:
-    '''
-    ぐるなび
-    '''  # NOQA
     endpoint = "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/"
 
     params = {
@@ -53,7 +50,6 @@ def hotpeper(args) -> ApiResponse:
         'lunch': args['lunch'],
         'wifi': args['wifi'],
         'range': args['range'],
-        'food': args.get('food'),
         'count': 100,
     }
 
@@ -82,45 +78,3 @@ def hotpeper(args) -> ApiResponse:
     }
 
     return results
-
-
-@api_bp.route('/hotpepper/food_category', methods=['GET'])
-@jsonify
-def get_hotpeper_food_category() -> ApiResponse:
-    '''
-    ぐるなび
-    '''  # NOQA
-    endpoint = "http://webservice.recruit.co.jp/hotpepper/food_category/v1/"
-
-    params = {
-        'key':  HOTPEPPER_API_KEY,
-        'format': 'json',
-    }
-
-    response = requests.get(endpoint, params=params)
-    result = response.json()
-    # pprint(result)
-
-    return result
-
-
-@api_bp.route('/hotpepper/food', methods=['GET'])
-@jsonify
-@parse_params(types=['args'])
-def get_hotpeper_food(args) -> ApiResponse:
-    '''
-    ぐるなび
-    '''  # NOQA
-    endpoint = "http://webservice.recruit.co.jp/hotpepper/food/v1/"
-
-    params = {
-        'key':  HOTPEPPER_API_KEY,
-        'format': 'json',
-        'food_category': args.get('food_category'),
-    }
-
-    response = requests.get(endpoint, params=params)
-    result = response.json()
-    # pprint(result)
-
-    return result
