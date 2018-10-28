@@ -57,24 +57,20 @@ def hotpeper(args) -> ApiResponse:
     data = response.json()
     shop_list = data['results']['shop']
 
-    if args.get('food'):
-        return {'shop_list': shop_list[:10]}
+    # food_list_tuple = {
+    #     (shop['food']['code'], shop['food']['name'])
+    #     for shop in shop_list
+    #     if shop['food']['name']
+    # }
 
-    food_list_tuple = {
-        (shop['food']['code'], shop['food']['name'])
-        for shop in shop_list
-        if shop['food']['name']
-    }
-
-    food_list = [
-        {'code': code, 'name': name}
-        for code, name in food_list_tuple
-    ]
+    # food_list = [
+    #     {'code': code, 'name': name}
+    #     for code, name in food_list_tuple
+    # ]
     # pprint(result)
 
     results = {
         'shop_list': shop_list[:10],
-        'food_list': sorted(food_list, key=lambda x: x['code']),
     }
 
     return results
