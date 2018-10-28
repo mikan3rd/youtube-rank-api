@@ -57,56 +57,56 @@ class TwitterApi:
         return json.loads(response.text)
 
 
-url = 'https://status.github.com/messages'
-response = requests.get(url)
-soup = BeautifulSoup(response.content, "lxml")
+def check():
+    url = 'https://status.github.com/messages'
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "lxml")
 
-div_tag = soup.find('div', class_="message")
-class_list = div_tag.get('class')
+    div_tag = soup.find('div', class_="message")
+    class_list = div_tag.get('class')
 
-if 'good' in class_list:
-    path = 'ok'
+    if 'good' in class_list:
+        path = 'ok'
 
-elif 'minor' in class_list:
-    path = 'caution'
+    elif 'minor' in class_list:
+        path = 'caution'
 
-elif 'major' in class_list:
-    path = 'error'
+    elif 'major' in class_list:
+        path = 'error'
 
-else:
-    print('GitHubStatus: no match')
-    exit()
-
-title = div_tag.find('span', class_='title')
-text = title.text
-print(text)
-
-
-redis_key = 'GitHubStatus'
-r = redis.from_url(REDIS_URL)
-rcache = r.get(redis_key)
-
-if rcache:
-    print("cache HIT!! %s" % (redis_key))
-    redis_value = json.loads(rcache.decode())
-
-    if redis_value == text:
-        print('GitHubStatus: No Change!')
+    else:
+        print('GitHubStatus: no match')
         exit()
 
-api = TwitterApi(TWITTER_GITHUB_ACCESS_TOKEN, TWITTER_GITHUB_SECRET)
+    title = div_tag.find('span', class_='title')
+    text = title.text
+    print(text)
 
-media = open('resources/images/github_%s.jpg' % path, 'rb')
-response = api.upload_media(media)
-# pprint(response)
-media_id = response['media_id_string']    # type: ignore
+    redis_key = 'GitHubStatus'
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
 
-status = text + "\n#github\n" + url
-response = api.post_tweet(status=status, media_ids=[media_id])
-# pprint(response)
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        redis_value = json.loads(rcache.decode())
 
-r.set(redis_key, json.dumps(text), ex=None)
-print("GitHubStatus: SUCCESS!!")
+        if redis_value == text:
+            print('GitHubStatus: No Change!')
+            exit()
 
-# response = api.get_user_timeline('git_hub_status')
-# pprint(response)
+    api = TwitterApi(TWITTER_GITHUB_ACCESS_TOKEN, TWITTER_GITHUB_SECRET)
+
+    media = open('resources/images/github_%s.jpg' % path, 'rb')
+    response = api.upload_media(media)
+    # pprint(response)
+    media_id = response['media_id_string']    # type: ignore
+
+    status = text + "\n#github\n" + url
+    response = api.post_tweet(status=status, media_ids=[media_id])
+    # pprint(response)
+
+    r.set(redis_key, json.dumps(text), ex=None)
+    print("GitHubStatus: SUCCESS!!")
+
+    # response = api.get_user_timeline('git_hub_status')
+    # pprint(response)
