@@ -76,7 +76,7 @@ def check():
 
     else:
         print('GitHubStatus: no match')
-        exit()
+        return
 
     title = div_tag.find('span', class_='title')
     text = title.text
@@ -92,7 +92,7 @@ def check():
 
         if redis_value == text:
             print('GitHubStatus: No Change!')
-            exit()
+            return
 
     api = TwitterApi(TWITTER_GITHUB_ACCESS_TOKEN, TWITTER_GITHUB_SECRET)
 
