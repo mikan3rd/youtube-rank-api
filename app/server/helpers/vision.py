@@ -2,7 +2,7 @@ import requests
 from settings import MS_COGNINITIVE_API_KEY
 
 
-endpoint = 'https://eastasia.api.cognitive.microsoft.com/vision/v1.0/ocr'
+endpoint = 'https://eastasia.api.cognitive.microsoft.com/vision/v2.0/ocr'
 
 image_url = "https://bazubu.com/wp-content/uploads/2013/03/7dec493403292ee13268a2a283d92c151.png"
 image_url2 = "https://upload.wikimedia.org/wikipedia/commons/5/57/Lorem_Ipsum_Helvetica.png"
@@ -13,8 +13,6 @@ def get_text_by_ms(image_url=None, image=None):
     if image_url is None and image is None:
         return '必要な情報が足りません'
 
-    params = {'visualFeatures': 'Categories,Description,Color'}
-
     if image_url:
         headers = {
             'Ocp-Apim-Subscription-Key': MS_COGNINITIVE_API_KEY,
@@ -24,7 +22,6 @@ def get_text_by_ms(image_url=None, image=None):
         response = requests.post(
             endpoint,
             headers=headers,
-            params=params,
             json=data
         )
 
@@ -36,7 +33,6 @@ def get_text_by_ms(image_url=None, image=None):
         response = requests.post(
             endpoint,
             headers=headers,
-            params=params,
             data=image,
         )
 
