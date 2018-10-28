@@ -101,7 +101,8 @@ response = api.upload_media(media)
 # pprint(response)
 media_id = response['media_id_string']    # type: ignore
 
-response = api.post_tweet(status=text + "\n#github", media_ids=[media_id])
+status = text + "\n#github\n" + url
+response = api.post_tweet(status=status, media_ids=[media_id])
 # pprint(response)
 
 r.set(redis_key, json.dumps(text), ex=None)
