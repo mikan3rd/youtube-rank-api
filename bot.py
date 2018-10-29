@@ -16,7 +16,7 @@ def instagram_job():
     print('Instagram FINISH!!')
 
 
-@sched.scheduled_job('interval', minutes=30)
+@sched.scheduled_job('interval', minutes=20)
 def tiktok_job():
     print('TikTok START!!')
     tiktok.get_feed()
