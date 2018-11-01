@@ -45,22 +45,21 @@ def post_av_sommlier():
     media_id = response['media_id_string']    # type: ignore
 
     item_info = target['iteminfo']
-    maker = '【メーカー】' + item_info['maker'][0]['name'] if item_info.get('maker') else ''
-    series = '【シリーズ】' + item_info['series'][0]['name'] if item_info.get('series') else ''
+    # maker = '【メーカー】' + item_info['maker'][0]['name'] if item_info.get('maker') else ''
+    # series = '【シリーズ】' + item_info['series'][0]['name'] if item_info.get('series') else ''
     actress_list = [
-        actress['name']
+        '#' + actress['name']
         for actress in item_info.get('actress', [])
         if isinstance(actress['id'], int)
     ]
-    actress = '【女優】' + '   '.join(actress_list) if actress_list else ''
+    actress = '【女優】\n' + '\n'.join(actress_list) if actress_list else ''
 
     content_list = [
         target['title'],
         '',
         actress,
-        # maker,
-        # series,
-        '【ジャンル】' + '   '.join([genre.get('name') for genre in item_info['genre']]),
+        '',
+        '【ジャンル】\n' + '\n'.join(['#' + genre['name'] for genre in item_info['genre']]),
         '',
         '【詳細URL】' + target['affiliateURL'],
     ]
