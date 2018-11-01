@@ -13,7 +13,7 @@ def github_status_job():
     github_status.check()
 
 
-@sched.scheduled_job('cron', hour='*')
+@sched.scheduled_job('cron', hour='*', minute=30)
 def twitter_job():
     print('START: Twitter')
     twitter.post_av_sommlier()
