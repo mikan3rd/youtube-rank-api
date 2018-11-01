@@ -70,7 +70,16 @@ def post_av_sommlier():
     response = api.post_tweet(status=status, media_ids=[media_id])
 
     if response.get('errors'):
-        pprint(response)
+        del content_list[2]
+        status = '\n'.join(content_list)
+        print(status)
+        response = api.post_tweet(status=status, media_ids=[media_id])
+
+    if response.get('errors'):
+        del content_list[2]
+        status = '\n'.join(content_list)
+        print(status)
+        response = api.post_tweet(status=status, media_ids=[media_id])
 
     title_list.append(target['content_id'])
     r.set(redis_key, json.dumps(list(set(title_list))), ex=None)
