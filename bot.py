@@ -17,6 +17,7 @@ def github_status_job():
 def twitter_job():
     print('START: Twitter')
     twitter.post_av_sommlier()
+    twitter.post_av_actress()
 
 
 @sched.scheduled_job('cron', hour='8,20')

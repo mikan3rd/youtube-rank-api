@@ -6,12 +6,13 @@ from settings import DMM_AFFILIATE_ID, DMM_API_ID
 dmm_endpoint = "https://api.dmm.com/affiliate/v3"
 
 
-def search_actress(keyword):
+def search_actress(keyword=None, actress_id=None):
     endpoint = '/ActressSearch'
 
     params = {
         'api_id': DMM_API_ID,
         'affiliate_id': DMM_AFFILIATE_ID,
+        'actress_id': actress_id,
         'keyword': keyword,
         'output': 'json',
     }
