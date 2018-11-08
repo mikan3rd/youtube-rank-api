@@ -16,8 +16,12 @@ def github_status_job():
 @sched.scheduled_job('cron', hour='*', minute=30)
 def twitter_job():
     print('START: Twitter')
+
     twitter.post_av_sommlier()
     twitter.post_av_actress()
+
+    twitter.follow_users('av_sommlier')
+    twitter.follow_users('av_actress')
 
 
 @sched.scheduled_job('cron', hour='8,20')

@@ -14,6 +14,23 @@ class TwitterApi:
             secret,
         )
 
+    def get_home_timeline(
+        self,
+        count=200,
+        trim_user=False,
+        exclude_replies=True,
+        include_entities=False,
+    ):
+        endpoint = "https://api.twitter.com/1.1/statuses/home_timeline.json"
+        params = {
+            'count': count,
+            'trim_user': trim_user,
+            'exclude_replies': exclude_replies,
+            'include_entities': include_entities,
+        }
+        response = self.api.get(endpoint, params=params)
+        return json.loads(response.text)
+
     def get_user_timeline(self, screen_name, count=200):
         endpoint = "https://api.twitter.com/1.1/statuses/user_timeline.json"
         params = {
@@ -44,5 +61,34 @@ class TwitterApi:
         if media_ids:
             params['media_ids'] = ','.join(media_ids)
 
+        response = self.api.post(endpoint, params=params)
+        return json.loads(response.text)
+
+    def get_retweet_user(
+        self,
+        tweet_id,
+        count=100,
+        trim_user=False,
+    ):
+        endpoint = "https://api.twitter.com/1.1/statuses/retweets/%s.json" % (tweet_id)
+        params = {
+            'count': count,
+            'trim_user': trim_user,
+        }
+        response = self.api.get(endpoint, params=params)
+        return json.loads(response.text)
+
+    def post_follow(
+        self,
+        screen_name=None,
+        user_id=None,
+        follow=True,
+    ):
+        endpoint = "https://api.twitter.com/1.1/friendships/create.json"
+        params = {
+            'screen_name': screen_name,
+            'user_id': user_id,
+            'follow': follow,
+        }
         response = self.api.post(endpoint, params=params)
         return json.loads(response.text)

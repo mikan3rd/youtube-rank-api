@@ -38,6 +38,9 @@ def post_av_sommlier():
         target_index = index
         break
 
+    else:
+        title_list = []
+
     target = items[target_index]
 
     api = TwitterApi(TWITTER_AV_SOMMLIER_ACCESS_TOKEN, TWITTER_AV_SOMMLIER_SECRET)
@@ -118,6 +121,7 @@ def post_av_actress():
 
     if not target_id:
         target_id = tmp_id
+        id_list = []
 
     response = dmm.search_actress(actress_id=target_id)
     actress_info = response['result']['actress'][0]
@@ -184,3 +188,66 @@ def post_av_actress():
     id_list.append(target_id)
     r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
     print("SUCCESS: twitter:av_actress")
+
+
+def follow_users(account):
+
+    if account == 'av_sommlier':
+        access_token = TWITTER_AV_SOMMLIER_ACCESS_TOKEN
+        secret = TWITTER_AV_SOMMLIER_SECRET
+
+    elif account == 'av_actress':
+        access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
+        secret = TWITTER_AV_ACTRESS_SECRET
+
+    api = TwitterApi(access_token, secret)
+
+    response = api.get_home_timeline()
+    if isinstance(response, dict) and response.get('errors'):
+        pprint(response)
+        return
+
+    retweeter_count = 0
+    tweet_id_list = set()
+    for tweet in response:
+
+        if tweet.get('retweet_count', 0) <= 1:
+            continue
+
+        retweeter_count += tweet['retweet_count']
+        tweet_id_list.add(tweet['retweeted_status']['id_str'])
+
+        if retweeter_count > 5:
+            break
+
+    print("tweet_id_list:")
+    pprint(tweet_id_list)
+
+    user_id_list = set()
+    for tweet_id in tweet_id_list:
+        response = api.get_retweet_user(tweet_id=tweet_id)
+
+        if isinstance(response, dict) and response.get('errors'):
+            pprint(response)
+            continue
+
+        for tweet in response:
+            user = tweet['user']
+
+            if user.get('following') or user.get('follow_request_sent'):
+                continue
+
+            user_id_list.add(user['id_str'])
+
+    # print("user_id_list:")
+    # pprint(user_id_list)
+    for num, user_id in enumerate(list(user_id_list)[:10], 1):
+        response = api.post_follow(user_id=user_id)
+
+        if response.get('errors'):
+            pprint(response)
+            break
+
+        print("SUCCESS:%s follow:%s" % (num, user_id))
+
+    print("SUCCESS: twitter:follow_users %s" % (account))
