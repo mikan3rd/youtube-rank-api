@@ -2,6 +2,8 @@ from logging import getLogger
 
 from flask import Blueprint
 
+from app.server.helpers.api import jsonify
+
 
 log = getLogger(__name__)
 
