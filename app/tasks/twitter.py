@@ -312,7 +312,6 @@ def follow_users_by_follower(account):
 
 
 def remove_follow(account):
-    LIMIT = 4
 
     api = get_twitter_api(account)
     response = api.get_account()
@@ -339,33 +338,28 @@ def remove_follow(account):
             break
 
         cursor = response.get('next_cursor_str')
+        print("cursor:", cursor)
         following_id_list = [user['id_str'] for user in response['users']]
 
         response = api.get_friendships(user_id=','.join(following_id_list))
 
-        # for user in response:
-        #     print(user['screen_name'])
-
         user_id_list += [
-            user['id_str']
+            user['screen_name']
             for user in response
             if "followed_by" not in user['connections']
         ]
 
-        # if len(user_id_list) >= LIMIT:
-        #     break
-
         if not cursor or cursor == "0":
             break
 
-    for num, user_id in enumerate(user_id_list[LIMIT:], 1):
-        response = api.post_unfollow(user_id=user_id)
+    for num, screen_name in enumerate(user_id_list[-4:], 1):
+        response = api.post_unfollow(screen_name=screen_name)
 
         if response.get('errors'):
             pprint(response)
             break
 
-        print("SUCCESS:%s unfollow:%s" % (num, user_id))
+        print("SUCCESS:%s unfollow:%s" % (num, screen_name))
 
     print("SUCCESS: twitter:remove_follow %s" % (account))
 
