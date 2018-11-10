@@ -47,6 +47,11 @@ def post_av_sommlier():
 
     media = urllib.request.urlopen(target['imageURL']['large']).read()
     response = api.upload_media(media)
+
+    if response.get('errors'):
+        pprint(response)
+        return
+
     media_id = response['media_id_string']    # type: ignore
 
     item_info = target['iteminfo']
@@ -136,6 +141,11 @@ def post_av_actress():
     for item in items:
         media = urllib.request.urlopen(item['imageURL']['large']).read()
         response = api.upload_media(media)
+
+        if response.get('errors'):
+            pprint(response)
+            return
+
         media_ids.append(response['media_id_string'])
 
         if len(media_ids) >= 4:
