@@ -77,7 +77,7 @@ def post_av_sommlier():
     status = '\n'.join(content_list)
 
     for i in range(2):
-        if len(status) > 270:
+        if len(status) > 260:
             del content_list[2]
             status = '\n'.join(content_list)
             continue
