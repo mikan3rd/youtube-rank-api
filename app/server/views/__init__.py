@@ -2,6 +2,7 @@ from . import data, line
 
 
 blueprints = [
+    data.healthcheck,
     data.stats_daily,
     data.charge,
     data.gnavi,
