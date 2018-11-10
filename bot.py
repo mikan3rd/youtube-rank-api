@@ -20,11 +20,16 @@ def twitter_job():
     twitter.post_av_sommlier()
     twitter.post_av_actress()
 
-    twitter.follow_users_by_follower('av_sommlier')
-    twitter.follow_users_by_follower('av_actress')
+    account_list = [
+        'av_sommlier',
+        'av_actress',
+    ]
 
-    twitter.follow_users_by_retweet('av_sommlier')
-    twitter.follow_users_by_retweet('av_actress')
+    for account in account_list:
+        twitter.remove_follow(account)
+        twitter.follow_users_by_follower(account)
+        twitter.follow_users_by_retweet(account)
+        print('FINISH: Twitter', account)
 
 
 @sched.scheduled_job('cron', hour='8,20')

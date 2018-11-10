@@ -101,6 +101,19 @@ class TwitterApi:
         response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
 
+    def get_friendships(
+        self,
+        user_id=None,
+        screen_name=None,
+    ):
+        endpoint = "https://api.twitter.com/1.1/friendships/lookup.json"
+        params = {
+            'user_id': user_id,
+            'screen_name': screen_name,
+        }
+        response = self.api.get(endpoint, params=params)
+        return json.loads(response.text)
+
     def upload_media(self, media):
         endpoint = "https://upload.twitter.com/1.1/media/upload.json"
         files = {'media': media}
@@ -129,13 +142,26 @@ class TwitterApi:
         self,
         screen_name=None,
         user_id=None,
-        follow=True,
+        follow=False,
     ):
         endpoint = "https://api.twitter.com/1.1/friendships/create.json"
         params = {
             'screen_name': screen_name,
             'user_id': user_id,
             'follow': follow,
+        }
+        response = self.api.post(endpoint, params=params)
+        return json.loads(response.text)
+
+    def post_unfollow(
+        self,
+        screen_name=None,
+        user_id=None,
+    ):
+        endpoint = "https://api.twitter.com/1.1/friendships/destroy.json"
+        params = {
+            'screen_name': screen_name,
+            'user_id': user_id,
         }
         response = self.api.post(endpoint, params=params)
         return json.loads(response.text)
