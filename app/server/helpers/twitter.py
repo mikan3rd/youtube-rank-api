@@ -14,6 +14,11 @@ class TwitterApi:
             secret,
         )
 
+    def get_account(self):
+        endpoint = "https://api.twitter.com/1.1/account/verify_credentials.json"
+        response = self.api.get(endpoint)
+        return json.loads(response.text)
+
     def get_home_timeline(
         self,
         count=200,
@@ -40,6 +45,62 @@ class TwitterApi:
         response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
 
+    def get_retweet_user(
+        self,
+        tweet_id,
+        count=100,
+        trim_user=False,
+    ):
+        endpoint = "https://api.twitter.com/1.1/statuses/retweets/%s.json" % (tweet_id)
+        params = {
+            'count': count,
+            'trim_user': trim_user,
+        }
+        response = self.api.get(endpoint, params=params)
+        return json.loads(response.text)
+
+    def get_followers(
+        self,
+        user_id=None,
+        screen_name=None,
+        cursor=-1,
+        count=200,
+        skip_status=False,
+        include_user_entities=True,
+    ):
+        endpoint = "https://api.twitter.com/1.1/followers/list.json"
+        params = {
+            'user_id': user_id,
+            'screen_name': screen_name,
+            'cursor': cursor,
+            'count': count,
+            'skip_status': skip_status,
+            'include_user_entities': include_user_entities,
+        }
+        response = self.api.get(endpoint, params=params)
+        return json.loads(response.text)
+
+    def get_followings(
+        self,
+        user_id=None,
+        screen_name=None,
+        cursor=-1,
+        count=200,
+        skip_status=False,
+        include_user_entities=True,
+    ):
+        endpoint = "https://api.twitter.com/1.1/friends/list.json"
+        params = {
+            'user_id': user_id,
+            'screen_name': screen_name,
+            'cursor': cursor,
+            'count': count,
+            'skip_status': skip_status,
+            'include_user_entities': include_user_entities,
+        }
+        response = self.api.get(endpoint, params=params)
+        return json.loads(response.text)
+
     def upload_media(self, media):
         endpoint = "https://upload.twitter.com/1.1/media/upload.json"
         files = {'media': media}
@@ -62,20 +123,6 @@ class TwitterApi:
             params['media_ids'] = ','.join(media_ids)
 
         response = self.api.post(endpoint, params=params)
-        return json.loads(response.text)
-
-    def get_retweet_user(
-        self,
-        tweet_id,
-        count=100,
-        trim_user=False,
-    ):
-        endpoint = "https://api.twitter.com/1.1/statuses/retweets/%s.json" % (tweet_id)
-        params = {
-            'count': count,
-            'trim_user': trim_user,
-        }
-        response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
 
     def post_follow(

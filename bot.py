@@ -20,8 +20,11 @@ def twitter_job():
     twitter.post_av_sommlier()
     twitter.post_av_actress()
 
-    twitter.follow_users('av_sommlier')
-    twitter.follow_users('av_actress')
+    twitter.follow_users_by_follower('av_sommlier')
+    twitter.follow_users_by_follower('av_actress')
+
+    twitter.follow_users_by_retweet('av_sommlier')
+    twitter.follow_users_by_retweet('av_actress')
 
 
 @sched.scheduled_job('cron', hour='8,20')

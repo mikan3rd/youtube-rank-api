@@ -200,7 +200,7 @@ def post_av_actress():
     print("SUCCESS: twitter:av_actress")
 
 
-def follow_users(account):
+def follow_users_by_retweet(account):
 
     if account == 'av_sommlier':
         access_token = TWITTER_AV_SOMMLIER_ACCESS_TOKEN
@@ -225,7 +225,11 @@ def follow_users(account):
             continue
 
         retweeter_count += tweet['retweet_count']
-        tweet_id_list.add(tweet['retweeted_status']['id_str'])
+        tweet_id = tweet['id_str']
+        if tweet['retweeted_status'].get('id_str'):
+            tweet_id = tweet['retweeted_status']['id_str']
+
+        tweet_id_list.add(tweet_id)
 
         if retweeter_count > 5:
             break
@@ -244,14 +248,14 @@ def follow_users(account):
         for tweet in response:
             user = tweet['user']
 
-            if user.get('following') or user.get('follow_request_sent'):
+            if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
                 continue
 
             user_id_list.add(user['id_str'])
 
     # print("user_id_list:")
     # pprint(user_id_list)
-    for num, user_id in enumerate(list(user_id_list)[:10], 1):
+    for num, user_id in enumerate(list(user_id_list)[:5], 1):
         response = api.post_follow(user_id=user_id)
 
         if response.get('errors'):
@@ -260,4 +264,56 @@ def follow_users(account):
 
         print("SUCCESS:%s follow:%s" % (num, user_id))
 
-    print("SUCCESS: twitter:follow_users %s" % (account))
+    print("SUCCESS: twitter:follow_users_by_retweet %s" % (account))
+
+
+def follow_users_by_follower(account):
+    api = get_twitter_api(account)
+    response = api.get_account()
+
+    if response.get('errors'):
+        pprint(response)
+        return
+
+    account_id = response['id_str']
+    response = api.get_followers(user_id=account_id)
+
+    follower_id_list = [user['id_str'] for user in response['users']]
+
+    user_id_list = set()
+    for follower_id in follower_id_list:
+        response = api.get_followers(user_id=follower_id)
+
+        for user in response['users']:
+            if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
+                continue
+
+            user_id_list.add(user['id_str'])
+
+        if len(user_id_list) > 5:
+            break
+
+    # print("user_id_list:")
+    # pprint(user_id_list)
+    for num, user_id in enumerate(list(user_id_list)[:5], 1):
+        response = api.post_follow(user_id=user_id)
+
+        if response.get('errors'):
+            pprint(response)
+            break
+
+        print("SUCCESS:%s follow:%s" % (num, user_id))
+
+    print("SUCCESS: twitter:follow_users_by_follower %s" % (account))
+
+
+def get_twitter_api(account):
+    if account == 'av_sommlier':
+        access_token = TWITTER_AV_SOMMLIER_ACCESS_TOKEN
+        secret = TWITTER_AV_SOMMLIER_SECRET
+
+    elif account == 'av_actress':
+        access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
+        secret = TWITTER_AV_ACTRESS_SECRET
+
+    return TwitterApi(access_token, secret)
