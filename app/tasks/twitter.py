@@ -1,14 +1,16 @@
 import json
 import urllib.request
 from pprint import pprint
+from random import randint
+from time import sleep
 
 import redis
 from settings import (
     REDIS_URL,
-    TWITTER_AV_SOMMLIER_ACCESS_TOKEN,
-    TWITTER_AV_SOMMLIER_SECRET,
     TWITTER_AV_ACTRESS_ACCESS_TOKEN,
     TWITTER_AV_ACTRESS_SECRET,
+    TWITTER_AV_SOMMLIER_ACCESS_TOKEN,
+    TWITTER_AV_SOMMLIER_SECRET
 )
 
 from app.server.helpers import dmm
@@ -359,6 +361,9 @@ def remove_follow(account):
             pprint(response)
             break
 
+        sleep_time = randint(10, 120)
+        print("sleep_time:", sleep_time)
+        sleep(sleep_time)
         print("SUCCESS:%s unfollow:%s" % (num, screen_name))
 
     print("SUCCESS: twitter:remove_follow %s" % (account))

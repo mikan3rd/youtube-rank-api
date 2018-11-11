@@ -1,1 +1,1 @@
-from . import charge, drinkee, gnavi, stats_daily, tiktok, healthcheck  # NOQA
+from . import charge, drinkee, gnavi, healthcheck, stats_daily, tiktok  # NOQA
