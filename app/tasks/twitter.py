@@ -369,7 +369,7 @@ def remove_follow(account):
             break
 
     user_id_list = reversed(user_id_list)
-    for num, screen_name in enumerate(user_id_list[:4], 1):
+    for num, screen_name in enumerate(user_id_list, 1):
         response = api.post_unfollow(screen_name=screen_name)
 
         if response.get('errors'):
