@@ -294,12 +294,12 @@ def follow_users_by_follower(account):
 
             user_id_list.add(user['id_str'])
 
-        if len(user_id_list) > 5:
+        if len(user_id_list) > 10:
             break
 
     # print("user_id_list:")
     # pprint(user_id_list)
-    for num, user_id in enumerate(list(user_id_list)[:5], 1):
+    for num, user_id in enumerate(list(user_id_list)[:10], 1):
         response = api.post_follow(user_id=user_id)
 
         if response.get('errors'):
