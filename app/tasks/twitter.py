@@ -266,6 +266,10 @@ def follow_users_by_retweet(account):
 
         print("SUCCESS:%s follow:%s" % (num, user_id))
 
+        sleep_time = randint(1, 10)
+        print("sleep_time:", sleep_time)
+        sleep(sleep_time)
+
     print("SUCCESS: twitter:follow_users_by_retweet %s" % (account))
 
 
@@ -294,6 +298,9 @@ def follow_users_by_follower(account):
             if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
                 continue
 
+            if user['id_str'] == account_id:
+                continue
+
             user_id_list.add(user['id_str'])
 
         if len(user_id_list) > 10:
@@ -309,6 +316,13 @@ def follow_users_by_follower(account):
             break
 
         print("SUCCESS:%s follow:%s" % (num, user_id))
+
+        if num >= 10:
+            break
+
+        sleep_time = randint(1, 10)
+        print("sleep_time:", sleep_time)
+        sleep(sleep_time)
 
     print("SUCCESS: twitter:follow_users_by_follower %s" % (account))
 
@@ -354,17 +368,22 @@ def remove_follow(account):
         if not cursor or cursor == "0":
             break
 
-    for num, screen_name in enumerate(user_id_list[-4:], 1):
+    user_id_list = reversed(user_id_list)
+    for num, screen_name in enumerate(user_id_list[:4], 1):
         response = api.post_unfollow(screen_name=screen_name)
 
         if response.get('errors'):
             pprint(response)
             break
 
+        print("SUCCESS:%s unfollow:%s" % (num, screen_name))
+
+        if num >= 4:
+            break
+
         sleep_time = randint(10, 120)
         print("sleep_time:", sleep_time)
         sleep(sleep_time)
-        print("SUCCESS:%s unfollow:%s" % (num, screen_name))
 
     print("SUCCESS: twitter:remove_follow %s" % (account))
 
