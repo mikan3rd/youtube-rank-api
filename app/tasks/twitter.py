@@ -301,21 +301,21 @@ def follow_users_by_follower(account):
             if user['id_str'] == account_id:
                 continue
 
-            user_id_list.add(user['id_str'])
+            user_id_list.add(user['screen_name'])
 
         if len(user_id_list) > 10:
             break
 
     # print("user_id_list:")
     # pprint(user_id_list)
-    for num, user_id in enumerate(list(user_id_list)[:10], 1):
-        response = api.post_follow(user_id=user_id)
+    for num, screen_name in enumerate(list(user_id_list)[:10], 1):
+        response = api.post_follow(screen_name=screen_name)
 
         if response.get('errors'):
             pprint(response)
             break
 
-        print("SUCCESS:%s follow:%s" % (num, user_id))
+        print("SUCCESS:%s follow:%s" % (num, screen_name))
 
         if num >= 10:
             break
