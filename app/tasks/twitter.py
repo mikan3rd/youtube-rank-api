@@ -282,7 +282,7 @@ def follow_users_by_follower(account):
         pprint(response)
         return
 
-    follower_id_list = [user['id_str'] for user in response['users']]
+    follower_id_list = reversed([user['id_str'] for user in response['users']])
 
     user_id_list = set()
     for follower_id in follower_id_list:
