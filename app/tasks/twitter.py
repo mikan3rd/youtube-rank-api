@@ -381,7 +381,7 @@ def remove_follow(account):
         if num >= 4:
             break
 
-        sleep_time = randint(10, 120)
+        sleep_time = randint(10, 70)
         print("sleep_time:", sleep_time)
         sleep(sleep_time)
 
