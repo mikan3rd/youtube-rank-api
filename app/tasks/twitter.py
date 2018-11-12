@@ -285,7 +285,7 @@ def follow_users_by_retweet(account):
 
         retweeter_count += tweet['retweet_count']
         tweet_id = tweet['id_str']
-        if tweet['retweeted_status'].get('id_str'):
+        if tweet.get('retweeted_status'):
             tweet_id = tweet['retweeted_status']['id_str']
 
         tweet_id_list.add(tweet_id)
@@ -397,7 +397,7 @@ def remove_follow(account):
         pprint(response)
         return
 
-    if response['friends_counts'] < 100:
+    if response['friends_count'] < 100:
         return
 
     account_id = response['id_str']
