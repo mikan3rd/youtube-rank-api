@@ -30,7 +30,7 @@ def twitter_job():
     for account in account_list:
         twitter.remove_follow(account)
         twitter.follow_users_by_follower(account)
-        # twitter.follow_users_by_retweet(account)
+        twitter.follow_users_by_retweet(account)
         print('FINISH: Twitter', account)
 
 

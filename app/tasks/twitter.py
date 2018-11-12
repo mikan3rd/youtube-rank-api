@@ -261,15 +261,15 @@ def post_smash_bros():
 
 def follow_users_by_retweet(account):
 
-    if account == 'av_sommlier':
-        access_token = TWITTER_AV_SOMMLIER_ACCESS_TOKEN
-        secret = TWITTER_AV_SOMMLIER_SECRET
+    api = get_twitter_api(account)
+    response = api.get_account()
 
-    elif account == 'av_actress':
-        access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
-        secret = TWITTER_AV_ACTRESS_SECRET
+    if response.get('errors'):
+        pprint(response)
+        return
 
-    api = TwitterApi(access_token, secret)
+    if response['followers_count'] >= 5:
+        return
 
     response = api.get_home_timeline()
     if isinstance(response, dict) and response.get('errors'):
@@ -336,6 +336,9 @@ def follow_users_by_follower(account):
 
     if response.get('errors'):
         pprint(response)
+        return
+
+    if response['followers_count'] == 0:
         return
 
     account_id = response['id_str']
