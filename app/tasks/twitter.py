@@ -10,7 +10,9 @@ from settings import (
     TWITTER_AV_ACTRESS_ACCESS_TOKEN,
     TWITTER_AV_ACTRESS_SECRET,
     TWITTER_AV_SOMMLIER_ACCESS_TOKEN,
-    TWITTER_AV_SOMMLIER_SECRET
+    TWITTER_AV_SOMMLIER_SECRET,
+    TWITTER_SMASH_BROS_ACCESS_TOKEN,
+    TWITTER_SMASH_BROS_SECRET,
 )
 
 from app.server.helpers import dmm
@@ -200,6 +202,61 @@ def post_av_actress():
     id_list.append(target_id)
     r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
     print("SUCCESS: twitter:av_actress")
+
+
+def post_smash_bros():
+    account = "smash_bros"
+    api = get_twitter_api(account)
+    response = api.get_account()
+
+    if response.get('errors'):
+        pprint(response)
+        return
+
+    redis_key = 'twitter:%s' % (account)
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    id_list = []
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        id_list = json.loads(rcache.decode())
+
+    query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:100'
+    response = api.get_search_tweet(q=query)
+
+    if response.get('errors'):
+        pprint(response)
+        return
+
+    tweet_list = response['statuses']
+
+    target_id = None
+    for tweet in tweet_list:
+        if not target_id:
+            target_id = tweet['id_str']
+
+        if tweet.get('retweeted'):
+            continue
+
+        if tweet['id_str'] in id_list:
+            continue
+
+        target_id = tweet['id_str']
+        break
+
+    else:
+        id_list = []
+
+    response = api.post_retweet(target_id)
+
+    if response.get('errors'):
+        pprint(response)
+        return
+
+    id_list.append(target_id)
+    r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
+    print("SUCCESS: twitter:", account)
 
 
 def follow_users_by_retweet(account):
@@ -400,5 +457,9 @@ def get_twitter_api(account):
     elif account == 'av_actress':
         access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
         secret = TWITTER_AV_ACTRESS_SECRET
+
+    elif account == 'smash_bros':
+        access_token = TWITTER_SMASH_BROS_ACCESS_TOKEN
+        secret = TWITTER_SMASH_BROS_SECRET
 
     return TwitterApi(access_token, secret)

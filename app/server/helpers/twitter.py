@@ -114,6 +114,21 @@ class TwitterApi:
         response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
 
+    def get_search_tweet(
+        self,
+        q,
+        result_type="popular",
+        count=100,
+    ):
+        endpoint = "https://api.twitter.com/1.1/search/tweets.json"
+        params = {
+            'q': q,
+            'result_type': result_type,
+            'count': count,
+        }
+        response = self.api.get(endpoint, params=params)
+        return json.loads(response.text)
+
     def upload_media(self, media):
         endpoint = "https://upload.twitter.com/1.1/media/upload.json"
         files = {'media': media}
@@ -164,4 +179,12 @@ class TwitterApi:
             'user_id': user_id,
         }
         response = self.api.post(endpoint, params=params)
+        return json.loads(response.text)
+
+    def post_retweet(
+        self,
+        tweet_id,
+    ):
+        endpoint = "https://api.twitter.com/1.1/statuses/retweet/%s.json" % (tweet_id)
+        response = self.api.post(endpoint)
         return json.loads(response.text)

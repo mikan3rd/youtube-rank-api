@@ -19,10 +19,12 @@ def twitter_job():
 
     twitter.post_av_sommlier()
     twitter.post_av_actress()
+    twitter.post_smash_bros()
 
     account_list = [
         'av_sommlier',
         'av_actress',
+        'smash_bros',
     ]
 
     for account in account_list:
