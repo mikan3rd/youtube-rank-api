@@ -337,6 +337,9 @@ def remove_follow(account):
         pprint(response)
         return
 
+    if response['followers_count'] < 100:
+        return
+
     account_id = response['id_str']
 
     user_id_list = []
