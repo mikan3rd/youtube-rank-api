@@ -13,6 +13,8 @@ from settings import (
     TWITTER_AV_SOMMLIER_SECRET,
     TWITTER_SMASH_BROS_ACCESS_TOKEN,
     TWITTER_SMASH_BROS_SECRET,
+    TWITTER_GITHUB_ACCESS_TOKEN,
+    TWITTER_GITHUB_SECRET,
 )
 
 from app.server.helpers import dmm
@@ -464,5 +466,9 @@ def get_twitter_api(account):
     elif account == 'smash_bros':
         access_token = TWITTER_SMASH_BROS_ACCESS_TOKEN
         secret = TWITTER_SMASH_BROS_SECRET
+
+    elif account == "github":
+        access_token = TWITTER_GITHUB_ACCESS_TOKEN
+        secret = TWITTER_GITHUB_SECRET
 
     return TwitterApi(access_token, secret)

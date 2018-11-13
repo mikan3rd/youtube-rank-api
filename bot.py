@@ -25,6 +25,7 @@ def twitter_job():
         'av_sommlier',
         'av_actress',
         'smash_bros',
+        'github',
     ]
 
     for account in account_list:
