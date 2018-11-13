@@ -222,7 +222,7 @@ def post_smash_bros():
         print("cache HIT!! %s" % (redis_key))
         id_list = json.loads(rcache.decode())
 
-    query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:100'
+    query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
     response = api.get_search_tweet(q=query)
 
     if response.get('errors'):
@@ -230,11 +230,10 @@ def post_smash_bros():
         return
 
     tweet_list = response['statuses']
+    print(len(tweet_list))
 
     target_id = None
     for tweet in tweet_list:
-        if not target_id:
-            target_id = tweet['id_str']
 
         if tweet.get('retweeted'):
             continue
@@ -245,8 +244,9 @@ def post_smash_bros():
         target_id = tweet['id_str']
         break
 
-    else:
-        id_list = []
+    if not target_id:
+        print(account, "nothing to tweet")
+        return
 
     response = api.post_retweet(target_id)
 
