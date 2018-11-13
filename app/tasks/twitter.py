@@ -15,6 +15,8 @@ from settings import (
     TWITTER_SMASH_BROS_SECRET,
     TWITTER_GITHUB_ACCESS_TOKEN,
     TWITTER_GITHUB_SECRET,
+    TWITTER_VTUBER_ACCESS_TOKEN,
+    TWITTER_VTUBER_SECRET,
 )
 
 from app.server.helpers import dmm
@@ -206,8 +208,7 @@ def post_av_actress():
     print("SUCCESS: twitter:av_actress")
 
 
-def post_smash_bros():
-    account = "smash_bros"
+def search_and_retweet(account, query):
     api = get_twitter_api(account)
     response = api.get_account()
 
@@ -224,7 +225,6 @@ def post_smash_bros():
         print("cache HIT!! %s" % (redis_key))
         id_list = json.loads(rcache.decode())
 
-    query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
     response = api.get_search_tweet(q=query)
 
     if response.get('errors'):
@@ -340,7 +340,12 @@ def follow_users_by_follower(account):
         pprint(response)
         return
 
-    if response['followers_count'] == 0:
+    followers_count = response['followers_count']
+    if followers_count == 0:
+        return
+
+    friends_count = response['friends_count']
+    if friends_count >= 5000 and friends_count - followers_count > 0:
         return
 
     account_id = response['id_str']
@@ -470,5 +475,12 @@ def get_twitter_api(account):
     elif account == "github":
         access_token = TWITTER_GITHUB_ACCESS_TOKEN
         secret = TWITTER_GITHUB_SECRET
+
+    elif account == 'vtuber':
+        access_token = TWITTER_VTUBER_ACCESS_TOKEN
+        secret = TWITTER_VTUBER_SECRET
+
+    else:
+        print("NO MATCH")
 
     return TwitterApi(access_token, secret)

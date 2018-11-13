@@ -19,13 +19,39 @@ def twitter_job():
 
     twitter.post_av_sommlier()
     twitter.post_av_actress()
-    twitter.post_smash_bros()
+
+    smash_bros_query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
+    twitter.search_and_retweet('smash_bros', smash_bros_query)
+
+    words = [
+        "vtuber"
+        "バーチャルYouTuber",
+        "KizunaAI",
+        "キズナアイ",
+        "輝夜月",
+        "電脳少女シロ",
+        "SiroArt",
+        "ミライアカリ",
+        "バーチャルのじゃロリ狐娘youtuberおじさん",
+        "Nora_Cat",
+        "のらきゃっと",
+        "みとあーと",
+        "猫宮ひなた",
+        "HinataCat",
+        "soraArt",
+        "ばあちゃる",
+        "鳩羽つぐ",
+    ]
+    vtuber_query = '(%s) (filter:images OR filter:videos) min_retweets:100' \
+        % (' OR '.join(words))
+    twitter.search_and_retweet('vtuber', vtuber_query)
 
     account_list = [
         'av_sommlier',
         'av_actress',
         'smash_bros',
         'github',
+        'vtuber',
     ]
 
     for account in account_list:
