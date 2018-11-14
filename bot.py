@@ -13,9 +13,9 @@ def github_status_job():
     github_status.check()
 
 
-@sched.scheduled_job('cron', hour='*', minute=30)
-def twitter_job():
-    print('START: Twitter')
+@sched.scheduled_job('cron', hour='0-1,6-23', minute=30)
+def tweet_job():
+    print('START: Tweet')
 
     twitter.post_av_sommlier()
     twitter.post_av_actress()
@@ -48,6 +48,11 @@ def twitter_job():
 
     splatoon_query = '#Splatoon2 filter:videos min_retweets:10'
     twitter.search_and_retweet('splatoon', splatoon_query)
+
+
+@sched.scheduled_job('cron', hour='*', minute=30)
+def twitter_job():
+    print('START: Twitter')
 
     account_list = [
         'av_sommlier',
