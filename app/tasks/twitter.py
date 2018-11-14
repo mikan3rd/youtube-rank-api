@@ -234,6 +234,7 @@ def search_and_retweet(account, query):
         return
 
     tweet_list = response['statuses']
+    tweet_list = sorted(tweet_list, key=lambda k: k['retweet_count'], reverse=True)
     print(len(tweet_list))
 
     target_id = None
