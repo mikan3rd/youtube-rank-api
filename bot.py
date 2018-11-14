@@ -42,9 +42,12 @@ def twitter_job():
         "ばあちゃる",
         "鳩羽つぐ",
     ]
-    vtuber_query = '(%s) (filter:images OR filter:videos) min_retweets:100' \
+    vtuber_query = '(%s) (filter:images OR filter:videos) min_retweets:50' \
         % (' OR '.join(words))
     twitter.search_and_retweet('vtuber', vtuber_query)
+
+    splatoon_query = '#Splatoon2 filter:videos min_retweets:10'
+    twitter.search_and_retweet('splatoon', splatoon_query)
 
     account_list = [
         'av_sommlier',

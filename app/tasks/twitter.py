@@ -17,6 +17,8 @@ from settings import (
     TWITTER_GITHUB_SECRET,
     TWITTER_VTUBER_ACCESS_TOKEN,
     TWITTER_VTUBER_SECRET,
+    TWITTER_SPLATTON_ACCESS_TOKEN,
+    TWITTER_SPLATOON_SECRET,
 )
 
 from app.server.helpers import dmm
@@ -345,7 +347,7 @@ def follow_users_by_follower(account):
         return
 
     friends_count = response['friends_count']
-    if friends_count >= 5000 and friends_count - followers_count > 0:
+    if friends_count >= 4990 and friends_count - followers_count > 0:
         return
 
     account_id = response['id_str']
@@ -479,6 +481,10 @@ def get_twitter_api(account):
     elif account == 'vtuber':
         access_token = TWITTER_VTUBER_ACCESS_TOKEN
         secret = TWITTER_VTUBER_SECRET
+
+    elif account == 'splatoon':
+        access_token = TWITTER_SPLATTON_ACCESS_TOKEN
+        secret = TWITTER_SPLATOON_SECRET
 
     else:
         print("NO MATCH")

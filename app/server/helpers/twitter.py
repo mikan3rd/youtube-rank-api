@@ -123,7 +123,6 @@ class TwitterApi:
         endpoint = "https://api.twitter.com/1.1/search/tweets.json"
         params = {
             'q': q,
-            'result_type': result_type,
             'count': count,
         }
         response = self.api.get(endpoint, params=params)
