@@ -55,6 +55,7 @@ def twitter_job():
         'smash_bros',
         'github',
         'vtuber',
+        'splatoon',
     ]
 
     for account in account_list:
