@@ -21,7 +21,7 @@ from settings import (
     TWITTER_SPLATOON_SECRET,
 )
 
-from app.server.helpers import dmm
+from app.server.helpers import dmm, rakuten
 from app.server.helpers.twitter import TwitterApi
 
 
@@ -262,6 +262,43 @@ def search_and_retweet(account, query):
     id_list.append(target_id)
     r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
     print("SUCCESS: twitter:", account)
+
+    if len(id_list) % 10 == 0:
+        tweet_affiliate(account)
+
+
+def tweet_affiliate(account):
+    sleep(10)
+
+    if account == 'smash_bros':
+        keyword = 'スマッシュブラザーズ'
+
+    elif account == 'vtuber':
+        keyword = 'キズナアイ'
+
+    elif account == 'splatoon':
+        keyword = 'スプラトゥーン'
+
+    else:
+        return
+
+    response = rakuten.search_ichiba_item(keyword=keyword)
+    targtet_item = response['Items'][0]
+
+    content_list = [
+        targtet_item.get('itemName'),
+        targtet_item.get('affiliateUrl')
+    ]
+
+    status = '\n'.join(content_list)
+
+    api = get_twitter_api(account)
+    response = api.post_tweet(status=status)
+
+    if response.get('errors'):
+        pprint(response)
+
+    print("SUCCESS: tweet_affiliate", account)
 
 
 def follow_users_by_retweet(account):
