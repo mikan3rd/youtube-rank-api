@@ -148,11 +148,13 @@ class TwitterApi:
         self,
         q,
         count=100,
+        lang='ja',
     ):
         endpoint = "https://api.twitter.com/1.1/search/tweets.json"
         params = {
             'q': q,
             'count': count,
+            'lang': lang,
         }
         response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
@@ -168,6 +170,7 @@ class TwitterApi:
         status,
         media_ids=None,
         in_reply_to_status_id=None,
+        attachment_url=None,
     ):
         endpoint = "https://api.twitter.com/1.1/statuses/update.json"
         params = {'status': status}
@@ -177,6 +180,9 @@ class TwitterApi:
 
         if media_ids:
             params['media_ids'] = ','.join(media_ids)
+
+        if attachment_url:
+            params['attachment_url'] = attachment_url
 
         print(status)
 

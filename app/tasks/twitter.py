@@ -236,29 +236,32 @@ def search_and_retweet(account):
     tweet_list = response['statuses']
     tweet_list = sorted(tweet_list, key=lambda k: k['retweet_count'], reverse=True)
 
-    target_id = None
+    target = None
     for tweet in tweet_list:
 
         if tweet.get('retweeted_status'):
             continue
 
+        if not target:
+            target = tweet
+
         if tweet['id_str'] in id_list:
             continue
 
-        target_id = tweet['id_str']
-        pprint(tweet)
+        target = tweet
         break
 
-    if not target_id:
-        print(account, "nothing to tweet")
-        return
+    pprint(target)
 
-    response = api.post_retweet(target_id)
+    status = '今、人気ツイートはこちら！'
+    attachment_url = 'https://twitter.com/%s/status/%s' % (target['user']['screen_name'], target['id_str'])
+
+    response = api.post_tweet(status=status, attachment_url=attachment_url)
 
     if response.get('errors'):
         pprint(response)
 
-    id_list.append(target_id)
+    id_list.append(target['id_str'])
     r.set(redis_key, json.dumps(id_list), ex=None)
     print("SUCCESS: twitter:", account)
 
