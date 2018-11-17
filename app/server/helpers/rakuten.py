@@ -1,5 +1,5 @@
 import requests
-from settings import RAKUTEN_APP_ID, RAKUTEN_AFFILIATE_ID
+from settings import RAKUTEN_AFFILIATE_ID, RAKUTEN_APP_ID
 
 
 base_url = 'https://app.rakuten.co.jp/services/api'

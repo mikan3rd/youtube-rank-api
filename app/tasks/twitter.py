@@ -1,7 +1,8 @@
 import json
 import urllib.request
+from datetime import datetime
 from pprint import pprint
-from random import randint, shuffle, choice
+from random import choice, randint, shuffle
 from time import sleep
 
 import redis
@@ -11,16 +12,16 @@ from settings import (
     TWITTER_AV_ACTRESS_SECRET,
     TWITTER_AV_SOMMLIER_ACCESS_TOKEN,
     TWITTER_AV_SOMMLIER_SECRET,
-    TWITTER_SMASH_BROS_ACCESS_TOKEN,
-    TWITTER_SMASH_BROS_SECRET,
     TWITTER_GITHUB_ACCESS_TOKEN,
     TWITTER_GITHUB_SECRET,
-    TWITTER_VTUBER_ACCESS_TOKEN,
-    TWITTER_VTUBER_SECRET,
-    TWITTER_SPLATTON_ACCESS_TOKEN,
+    TWITTER_SMASH_BROS_ACCESS_TOKEN,
+    TWITTER_SMASH_BROS_SECRET,
     TWITTER_SPLATOON_SECRET,
+    TWITTER_SPLATTON_ACCESS_TOKEN,
     TWITTER_TIKTOK_ACCESS_TOKEN,
     TWITTER_TIKTOK_SECRET,
+    TWITTER_VTUBER_ACCESS_TOKEN,
+    TWITTER_VTUBER_SECRET
 )
 
 from app.server.helpers import dmm, rakuten
@@ -253,10 +254,20 @@ def search_and_retweet(account):
 
     pprint(target)
 
+    in_reply_to_status_id = None
     status = '今、人気のツイートはこちら！'
+    if api.hashtag:
+        now = datetime.now().strftime("%Y年%m月%d日 %H時00分")
+        status = '%s\n@%s さんの %s が人気です！' % (now, target['user']['screen_name'], api.hashtag)
+        in_reply_to_status_id = target['id_str']
+
     attachment_url = 'https://twitter.com/%s/status/%s' % (target['user']['screen_name'], target['id_str'])
 
-    response = api.post_tweet(status=status, attachment_url=attachment_url)
+    response = api.post_tweet(
+        status=status,
+        attachment_url=attachment_url,
+        in_reply_to_status_id=in_reply_to_status_id
+    )
 
     if response.get('errors'):
         pprint(response)
@@ -597,6 +608,7 @@ def remove_follow(account):
 
 
 def get_twitter_api(account):
+    hashtag = ''
     query = ''
     rakuten_query = ''
     exclude_genre_id_list = []
@@ -611,13 +623,6 @@ def get_twitter_api(account):
         access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
         secret = TWITTER_AV_ACTRESS_SECRET
         target_list = ['fanza_sns']
-
-    elif account == 'smash_bros':
-        access_token = TWITTER_SMASH_BROS_ACCESS_TOKEN
-        secret = TWITTER_SMASH_BROS_SECRET
-        query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
-        rakuten_query = 'スマッシュブラザーズ'
-        target_list = ['SmashBrosJP']
 
     elif account == "github":
         access_token = TWITTER_GITHUB_ACCESS_TOKEN
@@ -635,6 +640,7 @@ def get_twitter_api(account):
             "キズナアイ",
             "輝夜月",
             "電脳少女シロ",
+            "VR_Siro",
             "SiroArt",
             "ミライアカリ",
             "バーチャルのじゃロリ狐娘youtuberおじさん",
@@ -649,6 +655,7 @@ def get_twitter_api(account):
             '名取さな',
         ]
 
+        hashtag = '#バーチャルYouTuber'
         query = '(%s) (filter:images OR filter:videos) min_retweets:50' % (' OR '.join(words))
         rakuten_query = 'キズナアイ 電脳少女シロ 輝夜月 ミライアカリ 月ノ美兎 猫宮ひなた にじさんじ'
         target_list = ['aichan_nel', 'SIROyoutuber', 'MiraiAkari_prj', '_KaguyaLuna']
@@ -656,14 +663,25 @@ def get_twitter_api(account):
     elif account == 'splatoon':
         access_token = TWITTER_SPLATTON_ACCESS_TOKEN
         secret = TWITTER_SPLATOON_SECRET
+
+        hashtag = '#Splatoon2'
         query = '#Splatoon2 filter:videos min_retweets:10'
         rakuten_query = 'スプラトゥーン'
         exclude_genre_id_list = ['566404', '566406']
         target_list = ['SplatoonJP']
 
+    elif account == 'smash_bros':
+        access_token = TWITTER_SMASH_BROS_ACCESS_TOKEN
+        secret = TWITTER_SMASH_BROS_SECRET
+        hashtag = '#スマブラSP'
+        query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
+        rakuten_query = 'スマッシュブラザーズ'
+        target_list = ['SmashBrosJP']
+
     elif account == 'tiktok':
         access_token = TWITTER_TIKTOK_ACCESS_TOKEN
         secret = TWITTER_TIKTOK_SECRET
+        hashtag = '#TikTok'
         query = '#TikTok filter:videos min_retweets:10'
         rakuten_query = "コスプレ"
         target_list = ['tiktok_japan']
@@ -674,6 +692,7 @@ def get_twitter_api(account):
     return TwitterApi(
         access_token,
         secret,
+        hashtag=hashtag,
         query=query,
         rakuten_query=rakuten_query,
         exclude_genre_id_list=exclude_genre_id_list,

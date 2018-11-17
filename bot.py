@@ -13,7 +13,7 @@ def github_status_job():
     github_status.check()
 
 
-@sched.scheduled_job('cron', hour='0-1,6-23', minute=30)
+@sched.scheduled_job('cron', hour='0-1,6-23', minute=5)
 def tweet_job():
     print('START: Tweet')
 
@@ -26,7 +26,7 @@ def tweet_job():
     twitter.search_and_retweet('tiktok')
 
 
-@sched.scheduled_job('cron', hour='*', minute=40)
+@sched.scheduled_job('cron', hour='*', minute=30)
 def twitter_job():
     print('START: Follow')
 

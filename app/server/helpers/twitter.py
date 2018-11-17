@@ -14,6 +14,7 @@ class TwitterApi:
         rakuten_query='',
         exclude_genre_id_list=[],
         target_list=[],
+        hashtag='',
     ):
 
         self.api = OAuth1Session(
@@ -23,10 +24,15 @@ class TwitterApi:
             secret,
         )
 
+        self.__hashtag = hashtag
         self.__query = query
         self.__rakuten_query = rakuten_query
         self.__exclude_genre_id_list = exclude_genre_id_list
         self.__target_list = target_list
+
+    @property
+    def hashtag(self):
+        return self.__hashtag
 
     @property
     def query(self):

@@ -1,4 +1,3 @@
-import base64
 import json
 from datetime import datetime
 from pprint import pprint
