@@ -28,7 +28,7 @@ def tweet_job():
 
 @sched.scheduled_job('cron', hour='*', minute=40)
 def twitter_job():
-    print('START: Twitter')
+    print('START: Follow')
 
     account_list = [
         'av_sommlier',

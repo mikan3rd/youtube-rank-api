@@ -612,10 +612,12 @@ def get_twitter_api(account):
         secret = TWITTER_SMASH_BROS_SECRET
         query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
         rakuten_query = 'スマッシュブラザーズ'
+        target_list = ['SmashBrosJP']
 
     elif account == "github":
         access_token = TWITTER_GITHUB_ACCESS_TOKEN
         secret = TWITTER_GITHUB_SECRET
+        target_list = ['github', 'githubstatus']
 
     elif account == 'vtuber':
         access_token = TWITTER_VTUBER_ACCESS_TOKEN
@@ -644,6 +646,7 @@ def get_twitter_api(account):
 
         query = '(%s) (filter:images OR filter:videos) min_retweets:50' % (' OR '.join(words))
         rakuten_query = 'キズナアイ 電脳少女シロ 輝夜月 ミライアカリ 月ノ美兎 猫宮ひなた にじさんじ'
+        target_list = ['aichan_nel', 'SIROyoutuber', 'MiraiAkari_prj', '_KaguyaLuna']
 
     elif account == 'splatoon':
         access_token = TWITTER_SPLATTON_ACCESS_TOKEN
@@ -651,6 +654,7 @@ def get_twitter_api(account):
         query = '#Splatoon2 filter:videos min_retweets:10'
         rakuten_query = 'スプラトゥーン'
         exclude_genre_id_list = ['566404', '566406']
+        target_list = ['SplatoonJP']
 
     elif account == 'tiktok':
         access_token = TWITTER_TIKTOK_ACCESS_TOKEN
