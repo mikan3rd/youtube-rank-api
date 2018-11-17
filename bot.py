@@ -41,6 +41,7 @@ def tweet_job():
         "soraArt",
         "ばあちゃる",
         "鳩羽つぐ",
+        '名取さな',
     ]
     vtuber_query = '(%s) (filter:images OR filter:videos) min_retweets:50' \
         % (' OR '.join(words))

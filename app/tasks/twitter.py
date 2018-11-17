@@ -274,7 +274,7 @@ def tweet_affiliate(account):
         keyword = 'スマッシュブラザーズ'
 
     elif account == 'vtuber':
-        keyword = 'キズナアイ'
+        keyword = 'キズナアイ 電脳少女シロ 輝夜月 ミライアカリ 月ノ美兎 猫宮ひなた にじさんじ'
 
     elif account == 'splatoon':
         keyword = 'スプラトゥーン'
