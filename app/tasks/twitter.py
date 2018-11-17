@@ -268,6 +268,7 @@ def search_and_retweet(account, query):
 
 
 def tweet_affiliate(account):
+    exclude_genre_id_list = []
 
     if account == 'smash_bros':
         keyword = 'スマッシュブラザーズ'
@@ -277,6 +278,7 @@ def tweet_affiliate(account):
 
     elif account == 'splatoon':
         keyword = 'スプラトゥーン'
+        exclude_genre_id_list = ['566404']
 
     else:
         return
@@ -291,9 +293,16 @@ def tweet_affiliate(account):
         id_list = json.loads(rcache.decode())
 
     response = rakuten.search_ichiba_item(keyword=keyword)
-    targtet_item = None
 
+    targtet_item = None
     for item in response['Items']:
+
+        if item['genreId'] in exclude_genre_id_list:
+            continue
+
+        if not targtet_item:
+            targtet_item = item
+
         if item['itemCode'] in id_list:
             continue
 
@@ -304,17 +313,34 @@ def tweet_affiliate(account):
         targtet_item = response['Items'][0]
         id_list = []
 
+    pprint(targtet_item)
+
+    api = get_twitter_api(account)
+
+    media_ids = []
+    for image_url in targtet_item['mediumImageUrls']:
+        media = urllib.request.urlopen(image_url.replace('128x128', '1000x1000')).read()
+        response = api.upload_media(media)
+
+        if response.get('errors'):
+            pprint(response)
+            return
+
+        media_ids.append(response['media_id_string'])
+
+        if len(media_ids) >= 4:
+            break
+
     content_list = [
         targtet_item.get('catchcopy') + targtet_item.get('itemName'),
-        targtet_item.get('affiliateUrl')
+        '',
+        '【詳細URL】' + targtet_item.get('affiliateUrl'),
     ]
 
     status = '\n'.join(content_list)
 
-    api = get_twitter_api(account)
-
     sleep(10)
-    response = api.post_tweet(status=status)
+    response = api.post_tweet(status=status, media_ids=media_ids)
 
     if response.get('errors'):
         pprint(response)
