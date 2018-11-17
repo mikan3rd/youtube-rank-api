@@ -210,7 +210,7 @@ def post_av_actress():
     print("SUCCESS: twitter:av_actress")
 
 
-def search_and_retweet(account, query):
+def search_and_retweet(account):
     api = get_twitter_api(account)
     response = api.get_account()
 
@@ -227,7 +227,7 @@ def search_and_retweet(account, query):
         print("cache HIT!! %s" % (redis_key))
         id_list = json.loads(rcache.decode())
 
-    response = api.get_search_tweet(q=query)
+    response = api.get_search_tweet(q=api.query)
 
     if response.get('errors'):
         pprint(response)
@@ -268,20 +268,6 @@ def search_and_retweet(account, query):
 
 
 def tweet_affiliate(account):
-    exclude_genre_id_list = []
-
-    if account == 'smash_bros':
-        keyword = 'スマッシュブラザーズ'
-
-    elif account == 'vtuber':
-        keyword = 'キズナアイ 電脳少女シロ 輝夜月 ミライアカリ 月ノ美兎 猫宮ひなた にじさんじ'
-
-    elif account == 'splatoon':
-        keyword = 'スプラトゥーン'
-        exclude_genre_id_list = ['566404']
-
-    else:
-        return
 
     redis_key = 'rakuten:%s' % (account)
     r = redis.from_url(REDIS_URL)
@@ -292,12 +278,13 @@ def tweet_affiliate(account):
         print("cache HIT!! %s" % (redis_key))
         id_list = json.loads(rcache.decode())
 
-    response = rakuten.search_ichiba_item(keyword=keyword)
+    api = get_twitter_api(account)
+    response = rakuten.search_ichiba_item(keyword=api.rakuten_query)
 
     targtet_item = None
     for item in response['Items']:
 
-        if item['genreId'] in exclude_genre_id_list:
+        if item['genreId'] in api.exclude_genre_id_list:
             continue
 
         if not targtet_item:
@@ -314,8 +301,6 @@ def tweet_affiliate(account):
         id_list = []
 
     pprint(targtet_item)
-
-    api = get_twitter_api(account)
 
     media_ids = []
     for image_url in targtet_item['mediumImageUrls']:
@@ -550,6 +535,10 @@ def remove_follow(account):
 
 
 def get_twitter_api(account):
+    query = ''
+    rakuten_query = ''
+    exclude_genre_id_list = []
+
     if account == 'av_sommlier':
         access_token = TWITTER_AV_SOMMLIER_ACCESS_TOKEN
         secret = TWITTER_AV_SOMMLIER_SECRET
@@ -561,6 +550,8 @@ def get_twitter_api(account):
     elif account == 'smash_bros':
         access_token = TWITTER_SMASH_BROS_ACCESS_TOKEN
         secret = TWITTER_SMASH_BROS_SECRET
+        query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
+        rakuten_query = 'スマッシュブラザーズ'
 
     elif account == "github":
         access_token = TWITTER_GITHUB_ACCESS_TOKEN
@@ -570,11 +561,44 @@ def get_twitter_api(account):
         access_token = TWITTER_VTUBER_ACCESS_TOKEN
         secret = TWITTER_VTUBER_SECRET
 
+        words = [
+            "vtuber"
+            "バーチャルYouTuber",
+            "KizunaAI",
+            "キズナアイ",
+            "輝夜月",
+            "電脳少女シロ",
+            "SiroArt",
+            "ミライアカリ",
+            "バーチャルのじゃロリ狐娘youtuberおじさん",
+            "Nora_Cat",
+            "のらきゃっと",
+            "みとあーと",
+            "猫宮ひなた",
+            "HinataCat",
+            "soraArt",
+            "ばあちゃる",
+            "鳩羽つぐ",
+            '名取さな',
+        ]
+
+        query = '(%s) (filter:images OR filter:videos) min_retweets:50' % (' OR '.join(words))
+        rakuten_query = 'キズナアイ 電脳少女シロ 輝夜月 ミライアカリ 月ノ美兎 猫宮ひなた にじさんじ'
+
     elif account == 'splatoon':
         access_token = TWITTER_SPLATTON_ACCESS_TOKEN
         secret = TWITTER_SPLATOON_SECRET
+        query = '#Splatoon2 filter:videos min_retweets:10'
+        rakuten_query = 'スプラトゥーン'
+        exclude_genre_id_list = ['566404', '566406']
 
     else:
         print("NO MATCH")
 
-    return TwitterApi(access_token, secret)
+    return TwitterApi(
+        access_token,
+        secret,
+        query=query,
+        rakuten_query=rakuten_query,
+        exclude_genre_id_list=exclude_genre_id_list,
+    )

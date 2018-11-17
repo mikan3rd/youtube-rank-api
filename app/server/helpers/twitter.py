@@ -6,13 +6,30 @@ from settings import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
 
 class TwitterApi:
 
-    def __init__(self, access_token, secret):
+    def __init__(self, access_token, secret, query='', rakuten_query='', exclude_genre_id_list=[]):
+
         self.api = OAuth1Session(
             TWITTER_CONSUMER_KEY,
             TWITTER_CONSUMER_SECRET,
             access_token,
             secret,
         )
+
+        self.__query = query
+        self.__rakuten_query = rakuten_query
+        self.__exclude_genre_id_list = exclude_genre_id_list
+
+    @property
+    def query(self):
+        return self.__query
+
+    @property
+    def rakuten_query(self):
+        return self.__rakuten_query
+
+    @property
+    def exclude_genre_id_list(self):
+        return self.__exclude_genre_id_list
 
     def get_account(self):
         endpoint = "https://api.twitter.com/1.1/account/verify_credentials.json"

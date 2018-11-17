@@ -20,35 +20,9 @@ def tweet_job():
     twitter.post_av_sommlier()
     twitter.post_av_actress()
 
-    smash_bros_query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
-    twitter.search_and_retweet('smash_bros', smash_bros_query)
-
-    words = [
-        "vtuber"
-        "バーチャルYouTuber",
-        "KizunaAI",
-        "キズナアイ",
-        "輝夜月",
-        "電脳少女シロ",
-        "SiroArt",
-        "ミライアカリ",
-        "バーチャルのじゃロリ狐娘youtuberおじさん",
-        "Nora_Cat",
-        "のらきゃっと",
-        "みとあーと",
-        "猫宮ひなた",
-        "HinataCat",
-        "soraArt",
-        "ばあちゃる",
-        "鳩羽つぐ",
-        '名取さな',
-    ]
-    vtuber_query = '(%s) (filter:images OR filter:videos) min_retweets:50' \
-        % (' OR '.join(words))
-    twitter.search_and_retweet('vtuber', vtuber_query)
-
-    splatoon_query = '#Splatoon2 filter:videos min_retweets:10'
-    twitter.search_and_retweet('splatoon', splatoon_query)
+    twitter.search_and_retweet('smash_bros')
+    twitter.search_and_retweet('vtuber')
+    twitter.search_and_retweet('splatoon')
 
 
 @sched.scheduled_job('cron', hour='*', minute=30)
