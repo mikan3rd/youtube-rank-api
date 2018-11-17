@@ -26,7 +26,7 @@ def tweet_job():
     twitter.search_and_retweet('tiktok')
 
 
-@sched.scheduled_job('cron', hour='*', minute=30)
+@sched.scheduled_job('cron', hour='*', minute=40)
 def twitter_job():
     print('START: Twitter')
 

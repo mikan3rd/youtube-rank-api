@@ -235,18 +235,18 @@ def search_and_retweet(account):
 
     tweet_list = response['statuses']
     tweet_list = sorted(tweet_list, key=lambda k: k['retweet_count'], reverse=True)
-    print(len(tweet_list))
 
     target_id = None
     for tweet in tweet_list:
 
-        if tweet.get('retweeted'):
+        if tweet.get('retweeted_status'):
             continue
 
         if tweet['id_str'] in id_list:
             continue
 
         target_id = tweet['id_str']
+        pprint(tweet)
         break
 
     if not target_id:
@@ -257,10 +257,9 @@ def search_and_retweet(account):
 
     if response.get('errors'):
         pprint(response)
-        return
 
     id_list.append(target_id)
-    r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
+    r.set(redis_key, json.dumps(id_list), ex=None)
     print("SUCCESS: twitter:", account)
 
     if len(id_list) % 10 == 0:
@@ -475,6 +474,13 @@ def follow_users_by_follower(account):
     print("SUCCESS: twitter:follow_users_by_follower %s" % (account))
 
 
+def follow_target_user(account):
+    api = get_twitter_api(account)
+
+    if not api.target_list:
+        return
+
+
 def remove_follow(account):
 
     api = get_twitter_api(account)
@@ -543,6 +549,7 @@ def get_twitter_api(account):
     query = ''
     rakuten_query = ''
     exclude_genre_id_list = []
+    target_list = []
 
     if account == 'av_sommlier':
         access_token = TWITTER_AV_SOMMLIER_ACCESS_TOKEN
@@ -600,8 +607,9 @@ def get_twitter_api(account):
     elif account == 'tiktok':
         access_token = TWITTER_TIKTOK_ACCESS_TOKEN
         secret = TWITTER_TIKTOK_SECRET
-        query = '#TikTok'
+        query = '#TikTok filter:videos min_retweets:10'
         rakuten_query = "コスプレ"
+        target_list = ['tiktok_japan']
 
     else:
         print("NO MATCH")
@@ -612,4 +620,5 @@ def get_twitter_api(account):
         query=query,
         rakuten_query=rakuten_query,
         exclude_genre_id_list=exclude_genre_id_list,
+        target_list=target_list,
     )

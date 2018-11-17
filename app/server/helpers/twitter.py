@@ -6,7 +6,15 @@ from settings import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
 
 class TwitterApi:
 
-    def __init__(self, access_token, secret, query='', rakuten_query='', exclude_genre_id_list=[]):
+    def __init__(
+        self,
+        access_token,
+        secret,
+        query='',
+        rakuten_query='',
+        exclude_genre_id_list=[],
+        target_list=[],
+    ):
 
         self.api = OAuth1Session(
             TWITTER_CONSUMER_KEY,
@@ -18,6 +26,7 @@ class TwitterApi:
         self.__query = query
         self.__rakuten_query = rakuten_query
         self.__exclude_genre_id_list = exclude_genre_id_list
+        self.__target_list = target_list
 
     @property
     def query(self):
@@ -30,6 +39,10 @@ class TwitterApi:
     @property
     def exclude_genre_id_list(self):
         return self.__exclude_genre_id_list
+
+    @property
+    def target_list(self):
+        return self.__target_list
 
     def get_account(self):
         endpoint = "https://api.twitter.com/1.1/account/verify_credentials.json"
@@ -134,7 +147,6 @@ class TwitterApi:
     def get_search_tweet(
         self,
         q,
-        result_type="popular",
         count=100,
     ):
         endpoint = "https://api.twitter.com/1.1/search/tweets.json"
