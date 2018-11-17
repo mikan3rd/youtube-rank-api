@@ -602,10 +602,12 @@ def get_twitter_api(account):
     if account == 'av_sommlier':
         access_token = TWITTER_AV_SOMMLIER_ACCESS_TOKEN
         secret = TWITTER_AV_SOMMLIER_SECRET
+        target_list = ['fanza_sns']
 
     elif account == 'av_actress':
         access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
         secret = TWITTER_AV_ACTRESS_SECRET
+        target_list = ['fanza_sns']
 
     elif account == 'smash_bros':
         access_token = TWITTER_SMASH_BROS_ACCESS_TOKEN
