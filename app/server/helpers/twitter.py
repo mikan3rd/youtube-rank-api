@@ -166,6 +166,8 @@ class TwitterApi:
         if media_ids:
             params['media_ids'] = ','.join(media_ids)
 
+        print(status)
+
         response = self.api.post(endpoint, params=params)
         return json.loads(response.text)
 

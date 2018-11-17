@@ -19,6 +19,8 @@ from settings import (
     TWITTER_VTUBER_SECRET,
     TWITTER_SPLATTON_ACCESS_TOKEN,
     TWITTER_SPLATOON_SECRET,
+    TWITTER_TIKTOK_ACCESS_TOKEN,
+    TWITTER_TIKTOK_SECRET,
 )
 
 from app.server.helpers import dmm, rakuten
@@ -94,7 +96,6 @@ def post_av_sommlier():
 
         break
 
-    print(status)
     response = api.post_tweet(status=status, media_ids=[media_id])
 
     if response.get('errors'):
@@ -199,7 +200,6 @@ def post_av_actress():
 
         break
 
-    print(status)
     response = api.post_tweet(status=status, media_ids=media_ids)
 
     if response.get('errors'):
@@ -316,8 +316,13 @@ def tweet_affiliate(account):
         if len(media_ids) >= 4:
             break
 
+    length = 90
+    title = targtet_item.get('itemName')
+    title = title[:length] + ('...' if title[length:] else '')
+
     content_list = [
-        targtet_item.get('catchcopy') + targtet_item.get('itemName'),
+        targtet_item.get('catchcopy'),
+        title,
         '',
         '【詳細URL】' + targtet_item.get('affiliateUrl'),
     ]
@@ -334,6 +339,11 @@ def tweet_affiliate(account):
     r.set(redis_key, json.dumps(id_list), ex=None)
 
     print("SUCCESS: tweet_affiliate", account)
+
+
+def tweet_tiktok():
+    account = 'tiktok'
+    api = get_twitter_api(account)
 
 
 def follow_users_by_retweet(account):
@@ -370,9 +380,6 @@ def follow_users_by_retweet(account):
         if retweeter_count > 5:
             break
 
-    print("tweet_id_list:")
-    pprint(tweet_id_list)
-
     user_id_list = set()
     for tweet_id in tweet_id_list:
         response = api.get_retweet_user(tweet_id=tweet_id)
@@ -389,8 +396,6 @@ def follow_users_by_retweet(account):
 
             user_id_list.add(user['id_str'])
 
-    # print("user_id_list:")
-    # pprint(user_id_list)
     for num, user_id in enumerate(list(user_id_list)[:5], 1):
         response = api.post_follow(user_id=user_id)
 
@@ -591,6 +596,12 @@ def get_twitter_api(account):
         query = '#Splatoon2 filter:videos min_retweets:10'
         rakuten_query = 'スプラトゥーン'
         exclude_genre_id_list = ['566404', '566406']
+
+    elif account == 'tiktok':
+        access_token = TWITTER_TIKTOK_ACCESS_TOKEN
+        secret = TWITTER_TIKTOK_SECRET
+        query = '#TikTok'
+        rakuten_query = "コスプレ"
 
     else:
         print("NO MATCH")

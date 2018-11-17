@@ -23,6 +23,7 @@ def tweet_job():
     twitter.search_and_retweet('smash_bros')
     twitter.search_and_retweet('vtuber')
     twitter.search_and_retweet('splatoon')
+    twitter.search_and_retweet('tiktok')
 
 
 @sched.scheduled_job('cron', hour='*', minute=30)
@@ -36,6 +37,7 @@ def twitter_job():
         'github',
         'vtuber',
         'splatoon',
+        'tiktok',
     ]
 
     for account in account_list:
