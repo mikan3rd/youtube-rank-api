@@ -117,7 +117,7 @@ def post_av_actress():
         print("cache HIT!! %s" % (redis_key))
         id_list = json.loads(rcache.decode())
 
-    response = dmm.search_items()
+    response = dmm.search_items(keyword='単体作品')
 
     tmp_id = None
     target_id = None
@@ -273,6 +273,7 @@ def search_and_retweet(account):
         pprint(response)
 
     id_list.append(target['id_str'])
+    id_list = list(set(id_list))
     r.set(redis_key, json.dumps(id_list), ex=None)
     print("SUCCESS: twitter:", account)
 
@@ -294,29 +295,29 @@ def tweet_affiliate(account):
     api = get_twitter_api(account)
     response = rakuten.search_ichiba_item(keyword=api.rakuten_query)
 
-    targtet_item = None
+    target_item = None
     for item in response['Items']:
 
         if item['genreId'] in api.exclude_genre_id_list:
             continue
 
-        if not targtet_item:
-            targtet_item = item
+        if not target_item:
+            target_item = item
 
         if item['itemCode'] in id_list:
             continue
 
-        targtet_item = item
+        target_item = item
         break
 
-    if not targtet_item:
-        targtet_item = response['Items'][0]
+    if not target_item:
+        target_item = response['Items'][0]
         id_list = []
 
-    pprint(targtet_item)
+    pprint(target_item)
 
     media_ids = []
-    for image_url in targtet_item['mediumImageUrls']:
+    for image_url in target_item['mediumImageUrls']:
         media = urllib.request.urlopen(image_url.replace('128x128', '1000x1000')).read()
         response = api.upload_media(media)
 
@@ -330,14 +331,14 @@ def tweet_affiliate(account):
             break
 
     length = 90
-    title = targtet_item.get('itemName')
+    title = target_item.get('itemName')
     title = title[:length] + ('...' if title[length:] else '')
 
     content_list = [
-        targtet_item.get('catchcopy'),
+        target_item.get('catchcopy'),
         title,
         '',
-        '【詳細URL】' + targtet_item.get('affiliateUrl'),
+        '【詳細URL】' + target_item.get('affiliateUrl'),
     ]
 
     status = '\n'.join(content_list)
@@ -348,7 +349,7 @@ def tweet_affiliate(account):
     if response.get('errors'):
         pprint(response)
 
-    id_list.append(targtet_item['itemCode'])
+    id_list.append(target_item['itemCode'])
     r.set(redis_key, json.dumps(id_list), ex=None)
 
     print("SUCCESS: tweet_affiliate", account)
@@ -460,6 +461,9 @@ def follow_users_by_follower(account):
                 continue
 
             if user['id_str'] == account_id:
+                continue
+
+            if followers_count > 1000 and user.get('lang') not in ['en', 'ja']:
                 continue
 
             user_id_list.add(user['screen_name'])
