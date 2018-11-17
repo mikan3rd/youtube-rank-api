@@ -1,7 +1,7 @@
 import json
 import urllib.request
 from pprint import pprint
-from random import randint, shuffle
+from random import randint, shuffle, choice
 from time import sleep
 
 import redis
@@ -424,7 +424,7 @@ def follow_users_by_follower(account):
         return
 
     friends_count = response['friends_count']
-    if friends_count >= 4990 and friends_count - followers_count > 0:
+    if friends_count >= 4950 and friends_count - followers_count > 0:
         return
 
     account_id = response['id_str']
@@ -479,6 +479,54 @@ def follow_target_user(account):
 
     if not api.target_list:
         return
+
+    response = api.get_account()
+
+    if response.get('errors'):
+        pprint(response)
+        return
+
+    friends_count = response['friends_count']
+    followers_count = response['followers_count']
+    if friends_count >= 4950 and friends_count - followers_count > 0:
+        return
+
+    account_id = response['id_str']
+    LIMIT = 5
+
+    screen_name = choice(api.target_list)
+    response = api.get_followers(screen_name=screen_name)
+
+    user_id_list = set()
+    for user in response['users']:
+        if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
+            continue
+
+        if user['id_str'] == account_id:
+            continue
+
+        user_id_list.add(user['screen_name'])
+
+        if len(user_id_list) > LIMIT:
+            break
+
+    for num, screen_name in enumerate(list(user_id_list)[:LIMIT], 1):
+        response = api.post_follow(screen_name=screen_name)
+
+        if response.get('errors'):
+            pprint(response)
+            break
+
+        print("SUCCESS:%s follow:%s" % (num, screen_name))
+
+        if num >= LIMIT:
+            break
+
+        sleep_time = randint(1, 10)
+        print("sleep_time:", sleep_time)
+        sleep(sleep_time)
+
+    print("SUCCESS: twitter:follow_target_user %s" % (account))
 
 
 def remove_follow(account):
