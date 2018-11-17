@@ -253,7 +253,7 @@ def search_and_retweet(account):
 
     pprint(target)
 
-    status = '今、人気ツイートはこちら！'
+    status = '今、人気のツイートはこちら！'
     attachment_url = 'https://twitter.com/%s/status/%s' % (target['user']['screen_name'], target['id_str'])
 
     response = api.post_tweet(status=status, attachment_url=attachment_url)
