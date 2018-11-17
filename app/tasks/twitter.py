@@ -268,7 +268,6 @@ def search_and_retweet(account, query):
 
 
 def tweet_affiliate(account):
-    sleep(10)
 
     if account == 'smash_bros':
         keyword = 'スマッシュブラザーズ'
@@ -282,21 +281,46 @@ def tweet_affiliate(account):
     else:
         return
 
+    redis_key = 'rakuten:%s' % (account)
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    id_list = []
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        id_list = json.loads(rcache.decode())
+
     response = rakuten.search_ichiba_item(keyword=keyword)
-    targtet_item = response['Items'][0]
+    targtet_item = None
+
+    for item in response['Items']:
+        if item['itemCode'] in id_list:
+            continue
+
+        targtet_item = item
+        break
+
+    if not targtet_item:
+        targtet_item = response['Items'][0]
+        id_list = []
 
     content_list = [
-        targtet_item.get('itemName'),
+        targtet_item.get('catchcopy') + targtet_item.get('itemName'),
         targtet_item.get('affiliateUrl')
     ]
 
     status = '\n'.join(content_list)
 
     api = get_twitter_api(account)
+
+    sleep(10)
     response = api.post_tweet(status=status)
 
     if response.get('errors'):
         pprint(response)
+
+    id_list.append(targtet_item['itemCode'])
+    r.set(redis_key, json.dumps(id_list), ex=None)
 
     print("SUCCESS: tweet_affiliate", account)
 

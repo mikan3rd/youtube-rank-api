@@ -25,7 +25,7 @@ def search_ichiba_item(
     res = requests.get(base_url + endpoint, params=params)
     data = res.json()
 
-    from pprint import pprint
-    pprint(data['Items'][0])
+    # from pprint import pprint
+    # pprint(data['Items'][0])
 
     return data
