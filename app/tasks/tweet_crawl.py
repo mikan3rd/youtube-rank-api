@@ -1,4 +1,5 @@
 import json
+from pprint import pprint
 
 import redis
 import requests
@@ -55,4 +56,41 @@ def github_status():
     response = api.post_tweet(status=status, media_ids=[media_id])
 
     r.set(redis_key, json.dumps(text), ex=None)
-    print("GitHubStatus: SUCCESS!!")
+    print("SUCCESS:crawl:GitHubStatus")
+
+
+def hypnosismic():
+    account = 'hypnosismic'
+
+    redis_key = 'crawl:%s' % (account)
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    redis_value = None
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        redis_value = json.loads(rcache.decode())
+
+    url = 'https://hypnosismic.com/news/'
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "lxml")
+
+    section_tag = soup.find('section', class_='lists')
+    a_tag = section_tag.find('a')
+
+    text = a_tag.find('span', class_='lists__list__text').text
+    if redis_value == text:
+        print('GitHubStatus: No Change!')
+        return
+
+    date = a_tag.find('span', class_='lists__list__date').text
+    link = a_tag.get('href')
+
+    status = '【更新】%s\n\n%s\n\n詳細は公式サイトをチェック！\n%s' % (date, text, link)
+    pprint(status)
+
+    api = twitter.get_twitter_api(account)
+    response = api.post_tweet(status=status)
+
+    r.set(redis_key, json.dumps(text), ex=None)
+    print("SUCCESS:crawl:", account)

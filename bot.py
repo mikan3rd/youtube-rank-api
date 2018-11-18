@@ -55,6 +55,8 @@ def twitter_job():
 
         print('FINISH: Twitter', account)
 
+    tweet_crawl.hypnosismic()
+
 
 @sched.scheduled_job('cron', hour='8,20')
 def instagram_job():
