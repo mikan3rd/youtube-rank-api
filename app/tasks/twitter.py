@@ -1,5 +1,4 @@
 import json
-import locale
 import urllib.request
 from datetime import datetime
 from pprint import pprint
@@ -29,9 +28,6 @@ from settings import (
 
 from app.server.helpers import dmm, rakuten
 from app.server.helpers.twitter import TwitterApi
-
-
-locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
 
 
 def post_av_sommlier():
