@@ -24,6 +24,7 @@ def tweet_job():
     twitter.search_and_retweet('vtuber')
     twitter.search_and_retweet('splatoon')
     twitter.search_and_retweet('tiktok')
+    twitter.search_and_retweet('hypnosismic')
 
 
 @sched.scheduled_job('cron', hour='*', minute=30)
@@ -38,6 +39,7 @@ def twitter_job():
         'vtuber',
         'splatoon',
         'tiktok',
+        'hypnosismic',
     ]
 
     for account in account_list:

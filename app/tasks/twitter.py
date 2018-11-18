@@ -21,7 +21,9 @@ from settings import (
     TWITTER_TIKTOK_ACCESS_TOKEN,
     TWITTER_TIKTOK_SECRET,
     TWITTER_VTUBER_ACCESS_TOKEN,
-    TWITTER_VTUBER_SECRET
+    TWITTER_VTUBER_SECRET,
+    TWITTER_HYPNOSISMIC_ACCESS_TOKEN,
+    TWITTER_HYPNOSISMIC_SECRET,
 )
 
 from app.server.helpers import dmm, rakuten
@@ -689,6 +691,14 @@ def get_twitter_api(account):
         query = '#TikTok filter:videos min_retweets:10'
         rakuten_query = "コスプレ"
         target_list = ['tiktok_japan']
+
+    elif account == 'hypnosismic':
+        access_token = TWITTER_HYPNOSISMIC_ACCESS_TOKEN
+        secret = TWITTER_HYPNOSISMIC_SECRET
+        hashtag = '#ヒプノシスマイク'
+        query = '(ヒプノシスマイク OR ヒプマイ) (filter:images OR filter:videos) min_retweets:10'
+        rakuten_query = 'ヒプノシスマイク'
+        target_list = ['bot_hypnosismic']
 
     else:
         print("NO MATCH")
