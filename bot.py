@@ -1,7 +1,7 @@
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from app.tasks import github_status, instagram, tiktok, twitter
+from app.tasks import instagram, tiktok, tweet_crawl, twitter
 
 
 sched = BlockingScheduler(timezone="Asia/Tokyo")
@@ -10,7 +10,7 @@ sched = BlockingScheduler(timezone="Asia/Tokyo")
 @sched.scheduled_job('interval', minutes=5)
 def github_status_job():
     print('GitHubStatus: START!!')
-    github_status.check()
+    tweet_crawl.github_status()
 
 
 @sched.scheduled_job('cron', hour='0-1,6-23', minute=5)
