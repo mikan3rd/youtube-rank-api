@@ -520,6 +520,7 @@ def follow_target_user(account):
     LIMIT = 5
 
     screen_name = choice(api.target_list)
+    print("target_user:", screen_name)
     response = api.get_followers(screen_name=screen_name)
 
     user_id_list = set()
@@ -703,7 +704,7 @@ def get_twitter_api(account):
         hashtag = '#ヒプノシスマイク'
         query = '(ヒプノシスマイク OR ヒプマイ) (filter:images OR filter:videos) min_retweets:10'
         rakuten_query = 'ヒプノシスマイク'
-        target_list = ['bot_hypnosismic']
+        target_list = ['hypnosismic']
 
     else:
         print("NO MATCH")
