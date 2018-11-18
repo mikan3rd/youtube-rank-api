@@ -661,6 +661,7 @@ def get_twitter_api(account):
             "ばあちゃる",
             "鳩羽つぐ",
             '名取さな',
+            'にじさんじ',
         ]
 
         hashtag = '#バーチャルYouTuber'
