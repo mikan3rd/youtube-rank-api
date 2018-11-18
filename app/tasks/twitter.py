@@ -1,4 +1,5 @@
 import json
+import locale
 import urllib.request
 from datetime import datetime
 from pprint import pprint
@@ -14,6 +15,8 @@ from settings import (
     TWITTER_AV_SOMMLIER_SECRET,
     TWITTER_GITHUB_ACCESS_TOKEN,
     TWITTER_GITHUB_SECRET,
+    TWITTER_HYPNOSISMIC_ACCESS_TOKEN,
+    TWITTER_HYPNOSISMIC_SECRET,
     TWITTER_SMASH_BROS_ACCESS_TOKEN,
     TWITTER_SMASH_BROS_SECRET,
     TWITTER_SPLATOON_SECRET,
@@ -21,13 +24,14 @@ from settings import (
     TWITTER_TIKTOK_ACCESS_TOKEN,
     TWITTER_TIKTOK_SECRET,
     TWITTER_VTUBER_ACCESS_TOKEN,
-    TWITTER_VTUBER_SECRET,
-    TWITTER_HYPNOSISMIC_ACCESS_TOKEN,
-    TWITTER_HYPNOSISMIC_SECRET,
+    TWITTER_VTUBER_SECRET
 )
 
 from app.server.helpers import dmm, rakuten
 from app.server.helpers.twitter import TwitterApi
+
+
+locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
 
 
 def post_av_sommlier():
@@ -260,7 +264,8 @@ def search_and_retweet(account):
     status = '今、人気のツイートはこちら！'
     if api.hashtag:
         now = datetime.now().strftime("%Y年%-m月%-d日(%a) %-H時00分")
-        status = '%s\n@%s さんの %s が人気です！' % (now, target['user']['screen_name'], api.hashtag)
+        status = '%s\n@%s %s さんの %s が人気です！' \
+            % (now, target['user']['screen_name'], target['user']['name'], api.hashtag)
         in_reply_to_status_id = target['id_str']
 
     attachment_url = 'https://twitter.com/%s/status/%s' % (target['user']['screen_name'], target['id_str'])
