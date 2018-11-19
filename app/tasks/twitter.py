@@ -1,3 +1,4 @@
+import re
 import json
 import urllib.request
 from datetime import datetime
@@ -259,11 +260,17 @@ def search_and_retweet(account):
     in_reply_to_status_id = None
     status = '今、人気のツイートはこちら！'
     if api.hashtag:
+        in_reply_to_status_id = target['id_str']
         user = target['user']
         now = datetime.now().strftime("%Y年%-m月%-d日(%a) %-H時00分")
+
         status = '%s\n%s の人気ツイート\n\n@%s %s\n%s' \
             % (now, api.hashtag, user['screen_name'], user['name'], user['description'])
-        in_reply_to_status_id = target['id_str']
+
+        length = 200
+        status = status[:length] + ('...' if status[length:] else '')
+        status = re.sub('(http|#|@)\S*\.\.\.', '...', status)
+        print(len(status))
 
     attachment_url = 'https://twitter.com/%s/status/%s' % (target['user']['screen_name'], target['id_str'])
 
