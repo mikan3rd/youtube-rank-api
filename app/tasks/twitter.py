@@ -648,7 +648,6 @@ def get_twitter_api(account):
             "キズナアイ",
             "輝夜月",
             "電脳少女シロ",
-            "VR_Siro",
             "SiroArt",
             "ミライアカリ",
             "バーチャルのじゃロリ狐娘youtuberおじさん",
