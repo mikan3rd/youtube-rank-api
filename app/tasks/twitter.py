@@ -267,7 +267,7 @@ def search_and_retweet(account):
         status = '%s\n%s の人気ツイート\n\n@%s %s\n%s' \
             % (now, api.hashtag, user['screen_name'], user['name'], user['description'])
 
-        length = 200
+        length = 190
         status = status[:length] + ('...' if status[length:] else '')
         status = re.sub('(http|#|@)\S*\.\.\.', '...', status)
         print(len(status))
