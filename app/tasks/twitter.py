@@ -482,7 +482,7 @@ def follow_users_by_follower(account):
         if len(user_id_list) > 10:
             break
 
-    limit = randint(5, 10)
+    limit = randint(3, 6)
     for num, screen_name in enumerate(list(user_id_list)[:limit], 1):
         response = api.post_follow(screen_name=screen_name)
 
@@ -520,7 +520,7 @@ def follow_target_user(account):
         return
 
     account_id = response['id_str']
-    LIMIT = randint(5, 10)
+    LIMIT = randint(3, 6)
 
     screen_name = choice(api.target_list)
     print("target_user:", screen_name)
