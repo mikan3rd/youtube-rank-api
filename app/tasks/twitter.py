@@ -255,8 +255,6 @@ def search_and_retweet(account):
         target = tweet
         break
 
-    pprint(target)
-
     in_reply_to_status_id = None
     status = '今、人気のツイートはこちら！'
     if api.hashtag:
