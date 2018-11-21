@@ -13,18 +13,41 @@ def github_status_job():
     tweet_crawl.github_status()
 
 
-@sched.scheduled_job('cron', hour='0-1,6-23', minute=5)
+@sched.scheduled_job('cron', hour='0-1,6-23', minute=1)
 def tweet_job():
     print('START: Tweet')
 
     twitter.post_av_sommlier()
     twitter.post_av_actress()
 
-    twitter.search_and_retweet('smash_bros')
     twitter.search_and_retweet('vtuber')
     twitter.search_and_retweet('splatoon')
-    twitter.search_and_retweet('tiktok')
+    twitter.search_and_retweet('smash_bros')
     twitter.search_and_retweet('hypnosismic')
+    twitter.search_and_retweet('tiktok')
+
+
+@sched.scheduled_job('cron', hour='7,12,18', minute=5)
+def tweet_affiliate():
+    print('START: tweet_affiliate')
+
+    account_list = [
+        'vtuber',
+        'splatoon',
+        'smash_bros',
+        'hypnosismic',
+        'tiktok',
+    ]
+
+    for account in account_list:
+
+        try:
+            twitter.tweet_affiliate(account)
+
+        except Exception as e:
+            pass
+
+        print('FINISH: tweet_affiliate', account)
 
 
 @sched.scheduled_job('cron', hour='*', minute=30)

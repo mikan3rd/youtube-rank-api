@@ -286,9 +286,6 @@ def search_and_retweet(account):
     r.set(redis_key, json.dumps(id_list), ex=None)
     print("SUCCESS: twitter:", account)
 
-    if len(id_list) % 10 == 0:
-        tweet_affiliate(account)
-
 
 def tweet_affiliate(account):
 
@@ -352,7 +349,6 @@ def tweet_affiliate(account):
 
     status = '\n'.join(content_list)
 
-    sleep(10)
     response = api.post_tweet(status=status, media_ids=media_ids)
 
     if response.get('errors'):
@@ -518,7 +514,7 @@ def follow_target_user(account):
         return
 
     account_id = response['id_str']
-    LIMIT = randint(3, 6)
+    LIMIT = randint(3, 5)
 
     screen_name = choice(api.target_list)
     print("target_user:", screen_name)
@@ -610,10 +606,10 @@ def remove_follow(account):
 
         print("SUCCESS:%s unfollow:%s" % (num, screen_name))
 
-        if num >= 4:
+        if num >= 3:
             break
 
-        sleep_time = randint(10, 70)
+        sleep_time = randint(10, 60)
         print("sleep_time:", sleep_time)
         sleep(sleep_time)
 
