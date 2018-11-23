@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from settings import REDIS_URL
 
-from app.tasks import twitter
+from app.tasks import twitter, twitter_tool
 
 
 def github_status():
@@ -48,12 +48,22 @@ def github_status():
 
     api = twitter.get_twitter_api('github')
 
-    media = open('resources/images/github_%s.jpg' % path, 'rb')
-    response = api.upload_media(media)
-    media_id = response['media_id_string']    # type: ignore
+    image_path = 'resources/images/github_%s.jpg' % path
+
+    # media = open(image_path, 'rb')
+    # response = api.upload_media(media)
+    # media_id = response['media_id_string']    # type: ignore
 
     status = text + "\n#github\n" + url
-    response = api.post_tweet(status=status, media_ids=[media_id])
+
+    twitter_tool.post_tweet(
+        username=api.username,
+        password=api.password,
+        status=status,
+        image_path_list=[image_path]
+    )
+
+    # response = api.post_tweet(status=status, media_ids=[media_id])
 
     r.set(redis_key, json.dumps(text), ex=None)
     print("SUCCESS:crawl:GitHubStatus")
@@ -80,7 +90,7 @@ def hypnosismic():
 
     text = a_tag.find('span', class_='lists__list__text').text
     if redis_value == text:
-        print('GitHubStatus: No Change!')
+        print('No Change:', account)
         return
 
     date = a_tag.find('span', class_='lists__list__date').text
@@ -90,7 +100,13 @@ def hypnosismic():
     pprint(status)
 
     api = twitter.get_twitter_api(account)
-    response = api.post_tweet(status=status)
+    twitter_tool.post_tweet(
+        username=api.username,
+        password=api.password,
+        status=status,
+    )
+
+    # response = api.post_tweet(status=status)
 
     r.set(redis_key, json.dumps(text), ex=None)
     print("SUCCESS:crawl:", account)

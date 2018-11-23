@@ -25,11 +25,8 @@ def post_tweet(
     password,
     status,
     image_url_list=[],
+    image_path_list=[],
 ):
-    print(username)
-    print(password)
-    print(status)
-    print(image_url_list)
 
     try:
         driver = get_driver(username, password)
@@ -42,6 +39,13 @@ def post_tweet(
         for i, image_url in enumerate(image_url_list, 1):
             image_path = path_to_image % (i)
             urllib.request.urlretrieve(image_url, image_path)
+            driver.find_element_by_css_selector('input.file-input').send_keys(image_path)
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, PREVIEW_PATH % (i))))
+            print('image upload:', i)
+
+        for i, path in enumerate(image_path_list, 1):
+            image_path = os.path.join(os.getcwd(), path)
+            print(image_path)
             driver.find_element_by_css_selector('input.file-input').send_keys(image_path)
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, PREVIEW_PATH % (i))))
             print('image upload:', i)

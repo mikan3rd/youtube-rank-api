@@ -26,6 +26,7 @@ from settings import (
     TWITTER_VTUBER_ACCESS_TOKEN,
     TWITTER_VTUBER_SECRET,
     TWITTER_PASSWORD_A,
+    TWITTER_PASSWORD_B,
 )
 
 from app.server.helpers import dmm, rakuten
@@ -652,6 +653,8 @@ def get_twitter_api(account):
     elif account == "github":
         access_token = TWITTER_GITHUB_ACCESS_TOKEN
         secret = TWITTER_GITHUB_SECRET
+        username = 'git_hub_status'
+        password = TWITTER_PASSWORD_A
         target_list = ['github', 'githubstatus']
 
     elif account == 'vtuber':
@@ -714,6 +717,8 @@ def get_twitter_api(account):
     elif account == 'hypnosismic':
         access_token = TWITTER_HYPNOSISMIC_ACCESS_TOKEN
         secret = TWITTER_HYPNOSISMIC_SECRET
+        username = 'bot_hypnosismic'
+        password = TWITTER_PASSWORD_B
         hashtag = '#ヒプノシスマイク'
         query = '(ヒプノシスマイク OR ヒプマイ) (filter:images OR filter:videos) min_retweets:10'
         rakuten_query = 'ヒプノシスマイク'
