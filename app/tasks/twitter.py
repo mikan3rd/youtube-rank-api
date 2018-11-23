@@ -333,20 +333,20 @@ def tweet_affiliate(account):
         target_item = response['Items'][0]
         id_list = []
 
-    pprint(target_item)
-
     media_ids = []
+    image_url_list = []
     for image_url in target_item['mediumImageUrls']:
-        media = urllib.request.urlopen(image_url.replace('128x128', '1000x1000')).read()
-        response = api.upload_media(media)
+        image_url_list.append(image_url)
+        # media = urllib.request.urlopen(image_url.replace('128x128', '1000x1000')).read()
+        # response = api.upload_media(media)
 
-        if response.get('errors'):
-            pprint(response)
-            return
+        # if response.get('errors'):
+        #     pprint(response)
+        #     return
 
-        media_ids.append(response['media_id_string'])
+        # media_ids.append(response['media_id_string'])
 
-        if len(media_ids) >= 4:
+        if len(image_url_list) >= 4:
             break
 
     length = 90
@@ -362,10 +362,17 @@ def tweet_affiliate(account):
 
     status = '\n'.join(content_list)
 
-    response = api.post_tweet(status=status, media_ids=media_ids)
+    twitter_tool.post_tweet(
+        username=api.username,
+        password=api.password,
+        status=status,
+        image_url_list=image_url_list,
+    )
 
-    if response.get('errors'):
-        pprint(response)
+    # response = api.post_tweet(status=status, media_ids=media_ids)
+
+    # if response.get('errors'):
+    #     pprint(response)
 
     id_list.append(target_item['itemCode'])
     r.set(redis_key, json.dumps(id_list), ex=None)
@@ -660,6 +667,8 @@ def get_twitter_api(account):
     elif account == 'vtuber':
         access_token = TWITTER_VTUBER_ACCESS_TOKEN
         secret = TWITTER_VTUBER_SECRET
+        username = 'kizunaAI_images'
+        password = TWITTER_PASSWORD_A
 
         words = [
             "vtuber"
@@ -691,6 +700,8 @@ def get_twitter_api(account):
     elif account == 'splatoon':
         access_token = TWITTER_SPLATTON_ACCESS_TOKEN
         secret = TWITTER_SPLATOON_SECRET
+        username = 'splatoon2_ninki'
+        password = TWITTER_PASSWORD_B
 
         hashtag = '#Splatoon2'
         query = '#Splatoon2 filter:videos min_retweets:10'
@@ -701,6 +712,9 @@ def get_twitter_api(account):
     elif account == 'smash_bros':
         access_token = TWITTER_SMASH_BROS_ACCESS_TOKEN
         secret = TWITTER_SMASH_BROS_SECRET
+        username = 'smash_bros_sp'
+        password = TWITTER_PASSWORD_A
+
         hashtag = '#スマブラSP'
         query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
         rakuten_query = 'スマッシュブラザーズ'
@@ -709,6 +723,9 @@ def get_twitter_api(account):
     elif account == 'tiktok':
         access_token = TWITTER_TIKTOK_ACCESS_TOKEN
         secret = TWITTER_TIKTOK_SECRET
+        username = 'tik_tok_ranking'
+        password = TWITTER_PASSWORD_A
+
         hashtag = '#TikTok'
         query = '#TikTok filter:videos min_retweets:10'
         rakuten_query = "コスプレ"
