@@ -1,5 +1,5 @@
-import re
 import json
+import re
 import urllib.request
 from datetime import datetime
 from pprint import pprint
@@ -24,11 +24,13 @@ from settings import (
     TWITTER_TIKTOK_ACCESS_TOKEN,
     TWITTER_TIKTOK_SECRET,
     TWITTER_VTUBER_ACCESS_TOKEN,
-    TWITTER_VTUBER_SECRET
+    TWITTER_VTUBER_SECRET,
+    TWITTER_PASSWORD_A,
 )
 
 from app.server.helpers import dmm, rakuten
 from app.server.helpers.twitter import TwitterApi
+from app.tasks import twitter_tool
 
 
 def post_av_sommlier():
@@ -150,20 +152,24 @@ def post_av_actress():
     response = dmm.search_items(keyword=keyword)
     items = response['result']['items']
 
-    api = TwitterApi(TWITTER_AV_ACTRESS_ACCESS_TOKEN, TWITTER_AV_ACTRESS_SECRET)
+    api = get_twitter_api('av_actress')
 
     media_ids = []
+    image_url_list = []
     for item in items:
-        media = urllib.request.urlopen(item['imageURL']['large']).read()
-        response = api.upload_media(media)
+        image_url = item['imageURL']['large']
+        image_url_list.append(image_url)
 
-        if response.get('errors'):
-            pprint(response)
-            return
+        # media = urllib.request.urlopen(image_url).read()
+        # response = api.upload_media(media)
 
-        media_ids.append(response['media_id_string'])
+        # if response.get('errors'):
+        #     pprint(response)
+        #     return
 
-        if len(media_ids) >= 4:
+        # media_ids.append(response['media_id_string'])
+
+        if len(image_url_list) >= 4:
             break
 
     ruby = '（%s）' % (actress_info['ruby']) if actress_info.get('ruby') else ''
@@ -204,10 +210,16 @@ def post_av_actress():
 
         break
 
-    response = api.post_tweet(status=status, media_ids=media_ids)
+    twitter_tool.post_tweet(
+        username=api.username,
+        password=api.password,
+        status=status,
+        image_url_list=image_url_list,
+    )
+    # response = api.post_tweet(status=status, media_ids=media_ids)
 
-    if response.get('errors'):
-        pprint(response)
+    # if response.get('errors'):
+    #     pprint(response)
 
     id_list.append(target_id)
     r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
@@ -617,6 +629,8 @@ def remove_follow(account):
 
 
 def get_twitter_api(account):
+    username = ''
+    password = ''
     hashtag = ''
     query = ''
     rakuten_query = ''
@@ -631,6 +645,8 @@ def get_twitter_api(account):
     elif account == 'av_actress':
         access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
         secret = TWITTER_AV_ACTRESS_SECRET
+        username = 'av_actress_bot'
+        password = TWITTER_PASSWORD_A
         target_list = ['fanza_sns']
 
     elif account == "github":
@@ -709,6 +725,8 @@ def get_twitter_api(account):
     return TwitterApi(
         access_token,
         secret,
+        username=username,
+        password=password,
         hashtag=hashtag,
         query=query,
         rakuten_query=rakuten_query,

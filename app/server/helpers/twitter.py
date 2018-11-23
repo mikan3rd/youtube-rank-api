@@ -1,8 +1,8 @@
 import json
+from time import sleep
 
 from requests_oauthlib import OAuth1Session
 from settings import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
-from time import sleep
 
 
 class TwitterApi:
@@ -11,6 +11,8 @@ class TwitterApi:
         self,
         access_token,
         secret,
+        username='',
+        password='',
         query='',
         rakuten_query='',
         exclude_genre_id_list=[],
@@ -25,11 +27,21 @@ class TwitterApi:
             secret,
         )
 
+        self.__username = username
+        self.__password = password
         self.__hashtag = hashtag
         self.__query = query
         self.__rakuten_query = rakuten_query
         self.__exclude_genre_id_list = exclude_genre_id_list
         self.__target_list = target_list
+
+    @property
+    def username(self):
+        return self.__username
+
+    @property
+    def password(self):
+        return self.__password
 
     @property
     def hashtag(self):
