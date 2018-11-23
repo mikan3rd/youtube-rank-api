@@ -2,6 +2,7 @@ import json
 
 from requests_oauthlib import OAuth1Session
 from settings import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
+from time import sleep
 
 
 class TwitterApi:
@@ -168,6 +169,7 @@ class TwitterApi:
     def upload_media(self, media):
         endpoint = "https://upload.twitter.com/1.1/media/upload.json"
         files = {'media': media}
+        sleep(1)
         response = self.api.post(endpoint, files=files)
         return json.loads(response.text)
 
@@ -191,6 +193,7 @@ class TwitterApi:
             params['attachment_url'] = attachment_url
 
         print(status)
+        sleep(1)
 
         response = self.api.post(endpoint, params=params)
         return json.loads(response.text)

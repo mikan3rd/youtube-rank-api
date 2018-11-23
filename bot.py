@@ -65,18 +65,18 @@ def twitter_job():
         'hypnosismic',
     ]
 
-    for account in account_list:
+    # for account in account_list:
 
-        try:
-            # twitter.remove_follow(account)
-            # twitter.follow_users_by_follower(account)
-            twitter.follow_users_by_retweet(account)
-            # twitter.follow_target_user(account)
+    #     try:
+    #         twitter.remove_follow(account)
+    #         twitter.follow_users_by_follower(account)
+    #         twitter.follow_users_by_retweet(account)
+    #         twitter.follow_target_user(account)
 
-        except Exception as e:
-            pass
+    #     except Exception as e:
+    #         pass
 
-        print('FINISH: Twitter', account)
+    #     print('FINISH: Twitter', account)
 
     tweet_crawl.hypnosismic()
 
