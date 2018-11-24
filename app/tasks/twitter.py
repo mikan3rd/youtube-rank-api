@@ -661,7 +661,7 @@ def get_twitter_api(account):
     elif account == 'av_actress':
         access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
         secret = TWITTER_AV_ACTRESS_SECRET
-        username = 'av_actress_bot'
+        username = 'mikan.no.movie@gmail.com'
         password = TWITTER_PASSWORD_A
         target_list = ['fanza_sns']
 
