@@ -50,7 +50,7 @@ def tweet_affiliate():
         print('FINISH: tweet_affiliate', account)
 
 
-@sched.scheduled_job('cron', hour='*', minute=30)
+@sched.scheduled_job('cron', hour='0-1,6-23', minute=30)
 def twitter_job():
     print('START: Follow')
 
