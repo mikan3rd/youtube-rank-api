@@ -556,7 +556,7 @@ def follow_target_user(account):
     print("target_user:", screen_name)
     response = api.get_followers(screen_name=screen_name)
 
-    user_id_list = set()
+    user_list = set()
     for user in response['users']:
         if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
             continue
@@ -564,26 +564,33 @@ def follow_target_user(account):
         if user['id_str'] == account_id:
             continue
 
-        user_id_list.add(user['screen_name'])
+        user_list.add(user['screen_name'])
 
-        if len(user_id_list) > LIMIT:
+        if len(user_list) > LIMIT:
             break
 
-    for num, screen_name in enumerate(list(user_id_list)[:LIMIT], 1):
-        response = api.post_follow(screen_name=screen_name)
+    user_list = list(user_list)
+    twitter_tool.follow_users(
+        username=api.username,
+        password=api.password,
+        user_list=user_list[:LIMIT],
+    )
 
-        if response.get('errors'):
-            pprint(response)
-            break
+    # for num, screen_name in enumerate(list(user_list)[:LIMIT], 1):
+    #     response = api.post_follow(screen_name=screen_name)
 
-        print("SUCCESS:%s follow:%s" % (num, screen_name))
+    #     if response.get('errors'):
+    #         pprint(response)
+    #         break
 
-        if num >= LIMIT:
-            break
+    #     print("SUCCESS:%s follow:%s" % (num, screen_name))
 
-        sleep_time = randint(1, 10)
-        print("sleep_time:", sleep_time)
-        sleep(sleep_time)
+    #     if num >= LIMIT:
+    #         break
+
+    #     sleep_time = randint(1, 10)
+    #     print("sleep_time:", sleep_time)
+    #     sleep(sleep_time)
 
     print("SUCCESS: twitter:follow_target_user %s" % (account))
 

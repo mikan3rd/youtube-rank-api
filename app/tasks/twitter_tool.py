@@ -124,6 +124,7 @@ def follow_users(
 
             driver.find_element_by_class_name('user-actions-follow-button').click()
             sleep(randint(1, 5))
+            print("follow:", screen_name)
 
         logout(driver)
         print("SUCCESS: follow_users", username)
