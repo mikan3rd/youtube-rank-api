@@ -736,7 +736,7 @@ def get_twitter_api(account):
         access_token = TWITTER_SMASH_BROS_ACCESS_TOKEN
         secret = TWITTER_SMASH_BROS_SECRET
         username = 'smash_bros_sp'
-        password = TWITTER_PASSWORD_A
+        password = TWITTER_PASSWORD_B
 
         hashtag = '#スマブラSP'
         query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
