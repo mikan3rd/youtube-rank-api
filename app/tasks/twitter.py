@@ -285,14 +285,21 @@ def search_and_retweet(account):
 
     attachment_url = 'https://twitter.com/%s/status/%s' % (target['user']['screen_name'], target['id_str'])
 
-    response = api.post_tweet(
+    twitter_tool.search_and_retweet(
+        username=api.username,
+        password=api.password,
         status=status,
-        attachment_url=attachment_url,
-        # in_reply_to_status_id=in_reply_to_status_id
+        tweet_path=attachment_url,
     )
 
-    if response.get('errors'):
-        pprint(response)
+    # response = api.post_tweet(
+    #     status=status,
+    #     attachment_url=attachment_url,
+    #     # in_reply_to_status_id=in_reply_to_status_id
+    # )
+
+    # if response.get('errors'):
+    #     pprint(response)
 
     id_list.append(target['id_str'])
     id_list = list(set(id_list))

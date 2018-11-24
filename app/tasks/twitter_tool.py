@@ -14,6 +14,7 @@ from settings import DRIVER_PATH, GOOGLE_CHROME_PATH
 
 BASE_URL = 'https://twitter.com'
 LOGIN_URL = BASE_URL + '/login'
+SEARCH_URL = BASE_URL + '/search-home'
 
 USERNAME_PATH = '//*[@id="page-container"]/div/div[1]/form/fieldset/div[1]/input'
 PASSWORD_PATH = '//*[@id="page-container"]/div/div[1]/form/fieldset/div[2]/input'
@@ -52,6 +53,7 @@ def post_tweet(
 
         driver.find_element_by_css_selector('button.tweet-action').click()
         sleep(10)
+        logout(driver)
 
         print("SUCCESS: post_tweet_by_selenium", username)
 
@@ -68,8 +70,30 @@ def search_and_retweet(
     username,
     password,
     status,
+    tweet_path,
 ):
-    pass
+    try:
+        driver = get_driver(username, password)
+        driver.get(tweet_path)
+
+        driver.find_element_by_css_selector('button.js-actionRetweet').click()
+
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'retweet-with-comment')))
+        comment = driver.find_element_by_id('retweet-with-comment')
+        comment.send_keys(status)
+
+        driver.find_element_by_class_name('RetweetDialog-tweetActionLabel').click()
+        sleep(10)
+
+        logout(driver)
+        print("SUCCESS: search_and_retweet_by_selenium", username)
+
+    except Exception as e:
+        pprint(e)
+
+    finally:
+        input()
+        driver.quit()
 
 
 def get_driver(username, password):
@@ -97,3 +121,10 @@ def get_driver(username, password):
     print("LOGIN SUCCESS:", username)
 
     return driver
+
+
+def logout(driver):
+    driver.get(BASE_URL)
+    driver.find_element_by_id('user-dropdown').click()
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'js-signout-button')))
+    driver.find_element_by_class_name('js-signout-button').click()
