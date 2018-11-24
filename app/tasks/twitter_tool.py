@@ -78,6 +78,7 @@ def search_and_retweet(
     print(status)
     try:
         driver = get_driver(username, password)
+        # input()
         driver.get(tweet_path)
 
         driver.find_element_by_css_selector('button.js-actionRetweet').click()
@@ -135,4 +136,5 @@ def logout(driver):
     driver.find_element_by_id('user-dropdown').click()
     WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'js-signout-button')))
     driver.find_element_by_class_name('js-signout-button').click()
+    sleep(1)
     print("SUCCESS: logout")
