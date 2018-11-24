@@ -17,6 +17,8 @@ from settings import (
     TWITTER_GITHUB_SECRET,
     TWITTER_HYPNOSISMIC_ACCESS_TOKEN,
     TWITTER_HYPNOSISMIC_SECRET,
+    TWITTER_PASSWORD_A,
+    TWITTER_PASSWORD_B,
     TWITTER_SMASH_BROS_ACCESS_TOKEN,
     TWITTER_SMASH_BROS_SECRET,
     TWITTER_SPLATOON_SECRET,
@@ -24,9 +26,7 @@ from settings import (
     TWITTER_TIKTOK_ACCESS_TOKEN,
     TWITTER_TIKTOK_SECRET,
     TWITTER_VTUBER_ACCESS_TOKEN,
-    TWITTER_VTUBER_SECRET,
-    TWITTER_PASSWORD_A,
-    TWITTER_PASSWORD_B,
+    TWITTER_VTUBER_SECRET
 )
 
 from app.server.helpers import dmm, rakuten
@@ -336,8 +336,9 @@ def tweet_affiliate(account):
     media_ids = []
     image_url_list = []
     for image_url in target_item['mediumImageUrls']:
+        image_url = image_url.replace('128x128', '1000x1000')
         image_url_list.append(image_url)
-        # media = urllib.request.urlopen(image_url.replace('128x128', '1000x1000')).read()
+        # media = urllib.request.urlopen(image_url).read()
         # response = api.upload_media(media)
 
         # if response.get('errors'):
