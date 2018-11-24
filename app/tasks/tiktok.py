@@ -5,7 +5,7 @@ from time import sleep
 import requests
 from settings import TIKTOK_AID, TIKTOK_DEVICE_ID
 
-from app.server.helpers import gspread
+from app.server.helpers import firestore, gspread
 
 
 SHEET_ID = "1cA3pIOPfRKw3v8oeArTsVOAszUWUO9cOZ4UKKAZ1RH4"
@@ -37,6 +37,58 @@ feed_params = {
     'tz_offset': 32400,
     'volume': '0.00',
 }
+
+user_params = {
+    'aid': TIKTOK_AID,
+    'language': 'ja',
+    'app_name': 'trill',
+    'carrier_region': 'JP',
+    'device_id': TIKTOK_DEVICE_ID,
+    'account_region': 'JP',
+    'sys_region': 'JP',
+    'app_language': 'ja',
+    'tz_name': 'Asia/Tokyo',
+}
+
+
+def add_user():
+    feed_params['ts'] = datetime.now().strftime('%s')
+    res = requests.get(BASE_URL + "/feed/", headers=feed_headers, params=feed_params)
+    feed_data = res.json()
+
+    user_list = []
+    for aweme in feed_data['aweme_list']:
+        uid = aweme['author'].get('uid')
+
+        if not uid:
+            continue
+
+        user_params['user_id'] = uid
+        res = requests.get(BASE_URL + "/user/", headers=feed_headers, params=user_params)
+
+        data = res.json()
+        user = data.get('user')
+
+        if not user or not user.get('uid'):
+            continue
+
+        result = create_user_data(user)
+
+        if not result:
+            continue
+
+        user_list.append(result)
+
+    pprint(user_list)
+
+    if user_list:
+        firestore.batch_update(
+            collection='users',
+            data_list=user_list,
+            unique_key='uid'
+        )
+
+    print("SUCCESS: tiktok, add_user")
 
 
 def get_feed():
@@ -109,6 +161,7 @@ def update_user_detail():
 
             feed_params['user_id'] = uid
             res = requests.get(BASE_URL + url, headers=feed_headers, params=feed_params)
+            pprint(res.content)
             data = res.json()
 
             if not data.get('user'):
@@ -160,30 +213,34 @@ def create_user_data(user, unique_ids=set()):
     if language != 'ja':
         return result
 
-    update = False
+    # update = False
     for key, value in user.items():
         if value == "":
             continue
 
+        if key == 'follower_count' and value <= 1000:
+            return None
+
         if isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
             result[key] = value
 
-        elif key == 'avatar_medium' or key == 'avatar_larger':
-            result[key] = value['url_list'][0]
-
-        elif key == 'avatar_thumb':
-            image = value['url_list'][0]
-            result[key] = image
-            result['thumb_image'] = '=IMAGE("%s")' % (image)
+        elif key == 'avatar_medium' or key == 'avatar_thumb':
+            result[key] = value['url_list'][0].replace('.webp', '.jpeg')
 
         elif key == 'share_info':
-            result['share_url'] = value.get('share_url')
+            result['share_url'] = value.get('share_url').replace('/?', '')
 
-        update = True
+    #     update = True
 
-    if update:
-        now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-        result['update_at'] = now
+    # if update:
+    #     now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    #     result['update_at'] = now
+
+    result = {
+        k: v
+        for k, v in result.items()
+        if k in allowed_keys
+    }
 
     return result
 
@@ -254,3 +311,24 @@ def create_markdown():
         content_list.append(content)
 
     return '\n---\n'.join(content_list)
+
+
+allowed_keys = [
+    'avatar_medium',
+    'avatar_thumb',
+    'aweme_count',
+    'custom_verify',
+    'follower_count',
+    'gender',
+    'ins_id',
+    'nickname',
+    'share_url',
+    'signature',
+    'total_favorited',
+    'twitter_id',
+    'twitter_name',
+    'youtube_channel_id',
+    'youtube_channel_title',
+    'short_id',
+    'uid',
+]
