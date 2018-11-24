@@ -3,6 +3,7 @@ import os
 import urllib
 from pprint import pprint
 from time import sleep
+from random import randint
 
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.by import By
@@ -92,6 +93,40 @@ def search_and_retweet(
 
         logout(driver)
         print("SUCCESS: search_and_retweet_by_selenium", username)
+
+    except Exception as e:
+        pprint(e)
+
+    finally:
+        # input()
+        driver.quit()
+
+
+def follow_users(
+    username,
+    password,
+    user_list=[],
+):
+    print(username)
+    try:
+        driver = get_driver(username, password)
+        # input()
+
+        for screen_name in user_list:
+            driver.get(BASE_URL + '/' + screen_name)
+
+            try:
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located(
+                    (By.CLASS_NAME, 'user-actions-follow-button')))
+
+            except Exception:
+                continue
+
+            driver.find_element_by_class_name('user-actions-follow-button').click()
+            sleep(randint(1, 5))
+
+        logout(driver)
+        print("SUCCESS: follow_users", username)
 
     except Exception as e:
         pprint(e)

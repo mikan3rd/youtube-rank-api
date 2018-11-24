@@ -485,7 +485,7 @@ def follow_users_by_follower(account):
     follower_id_list = [user['id_str'] for user in response['users']]
     shuffle(follower_id_list)
 
-    user_id_list = set()
+    user_list = set()
     for follower_id in follower_id_list:
         response = api.get_followers(user_id=follower_id)
 
@@ -499,27 +499,35 @@ def follow_users_by_follower(account):
             if followers_count > 1000 and user.get('lang') not in ['en', 'ja']:
                 continue
 
-            user_id_list.add(user['screen_name'])
+            user_list.add(user['screen_name'])
 
-        if len(user_id_list) > 10:
+        if len(user_list) > 10:
             break
 
+    user_list = list(user_list)
     limit = randint(3, 6)
-    for num, screen_name in enumerate(list(user_id_list)[:limit], 1):
-        response = api.post_follow(screen_name=screen_name)
 
-        if response.get('errors'):
-            pprint(response)
-            break
+    twitter_tool.follow_users(
+        username=api.username,
+        password=api.password,
+        user_list=user_list[:limit],
+    )
 
-        print("SUCCESS:%s follow:%s" % (num, screen_name))
+    # for num, screen_name in enumerate(list(user_list)[:limit], 1):
+    #     response = api.post_follow(screen_name=screen_name)
 
-        if num >= limit:
-            break
+    #     if response.get('errors'):
+    #         pprint(response)
+    #         break
 
-        sleep_time = randint(1, 10)
-        print("sleep_time:", sleep_time)
-        sleep(sleep_time)
+    #     print("SUCCESS:%s follow:%s" % (num, screen_name))
+
+    #     if num >= limit:
+    #         break
+
+    #     sleep_time = randint(1, 10)
+    #     print("sleep_time:", sleep_time)
+    #     sleep(sleep_time)
 
     print("SUCCESS: twitter:follow_users_by_follower %s" % (account))
 
