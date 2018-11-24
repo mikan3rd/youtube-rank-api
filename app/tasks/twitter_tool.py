@@ -83,7 +83,7 @@ def search_and_retweet(
         comment.send_keys(status)
 
         driver.find_element_by_class_name('RetweetDialog-tweetActionLabel').click()
-        sleep(10)
+        sleep(5)
 
         logout(driver)
         print("SUCCESS: search_and_retweet_by_selenium", username)
@@ -92,7 +92,7 @@ def search_and_retweet(
         pprint(e)
 
     finally:
-        input()
+        # input()
         driver.quit()
 
 
@@ -100,8 +100,12 @@ def get_driver(username, password):
     options = ChromeOptions()
     options.binary_location = GOOGLE_CHROME_PATH
     options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--no-sandbox')
+    options.add_argument("start-maximized")  # open Browser in maximized mode
+    options.add_argument("disable-infobars")  # disabling infobars
+    options.add_argument("--disable-extensions")  # disabling extensions
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")  # overcome limited resource problem
+
     driver = Chrome(executable_path=DRIVER_PATH, chrome_options=options)
     driver.set_page_load_timeout(10)
     driver.set_script_timeout(10)
@@ -117,8 +121,7 @@ def get_driver(username, password):
     passwordField.send_keys(password)
 
     passwordField.send_keys(Keys.RETURN)
-
-    print("LOGIN SUCCESS:", username)
+    print("SUCCESS: login by", username)
 
     return driver
 
@@ -128,3 +131,4 @@ def logout(driver):
     driver.find_element_by_id('user-dropdown').click()
     WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'js-signout-button')))
     driver.find_element_by_class_name('js-signout-button').click()
+    print("SUCCESS: logout")
