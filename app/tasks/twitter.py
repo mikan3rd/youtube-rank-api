@@ -609,10 +609,10 @@ def remove_follow(account):
 
     account_id = response['id_str']
 
-    user_id_list = []
+    user_list = []
     cursor = -1
 
-    for _ in range(15):
+    for _ in range(10):
 
         response = api.get_followings(
             user_id=account_id,
@@ -630,7 +630,7 @@ def remove_follow(account):
 
         response = api.get_friendships(user_id=','.join(following_id_list))
 
-        user_id_list += [
+        user_list += [
             user['screen_name']
             for user in response
             if "followed_by" not in user['connections']
@@ -639,22 +639,30 @@ def remove_follow(account):
         if not cursor or cursor == "0":
             break
 
-    user_id_list = reversed(user_id_list)
-    for num, screen_name in enumerate(user_id_list, 1):
-        response = api.post_unfollow(screen_name=screen_name)
+    user_list = list(reversed(user_list))
+    limit = randint(3, 5)
 
-        if response.get('errors'):
-            pprint(response)
-            break
+    twitter_tool.follow_users(
+        username=api.username,
+        password=api.password,
+        user_list=user_list[:limit],
+    )
 
-        print("SUCCESS:%s unfollow:%s" % (num, screen_name))
+    # for num, screen_name in enumerate(user_list, 1):
+    #     response = api.post_unfollow(screen_name=screen_name)
 
-        if num >= 3:
-            break
+    #     if response.get('errors'):
+    #         pprint(response)
+    #         break
 
-        sleep_time = randint(10, 60)
-        print("sleep_time:", sleep_time)
-        sleep(sleep_time)
+    #     print("SUCCESS:%s unfollow:%s" % (num, screen_name))
+
+    #     if num >= 3:
+    #         break
+
+    #     sleep_time = randint(10, 60)
+    #     print("sleep_time:", sleep_time)
+    #     sleep(sleep_time)
 
     print("SUCCESS: twitter:remove_follow %s" % (account))
 
