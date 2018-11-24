@@ -62,16 +62,17 @@ def post_av_sommlier():
 
     target = items[target_index]
 
-    api = TwitterApi(TWITTER_AV_SOMMLIER_ACCESS_TOKEN, TWITTER_AV_SOMMLIER_SECRET)
+    api = get_twitter_api('av_sommlier')
 
-    media = urllib.request.urlopen(target['imageURL']['large']).read()
-    response = api.upload_media(media)
+    image_url = target['imageURL']['large']
+    # media = urllib.request.urlopen(image_url).read()
+    # response = api.upload_media(media)
 
-    if response.get('errors'):
-        pprint(response)
-        return
+    # if response.get('errors'):
+    #     pprint(response)
+    #     return
 
-    media_id = response['media_id_string']    # type: ignore
+    # media_id = response['media_id_string']    # type: ignore
 
     item_info = target['iteminfo']
     # maker = '【メーカー】' + item_info['maker'][0]['name'] if item_info.get('maker') else ''
@@ -103,10 +104,17 @@ def post_av_sommlier():
 
         break
 
-    response = api.post_tweet(status=status, media_ids=[media_id])
+    twitter_tool.post_tweet(
+        username=api.username,
+        password=api.password,
+        status=status,
+        image_url_list=[image_url],
+    )
 
-    if response.get('errors'):
-        pprint(response)
+    # response = api.post_tweet(status=status, media_ids=[media_id])
+
+    # if response.get('errors'):
+    #     pprint(response)
 
     title_list.append(target['content_id'])
     r.set(redis_key, json.dumps(list(set(title_list))), ex=None)
@@ -679,6 +687,8 @@ def get_twitter_api(account):
     if account == 'av_sommlier':
         access_token = TWITTER_AV_SOMMLIER_ACCESS_TOKEN
         secret = TWITTER_AV_SOMMLIER_SECRET
+        username = 'av_movie_bot'
+        password = TWITTER_PASSWORD_A
         target_list = ['fanza_sns']
 
     elif account == 'av_actress':
