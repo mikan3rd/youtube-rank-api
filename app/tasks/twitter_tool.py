@@ -28,6 +28,8 @@ def post_tweet(
     image_url_list=[],
     image_path_list=[],
 ):
+    print(username)
+    print(status)
 
     try:
         driver = get_driver(username, password)
@@ -72,6 +74,8 @@ def search_and_retweet(
     status,
     tweet_path,
 ):
+    print(username)
+    print(status)
     try:
         driver = get_driver(username, password)
         driver.get(tweet_path)
