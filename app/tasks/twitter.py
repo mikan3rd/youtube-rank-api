@@ -7,6 +7,7 @@ from random import choice, randint, shuffle
 from time import sleep
 
 import redis
+from firebase_admin import firestore
 from settings import (
     REDIS_URL,
     TWITTER_AV_ACTRESS_ACCESS_TOKEN,
@@ -29,6 +30,7 @@ from settings import (
     TWITTER_VTUBER_SECRET
 )
 
+from app.server.helpers import firestore as helper_firestore
 from app.server.helpers import dmm, rakuten
 from app.server.helpers.twitter import TwitterApi
 from app.tasks import twitter_tool
@@ -400,6 +402,53 @@ def tweet_tiktok():
     account = 'tiktok'
     api = get_twitter_api(account)
 
+    redis_key = 'tweet_tiktok'
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    id_list = []
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        id_list = json.loads(rcache.decode())
+
+    helper_firestore.initialize_firebase()
+    ref = firestore.client().collection('users')
+    query = ref.order_by('follower_count', direction=firestore.Query.DESCENDING)
+    docs = query.get()
+
+    target = None
+    for doc in docs:
+        data = doc.to_dict()
+
+        if not target:
+            target = data
+
+        if data.get('uid') in id_list:
+            continue
+
+        target = data
+        break
+
+    pprint(target)
+
+    content_list = []
+
+    if data.get('custom_verify'):
+        content_list.append('【%s】' % (data['custom_verify']))
+
+    content_list.append(data.get('nickname', ''))
+
+    _follower = data['follower_count']
+    follower = round(_follower, -len(_follower) + 1)
+    content_list.append('ファン： %s人\n' % (follower))
+
+    image_url_list = []
+    if data.get('avatar_medium'):
+        image_url_list.append(data['avatar_medium'])
+
+    status = '\n'.join(content_list)
+    print(status)
+
 
 def follow_users_by_retweet(account):
 
@@ -709,7 +758,7 @@ def get_twitter_api(account):
         access_token = TWITTER_VTUBER_ACCESS_TOKEN
         secret = TWITTER_VTUBER_SECRET
         username = 'kizunaAI_images'
-        password = TWITTER_PASSWORD_A
+        password = TWITTER_PASSWORD_B
 
         words = [
             "vtuber"
