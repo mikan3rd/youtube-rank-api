@@ -3,9 +3,11 @@ from pprint import pprint
 from time import sleep
 
 import requests
+from firebase_admin import firestore
 from settings import TIKTOK_AID, TIKTOK_DEVICE_ID
 
-from app.server.helpers import firestore, gspread
+from app.server.helpers import firestore as helper_firestore
+from app.server.helpers import gspread
 
 
 SHEET_ID = "1cA3pIOPfRKw3v8oeArTsVOAszUWUO9cOZ4UKKAZ1RH4"
@@ -63,11 +65,7 @@ def add_user():
         if not uid:
             continue
 
-        user_params['user_id'] = uid
-        res = requests.get(BASE_URL + "/user/", headers=feed_headers, params=user_params)
-
-        data = res.json()
-        user = data.get('user')
+        user = get_user_detail(uid)
 
         if not user or not user.get('uid'):
             continue
@@ -79,10 +77,8 @@ def add_user():
 
         user_list.append(result)
 
-    pprint(user_list)
-
     if user_list:
-        firestore.batch_update(
+        helper_firestore.batch_update(
             collection='users',
             data_list=user_list,
             unique_key='uid'
@@ -91,115 +87,53 @@ def add_user():
     print("SUCCESS: tiktok, add_user")
 
 
-def get_feed():
-    response = gspread.get_sheet_values(SHEET_ID, 'users', "FORMULA")
-    label_list, user_list = gspread.convert_to_dict_data(response)
-    unique_ids = {str(user.get('uid')) for user in user_list}
-    ts = datetime.now().strftime('%s')
-    print("ts:", ts)
+def update_users():
+    filter_time = datetime.now() - timedelta(weeks=1)
 
-    url = "/feed/"
-    print(url)
+    helper_firestore.initialize_firebase()
+    ref = firestore.client().collection('users')
 
-    feed_params['ts'] = ts
+    query = ref \
+        .where('update_at', '<', filter_time) \
+        .limit(100)
 
-    res = requests.get(BASE_URL + url, headers=feed_headers, params=feed_params)
+    docs = query.get()
+    user_list = [doc.to_dict() for doc in docs]
+
+    for user in user_list:
+        uid = user.get('uid')
+
+        if not uid:
+            continue
+
+        user = get_user_detail(uid)
+
+        if not user or not user.get('uid'):
+            continue
+
+        result = create_user_data(user)
+
+        if not result:
+            continue
+
+        user_list.append(result)
+
+    if user_list:
+        helper_firestore.batch_update(
+            collection='users',
+            data_list=user_list,
+            unique_key='uid'
+        )
+
+    print("SUCCESS: tiktok, update_users")
+
+
+def get_user_detail(uid):
+    user_params['user_id'] = uid
+    res = requests.get(BASE_URL + "/user/", headers=feed_headers, params=user_params)
+
     data = res.json()
-
-    new_num = 0
-    try:
-        aweme_list = data['aweme_list']
-        print("len:", len(aweme_list))
-
-        for aweme in aweme_list:
-            user = aweme['author']
-            result = create_user_data(user, unique_ids)
-
-            if not result:
-                continue
-
-            user_list.append(result)
-            new_num += 1
-
-    except Exception as e:
-        pprint(data)
-        pprint(e)
-        exit()
-
-    print("NEW:", new_num)
-    if new_num == 0:
-        return
-
-    user_list = sorted(user_list, key=lambda k: k.get('total_favorited', 0) or 0, reverse=True)
-    body = {'values': gspread.convert_to_sheet_values(label_list, user_list)}
-    gspread.update_sheet_values(SHEET_ID, 'users', body)
-    print("SUCCESS!! get_feed")
-
-
-def update_user_detail():
-    response = gspread.get_sheet_values(SHEET_ID, 'users', "FORMULA")
-    label_list, user_list = gspread.convert_to_dict_data(response)
-
-    url = "/user/"
-    print(url)
-
-    today = datetime.now()
-    new_num = 0
-    for index, user in enumerate(user_list):
-        try:
-            uid = user.get('uid')
-
-            if not uid:
-                continue
-
-            update_at = user.get('update_at')
-            if update_at:
-                # 前回の更新から24時間経っていない場合はスキップ
-                time = datetime.strptime(update_at, '%Y/%m/%d %H:%M:%S') + timedelta(days=5)
-                if time > today:
-                    continue
-
-            feed_params['user_id'] = uid
-            res = requests.get(BASE_URL + url, headers=feed_headers, params=feed_params)
-            pprint(res.content)
-            data = res.json()
-
-            if not data.get('user'):
-                continue
-
-            user_data = data['user']
-
-            if not user_data.get('uid'):
-                user['share_url'] = True
-                continue
-
-            result = create_user_data(user_data)
-
-            if not result:
-                continue
-
-            user.update(result)
-            new_num += 1
-            print(index, user.get('nickname'))
-
-            sleep(1)
-
-            if new_num % 50 == 0:
-                body = {'values': gspread.convert_to_sheet_values(label_list, user_list)}
-                gspread.update_sheet_values(SHEET_ID, 'users', body)
-
-        except Exception as e:
-            pprint(e)
-            break
-
-    print("UPDATE:", new_num)
-    if new_num == 0:
-        return
-
-    user_list = sorted(user_list, key=lambda k: k.get('total_favorited', 0) or 0, reverse=True)
-    body = {'values': gspread.convert_to_sheet_values(label_list, user_list)}
-    gspread.update_sheet_values(SHEET_ID, 'users', body)
-    print("SUCCESS!! update_user_detail")
+    return data.get('user')
 
 
 def create_user_data(user, unique_ids=set()):
@@ -243,74 +177,6 @@ def create_user_data(user, unique_ids=set()):
     }
 
     return result
-
-
-def create_markdown():
-    response = gspread.get_sheet_values(SHEET_ID, 'users', "FORMULA")
-    label_list, user_list = gspread.convert_to_dict_data(response)
-
-    top = '''
-:sparkling_heart: ハート
-:family: ファン
-:movie_camera: 動画
-
-※ 現在、iPhoneだと画像が表示されないようです
-    '''
-
-    length = 50
-    # agenda_list = []
-    # rank_interval = [1, 11, 21]
-    # for i, rank in enumerate(rank_interval):
-    #     if i + 1 == len(rank_interval):
-    #         last = length
-
-    #     else:
-    #         last = rank_interval[i + 1] - 1
-
-    #     agenda = '-  <a href="#no%s"> No.%s 〜 No.%s</a>' % (rank, rank, last)
-    #     agenda_list.append(agenda)
-
-    # content_list = [top + '\n' + '\n'.join(agenda_list) + '\n']
-
-    content_list = [top]
-    for index, user in enumerate(user_list[:length]):
-
-        sns_contents = []
-        if user.get('share_url'):
-            a = '<a href="%s">:link: TikTok</a>' % (user['share_url'])
-            sns_contents.append(a)
-
-        if user.get('twitter_name'):
-            a = '<a href="%s/%s">:link: Twitter: @%s</a>' % (twitter_url, user['twitter_name'], user['twitter_name'])
-            sns_contents.append(a)
-
-        if user.get('ins_id'):
-            a = '<a href="%s/%s">:link: Instagram: @%s</a>' % (instagram_url, user['ins_id'], user['ins_id'])
-            sns_contents.append(a)
-
-        if user.get('youtube_channel_id') and user.get('youtube_channel_title'):
-            a = '<a href="%s/%s">:link: YouTube: %s</a>'  \
-                % (youtube_url, user['youtube_channel_id'], user['youtube_channel_title'])
-            sns_contents.append(a)
-
-        content = '''
-### No.{num}　{nickname}
-<img src="{avatar_medium}" alt="{avatar_medium}" width="300px"></img>
-
-```
-{signature}
-```
-
-:sparkling_heart: {total_favorited}
-:family: {follower_count}
-:movie_camera: {aweme_count}
-
-{sns}
-        '''.format(num=index + 1, sns='\n'.join(sns_contents), **user)
-
-        content_list.append(content)
-
-    return '\n---\n'.join(content_list)
 
 
 allowed_keys = [

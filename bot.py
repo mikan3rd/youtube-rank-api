@@ -95,6 +95,7 @@ def instagram_job():
 def tiktok_job():
     print('TikTok START!!')
     tiktok.add_user()
+    tiktok.update_users()
 
 
 print("Scheduler START!!")
