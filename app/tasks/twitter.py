@@ -402,34 +402,18 @@ def tweet_tiktok():
     account = 'tiktok'
     api = get_twitter_api(account)
 
-    redis_key = 'tweet_tiktok'
-    r = redis.from_url(REDIS_URL)
-    rcache = r.get(redis_key)
-
-    id_list = []
-    if rcache:
-        print("cache HIT!! %s" % (redis_key))
-        id_list = json.loads(rcache.decode())
-
     helper_firestore.initialize_firebase()
     ref = firestore.client().collection('users')
-    query = ref.order_by('follower_count', direction=firestore.Query.DESCENDING)
+
+    query = ref \
+        .order_by('follower_count', direction=firestore.Query.DESCENDING) \
+        .order_by('tweet_count') \
+        .limit(1)
+
     docs = query.get()
+    data = list(docs)[0].to_dict()
 
-    target = None
-    for doc in docs:
-        data = doc.to_dict()
-
-        if not target:
-            target = data
-
-        if data.get('uid') in id_list:
-            continue
-
-        target = data
-        break
-
-    pprint(target)
+    pprint(data)
 
     content_list = []
 
@@ -439,8 +423,17 @@ def tweet_tiktok():
     content_list.append(data.get('nickname', ''))
 
     _follower = data['follower_count']
-    follower = round(_follower, -len(_follower) + 1)
-    content_list.append('ファン： %s人\n' % (follower))
+    follower = round(_follower, -len(str(_follower)) + 2)
+    follower = "{:,d}".format(follower)
+    content_list.append('ファン： %s人' % (follower))
+
+    if data.get('signature'):
+        content_list.append('\n' + data['signature'] + '\n')
+
+    if data.get('twitter_name'):
+        content_list.append('【Twitter】%s' % (data['twitter_name']))
+
+    content_list.append('【TikTok】%s' % (data['share_url']))
 
     image_url_list = []
     if data.get('avatar_medium'):
@@ -448,6 +441,22 @@ def tweet_tiktok():
 
     status = '\n'.join(content_list)
     print(status)
+    print(len(status))
+
+    result = twitter_tool.post_tweet(
+        username=api.username,
+        password=api.password,
+        status=status,
+        image_url_list=image_url_list,
+    )
+
+    if result:
+        data['tweet_count'] = data['tweet_count'] + 1 if data.get('tweet_count') else 1
+        helper_firestore.batch_update(
+            collection='users',
+            data_list=[data],
+            unique_key='uid'
+        )
 
 
 def follow_users_by_retweet(account):
