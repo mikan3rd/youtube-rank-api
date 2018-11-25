@@ -91,7 +91,7 @@ def instagram_job():
     print('Instagram FINISH!!')
 
 
-@sched.scheduled_job('cron', hour='*')
+@sched.scheduled_job('cron', hour='*', minute=15)
 def tiktok_job():
     print('TikTok START!!')
     tiktok.add_user()

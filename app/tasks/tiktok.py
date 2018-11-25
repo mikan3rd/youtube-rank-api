@@ -106,24 +106,23 @@ def update_users():
         if not uid:
             continue
 
-        user = get_user_detail(uid)
+        data = get_user_detail(uid)
 
-        if not user or not user.get('uid'):
+        if not data or not data.get('uid'):
             continue
 
-        result = create_user_data(user)
+        result = create_user_data(data)
 
         if not result:
             continue
 
-        user_list.append(result)
+        user.update(result)
 
-    if user_list:
-        helper_firestore.batch_update(
-            collection='users',
-            data_list=user_list,
-            unique_key='uid'
-        )
+    helper_firestore.batch_update(
+        collection='users',
+        data_list=user_list,
+        unique_key='uid'
+    )
 
     print("SUCCESS: tiktok, update_users")
 
@@ -136,19 +135,10 @@ def get_user_detail(uid):
     return data.get('user')
 
 
-def create_user_data(user, unique_ids=set()):
+def create_user_data(data):
     result = {}
 
-    uid = str(user['uid'])
-    if uid in unique_ids:
-        return result
-
-    language = user['language']
-    if language != 'ja':
-        return result
-
-    # update = False
-    for key, value in user.items():
+    for key, value in data.items():
         if value == "":
             continue
 
@@ -163,12 +153,6 @@ def create_user_data(user, unique_ids=set()):
 
         elif key == 'share_info':
             result['share_url'] = value.get('share_url').replace('/?', '')
-
-    #     update = True
-
-    # if update:
-    #     now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-    #     result['update_at'] = now
 
     result = {
         k: v
