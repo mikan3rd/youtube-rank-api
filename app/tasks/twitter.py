@@ -402,15 +402,24 @@ def tweet_tiktok():
     account = 'tiktok'
     api = get_twitter_api(account)
 
+    redis_key = 'tweet_tiktok'
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    start_follower = None
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        start_follower = json.loads(rcache.decode())
+
     helper_firestore.initialize_firebase()
     ref = firestore.client().collection('users')
 
-    query = ref \
-        .order_by('follower_count', direction=firestore.Query.DESCENDING) \
-        .order_by('tweet_count') \
-        .limit(1)
+    query = ref.order_by('follower_count', direction=firestore.Query.DESCENDING)
 
-    docs = query.get()
+    if start_follower:
+        query = query.start_after({'follower_count': start_follower})
+
+    docs = query.limit(1).get()
     data = list(docs)[0].to_dict()
 
     pprint(data)
@@ -443,20 +452,17 @@ def tweet_tiktok():
     print(status)
     print(len(status))
 
-    result = twitter_tool.post_tweet(
+    twitter_tool.post_tweet(
         username=api.username,
         password=api.password,
         status=status,
         image_url_list=image_url_list,
     )
 
-    if result:
-        data['tweet_count'] = data['tweet_count'] + 1 if data.get('tweet_count') else 1
-        helper_firestore.batch_update(
-            collection='users',
-            data_list=[data],
-            unique_key='uid'
-        )
+    start_follower = data['follower_count']
+    r.set(redis_key, json.dumps(start_follower), ex=None)
+
+    print("SUCCESS: tweet_tiktok", account)
 
 
 def follow_users_by_retweet(account):
@@ -822,7 +828,7 @@ def get_twitter_api(account):
     elif account == 'tiktok':
         access_token = TWITTER_TIKTOK_ACCESS_TOKEN
         secret = TWITTER_TIKTOK_SECRET
-        username = 'tik_tok_ranking'
+        username = 'tiktok_rank_jp'
         password = TWITTER_PASSWORD_A
 
         hashtag = '#TikTok'
