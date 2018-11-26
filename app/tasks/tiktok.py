@@ -59,6 +59,7 @@ def add_user():
     feed_data = res.json()
 
     user_list = []
+    video_list = []
     for aweme in feed_data['aweme_list']:
         uid = aweme['author'].get('uid')
 
@@ -84,6 +85,13 @@ def add_user():
             unique_key='uid'
         )
 
+    if video_list:
+        helper_firestore.batch_update(
+            collection='videos',
+            data_list=video_list,
+            unique_key='aweme_id'
+        )
+
     print("SUCCESS: tiktok, add_user")
 
 
@@ -95,6 +103,8 @@ def update_users():
 
     query = ref \
         .where('update_at', '<', filter_time) \
+        .order_by('update_at') \
+        .order_by('follower_count', direction=firestore.Query.DESCENDING) \
         .limit(100)
 
     docs = query.get()
@@ -118,11 +128,12 @@ def update_users():
 
         user.update(result)
 
-    helper_firestore.batch_update(
-        collection='users',
-        data_list=user_list,
-        unique_key='uid'
-    )
+    if user_list:
+        helper_firestore.batch_update(
+            collection='users',
+            data_list=user_list,
+            unique_key='uid'
+        )
 
     print("SUCCESS: tiktok, update_users")
 
@@ -161,6 +172,23 @@ def create_user_data(data):
     }
 
     return result
+
+
+def create_video_data(data):
+    result = {}
+
+    for key, value in data.items():
+        if value == "":
+            continue
+
+        if key == 'follower_count' and value <= 1000:
+            return None
+
+        if isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
+            result[key] = value
+
+        elif key == 'share_info':
+            result['share_url'] = value.get('share_url').replace('/?', '')
 
 
 allowed_keys = [
