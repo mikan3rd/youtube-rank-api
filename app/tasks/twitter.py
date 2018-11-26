@@ -440,7 +440,7 @@ def tweet_tiktok():
         content_list.append('\n' + data['signature'] + '\n')
 
     if data.get('twitter_name'):
-        content_list.append('【Twitter】%s' % (data['twitter_name']))
+        content_list.append('【Twitter】@%s' % (data['twitter_name']))
 
     content_list.append('【TikTok】%s' % (data['share_url']))
 
