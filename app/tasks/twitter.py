@@ -577,29 +577,29 @@ def follow_users_by_follower(account):
             break
 
     user_list = list(user_list)
-    limit = randint(3, 6)
+    limit = randint(10, 15)
 
-    twitter_tool.follow_users(
-        username=api.username,
-        password=api.password,
-        user_list=user_list[:limit],
-    )
+    # twitter_tool.follow_users(
+    #     username=api.username,
+    #     password=api.password,
+    #     user_list=user_list[:limit],
+    # )
 
-    # for num, screen_name in enumerate(list(user_list)[:limit], 1):
-    #     response = api.post_follow(screen_name=screen_name)
+    for num, screen_name in enumerate(list(user_list)[:limit], 1):
+        response = api.post_follow(screen_name=screen_name)
 
-    #     if response.get('errors'):
-    #         pprint(response)
-    #         break
+        if response.get('errors'):
+            pprint(response)
+            break
 
-    #     print("SUCCESS:%s follow:%s" % (num, screen_name))
+        print("SUCCESS:%s follow:%s" % (num, screen_name))
 
-    #     if num >= limit:
-    #         break
+        if num >= limit:
+            break
 
-    #     sleep_time = randint(1, 10)
-    #     print("sleep_time:", sleep_time)
-    #     sleep(sleep_time)
+        sleep_time = randint(1, 10)
+        print("sleep_time:", sleep_time)
+        sleep(sleep_time)
 
     print("SUCCESS: twitter:follow_users_by_follower %s" % (account))
 
@@ -622,7 +622,7 @@ def follow_target_user(account):
         return
 
     account_id = response['id_str']
-    LIMIT = randint(3, 5)
+    LIMIT = randint(10, 15)
 
     screen_name = choice(api.target_list)
     print("target_user:", screen_name)
@@ -642,27 +642,27 @@ def follow_target_user(account):
             break
 
     user_list = list(user_list)
-    twitter_tool.follow_users(
-        username=api.username,
-        password=api.password,
-        user_list=user_list[:LIMIT],
-    )
+    # twitter_tool.follow_users(
+    #     username=api.username,
+    #     password=api.password,
+    #     user_list=user_list[:LIMIT],
+    # )
 
-    # for num, screen_name in enumerate(list(user_list)[:LIMIT], 1):
-    #     response = api.post_follow(screen_name=screen_name)
+    for num, screen_name in enumerate(list(user_list)[:LIMIT], 1):
+        response = api.post_follow(screen_name=screen_name)
 
-    #     if response.get('errors'):
-    #         pprint(response)
-    #         break
+        if response.get('errors'):
+            pprint(response)
+            break
 
-    #     print("SUCCESS:%s follow:%s" % (num, screen_name))
+        print("SUCCESS:%s follow:%s" % (num, screen_name))
 
-    #     if num >= LIMIT:
-    #         break
+        if num >= LIMIT:
+            break
 
-    #     sleep_time = randint(1, 10)
-    #     print("sleep_time:", sleep_time)
-    #     sleep(sleep_time)
+        sleep_time = randint(1, 10)
+        print("sleep_time:", sleep_time)
+        sleep(sleep_time)
 
     print("SUCCESS: twitter:follow_target_user %s" % (account))
 
@@ -712,29 +712,29 @@ def remove_follow(account):
             break
 
     user_list = list(reversed(user_list))
-    limit = randint(3, 5)
+    limit = randint(5, 10)
 
-    twitter_tool.follow_users(
-        username=api.username,
-        password=api.password,
-        user_list=user_list[:limit],
-    )
+    # twitter_tool.follow_users(
+    #     username=api.username,
+    #     password=api.password,
+    #     user_list=user_list[:limit],
+    # )
 
-    # for num, screen_name in enumerate(user_list, 1):
-    #     response = api.post_unfollow(screen_name=screen_name)
+    for num, screen_name in enumerate(user_list[:limit], 1):
+        response = api.post_unfollow(screen_name=screen_name)
 
-    #     if response.get('errors'):
-    #         pprint(response)
-    #         break
+        if response.get('errors'):
+            pprint(response)
+            break
 
-    #     print("SUCCESS:%s unfollow:%s" % (num, screen_name))
+        print("SUCCESS:%s unfollow:%s" % (num, screen_name))
 
-    #     if num >= 3:
-    #         break
+        if num >= limit:
+            break
 
-    #     sleep_time = randint(10, 60)
-    #     print("sleep_time:", sleep_time)
-    #     sleep(sleep_time)
+        sleep_time = randint(10, 30)
+        print("sleep_time:", sleep_time)
+        sleep(sleep_time)
 
     print("SUCCESS: twitter:remove_follow %s" % (account))
 
