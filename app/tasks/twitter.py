@@ -355,14 +355,22 @@ def tweet_affiliate(account):
     for image_url in target_item['mediumImageUrls']:
         image_url = image_url.replace('128x128', '1000x1000')
         image_url_list.append(image_url)
-        # media = urllib.request.urlopen(image_url).read()
-        # response = api.upload_media(media)
 
-        # if response.get('errors'):
-        #     pprint(response)
-        #     return
+        try:
+            media = urllib.request.urlopen(image_url).read()
 
-        # media_ids.append(response['media_id_string'])
+        except Exception as e:
+            print(image_url)
+            pprint(e)
+            continue
+
+        response = api.upload_media(media)
+
+        if response.get('errors'):
+            pprint(response)
+            return
+
+        media_ids.append(response['media_id_string'])
 
         if len(image_url_list) >= 4:
             break
@@ -380,17 +388,17 @@ def tweet_affiliate(account):
 
     status = '\n'.join(content_list)
 
-    twitter_tool.post_tweet(
-        username=api.username,
-        password=api.password,
-        status=status,
-        image_url_list=image_url_list,
-    )
+    # twitter_tool.post_tweet(
+    #     username=api.username,
+    #     password=api.password,
+    #     status=status,
+    #     image_url_list=image_url_list,
+    # )
 
-    # response = api.post_tweet(status=status, media_ids=media_ids)
+    response = api.post_tweet(status=status, media_ids=media_ids)
 
-    # if response.get('errors'):
-    #     pprint(response)
+    if response.get('errors'):
+        pprint(response)
 
     id_list.append(target_item['itemCode'])
     r.set(redis_key, json.dumps(id_list), ex=None)
@@ -448,16 +456,42 @@ def tweet_tiktok():
     if data.get('avatar_medium'):
         image_url_list.append(data['avatar_medium'])
 
+    media_ids = []
+    for image_url in image_url_list:
+        try:
+            media = urllib.request.urlopen(image_url).read()
+
+        except Exception as e:
+            print(image_url)
+            pprint(e)
+            continue
+
+        response = api.upload_media(media)
+
+        if response.get('errors'):
+            pprint(response)
+            return
+
+        media_ids.append(response['media_id_string'])
+
+        if len(media_ids) >= 4:
+            break
+
     status = '\n'.join(content_list)
     print(status)
     print(len(status))
 
-    twitter_tool.post_tweet(
-        username=api.username,
-        password=api.password,
-        status=status,
-        image_url_list=image_url_list,
-    )
+    # twitter_tool.post_tweet(
+    #     username=api.username,
+    #     password=api.password,
+    #     status=status,
+    #     image_url_list=image_url_list,
+    # )
+
+    response = api.post_tweet(status=status, media_ids=media_ids)
+
+    if response.get('errors'):
+        pprint(response)
 
     start_follower = data['follower_count']
     r.set(redis_key, json.dumps(start_follower), ex=None)
