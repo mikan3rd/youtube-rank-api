@@ -50,20 +50,20 @@ def github_status():
 
     image_path = 'resources/images/github_%s.jpg' % path
 
-    # media = open(image_path, 'rb')
-    # response = api.upload_media(media)
-    # media_id = response['media_id_string']    # type: ignore
+    media = open(image_path, 'rb')
+    response = api.upload_media(media)
+    media_id = response['media_id_string']    # type: ignore
 
     status = text + "\n#github\n" + url
 
-    twitter_tool.post_tweet(
-        username=api.username,
-        password=api.password,
-        status=status,
-        image_path_list=[image_path]
-    )
+    # twitter_tool.post_tweet(
+    #     username=api.username,
+    #     password=api.password,
+    #     status=status,
+    #     image_path_list=[image_path]
+    # )
 
-    # response = api.post_tweet(status=status, media_ids=[media_id])
+    response = api.post_tweet(status=status, media_ids=[media_id])
 
     r.set(redis_key, json.dumps(text), ex=None)
     print("SUCCESS:crawl:GitHubStatus")
@@ -100,13 +100,13 @@ def hypnosismic():
     pprint(status)
 
     api = twitter.get_twitter_api(account)
-    twitter_tool.post_tweet(
-        username=api.username,
-        password=api.password,
-        status=status,
-    )
+    # twitter_tool.post_tweet(
+    #     username=api.username,
+    #     password=api.password,
+    #     status=status,
+    # )
 
-    # response = api.post_tweet(status=status)
+    response = api.post_tweet(status=status)
 
     r.set(redis_key, json.dumps(text), ex=None)
     print("SUCCESS:crawl:", account)
