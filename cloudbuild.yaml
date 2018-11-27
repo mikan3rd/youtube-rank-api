@@ -1,0 +1,4 @@
+steps:
+- name: "gcr.io/cloud-builders/gcloud"
+  entrypoint: 'server.py'
+timeout: "1600s"
