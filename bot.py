@@ -56,14 +56,14 @@ def twitter_job():
     print('START: Follow')
 
     account_list = [
-        'av_sommlier',
-        'av_actress',
-        'smash_bros',
-        'github',
-        'vtuber',
-        'splatoon',
-        'tiktok',
-        'hypnosismic',
+        # 'av_sommlier',
+        # 'av_actress',
+        # 'smash_bros',
+        # 'github',
+        # 'vtuber',
+        # 'splatoon',
+        # 'tiktok',
+        # 'hypnosismic',
     ]
 
     for account in account_list:

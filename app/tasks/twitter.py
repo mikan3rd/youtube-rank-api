@@ -595,6 +595,7 @@ def follow_users_by_follower(account):
     for follower_id in follower_id_list:
         response = api.get_followers(user_id=follower_id)
 
+        # フォロー数の多い順にする
         for user in response['users']:
             if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
                 continue
@@ -857,6 +858,7 @@ def get_twitter_api(account):
         hashtag = '#スマブラSP'
         query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
         rakuten_query = 'スマッシュブラザーズ'
+        exclude_genre_id_list = ['566404', '566406']
         target_list = ['SmashBrosJP']
 
     elif account == 'tiktok':
