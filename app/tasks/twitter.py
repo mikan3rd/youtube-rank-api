@@ -450,7 +450,7 @@ def tweet_tiktok():
     if data.get('twitter_name'):
         content_list.append('【Twitter】@%s' % (data['twitter_name']))
 
-    content_list.append('【TikTok】%s' % (data['share_url']))
+    content_list.append('【TikTok】%s' % (data['share_url'].replace('/?', '')))
 
     image_url_list = []
     if data.get('avatar_medium'):
