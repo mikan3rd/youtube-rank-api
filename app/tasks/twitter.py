@@ -171,14 +171,14 @@ def post_av_actress():
         image_url = item['imageURL']['large']
         image_url_list.append(image_url)
 
-        media = urllib.request.urlopen(image_url).read()
-        response = api.upload_media(media)
+        # media = urllib.request.urlopen(image_url).read()
+        # response = api.upload_media(media)
 
-        if response.get('errors'):
-            pprint(response)
-            return
+        # if response.get('errors'):
+        #     pprint(response)
+        #     return
 
-        media_ids.append(response['media_id_string'])
+        # media_ids.append(response['media_id_string'])
 
         if len(image_url_list) >= 4:
             break
@@ -221,16 +221,17 @@ def post_av_actress():
 
         break
 
-    # twitter_tool.post_tweet(
-    #     username=api.username,
-    #     password=api.password,
-    #     status=status,
-    #     image_url_list=image_url_list,
-    # )
-    response = api.post_tweet(status=status, media_ids=media_ids)
+    twitter_tool.post_tweet(
+        username=api.username,
+        password=api.password,
+        status=status,
+        image_url_list=image_url_list,
+    )
 
-    if response.get('errors'):
-        pprint(response)
+    # response = api.post_tweet(status=status, media_ids=media_ids)
+
+    # if response.get('errors'):
+    #     pprint(response)
 
     id_list.append(target_id)
     r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
@@ -284,7 +285,7 @@ def search_and_retweet(account):
         in_reply_to_status_id = target['id_str']
         user = target['user']
         now = datetime.now().strftime("%Y年%-m月%-d日(%a) %-H時00分")
-        status = '%s\n%s の人気ツイート\n\n %s\n%s' % (now, api.hashtag, user['name'], user['description'])
+        status = '%s\n%s の人気ツイート\n\n%s\n%s' % (now, api.hashtag, user['name'], user['description'])
 
         length = 150
         status = status[:length] + ('...' if status[length:] else '')
@@ -454,42 +455,42 @@ def tweet_tiktok():
     if data.get('avatar_medium'):
         image_url_list.append(data['avatar_medium'])
 
-    media_ids = []
-    for image_url in image_url_list:
-        try:
-            media = urllib.request.urlopen(image_url).read()
+    # media_ids = []
+    # for image_url in image_url_list:
+    #     try:
+    #         media = urllib.request.urlopen(image_url).read()
 
-        except Exception as e:
-            print(image_url)
-            pprint(e)
-            continue
+    #     except Exception as e:
+    #         print(image_url)
+    #         pprint(e)
+    #         continue
 
-        response = api.upload_media(media)
+    #     response = api.upload_media(media)
 
-        if response.get('errors'):
-            pprint(response)
-            return
+    #     if response.get('errors'):
+    #         pprint(response)
+    #         return
 
-        media_ids.append(response['media_id_string'])
+    #     media_ids.append(response['media_id_string'])
 
-        if len(media_ids) >= 4:
-            break
+    #     if len(media_ids) >= 4:
+    #         break
 
     status = '\n'.join(content_list)
     print(status)
     print(len(status))
 
-    # twitter_tool.post_tweet(
-    #     username=api.username,
-    #     password=api.password,
-    #     status=status,
-    #     image_url_list=image_url_list,
-    # )
+    twitter_tool.post_tweet(
+        username=api.username,
+        password=api.password,
+        status=status,
+        image_url_list=image_url_list,
+    )
 
-    response = api.post_tweet(status=status, media_ids=media_ids)
+    # response = api.post_tweet(status=status, media_ids=media_ids)
 
-    if response.get('errors'):
-        pprint(response)
+    # if response.get('errors'):
+    #     pprint(response)
 
     start_follower = data['follower_count']
     r.set(redis_key, json.dumps(start_follower), ex=None)
@@ -612,27 +613,27 @@ def follow_users_by_follower(account):
     user_list = list(user_list)
     limit = randint(10, 15)
 
-    # twitter_tool.follow_users(
-    #     username=api.username,
-    #     password=api.password,
-    #     user_list=user_list[:limit],
-    # )
+    twitter_tool.follow_users(
+        username=api.username,
+        password=api.password,
+        user_list=user_list[:limit],
+    )
 
-    for num, screen_name in enumerate(list(user_list)[:limit], 1):
-        response = api.post_follow(screen_name=screen_name)
+    # for num, screen_name in enumerate(list(user_list)[:limit], 1):
+    #     response = api.post_follow(screen_name=screen_name)
 
-        if response.get('errors'):
-            pprint(response)
-            break
+    #     if response.get('errors'):
+    #         pprint(response)
+    #         break
 
-        print("SUCCESS:%s follow:%s" % (num, screen_name))
+    #     print("SUCCESS:%s follow:%s" % (num, screen_name))
 
-        if num >= limit:
-            break
+    #     if num >= limit:
+    #         break
 
-        sleep_time = randint(1, 10)
-        print("sleep_time:", sleep_time)
-        sleep(sleep_time)
+    #     sleep_time = randint(1, 10)
+    #     print("sleep_time:", sleep_time)
+    #     sleep(sleep_time)
 
     print("SUCCESS: twitter:follow_users_by_follower %s" % (account))
 
@@ -675,27 +676,28 @@ def follow_target_user(account):
             break
 
     user_list = list(user_list)
-    # twitter_tool.follow_users(
-    #     username=api.username,
-    #     password=api.password,
-    #     user_list=user_list[:LIMIT],
-    # )
 
-    for num, screen_name in enumerate(list(user_list)[:LIMIT], 1):
-        response = api.post_follow(screen_name=screen_name)
+    twitter_tool.follow_users(
+        username=api.username,
+        password=api.password,
+        user_list=user_list[:LIMIT],
+    )
 
-        if response.get('errors'):
-            pprint(response)
-            break
+    # for num, screen_name in enumerate(list(user_list)[:LIMIT], 1):
+    #     response = api.post_follow(screen_name=screen_name)
 
-        print("SUCCESS:%s follow:%s" % (num, screen_name))
+    #     if response.get('errors'):
+    #         pprint(response)
+    #         break
 
-        if num >= LIMIT:
-            break
+    #     print("SUCCESS:%s follow:%s" % (num, screen_name))
 
-        sleep_time = randint(1, 10)
-        print("sleep_time:", sleep_time)
-        sleep(sleep_time)
+    #     if num >= LIMIT:
+    #         break
+
+    #     sleep_time = randint(1, 10)
+    #     print("sleep_time:", sleep_time)
+    #     sleep(sleep_time)
 
     print("SUCCESS: twitter:follow_target_user %s" % (account))
 
@@ -747,27 +749,27 @@ def remove_follow(account):
     user_list = list(reversed(user_list))
     limit = randint(5, 10)
 
-    # twitter_tool.follow_users(
-    #     username=api.username,
-    #     password=api.password,
-    #     user_list=user_list[:limit],
-    # )
+    twitter_tool.follow_users(
+        username=api.username,
+        password=api.password,
+        user_list=user_list[:limit],
+    )
 
-    for num, screen_name in enumerate(user_list[:limit], 1):
-        response = api.post_unfollow(screen_name=screen_name)
+    # for num, screen_name in enumerate(user_list[:limit], 1):
+    #     response = api.post_unfollow(screen_name=screen_name)
 
-        if response.get('errors'):
-            pprint(response)
-            break
+    #     if response.get('errors'):
+    #         pprint(response)
+    #         break
 
-        print("SUCCESS:%s unfollow:%s" % (num, screen_name))
+    #     print("SUCCESS:%s unfollow:%s" % (num, screen_name))
 
-        if num >= limit:
-            break
+    #     if num >= limit:
+    #         break
 
-        sleep_time = randint(10, 30)
-        print("sleep_time:", sleep_time)
-        sleep(sleep_time)
+    #     sleep_time = randint(10, 30)
+    #     print("sleep_time:", sleep_time)
+    #     sleep(sleep_time)
 
     print("SUCCESS: twitter:remove_follow %s" % (account))
 
