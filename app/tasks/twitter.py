@@ -284,9 +284,7 @@ def search_and_retweet(account):
         in_reply_to_status_id = target['id_str']
         user = target['user']
         now = datetime.now().strftime("%Y年%-m月%-d日(%a) %-H時00分")
-
-        status = '%s\n%s の人気ツイート\n\n@%s %s\n%s' \
-            % (now, api.hashtag, user['screen_name'], user['name'], user['description'])
+        status = '%s\n%s の人気ツイート\n\n %s\n%s' % (now, api.hashtag, user['name'], user['description'])
 
         length = 150
         status = status[:length] + ('...' if status[length:] else '')
