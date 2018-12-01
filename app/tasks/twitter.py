@@ -173,14 +173,14 @@ def post_av_actress():
         image_url = item['imageURL']['large']
         image_url_list.append(image_url)
 
-        media = urllib.request.urlopen(image_url).read()
-        response = api.upload_media(media)
+        # media = urllib.request.urlopen(image_url).read()
+        # response = api.upload_media(media)
 
-        if response.get('errors'):
-            pprint(response)
-            return
+        # if response.get('errors'):
+        #     pprint(response)
+        #     return
 
-        media_ids.append(response['media_id_string'])
+        # media_ids.append(response['media_id_string'])
 
         if len(image_url_list) >= 4:
             break
@@ -223,17 +223,17 @@ def post_av_actress():
 
         break
 
-    # twitter_tool.post_tweet(
-    #     username=api.username,
-    #     password=api.password,
-    #     status=status,
-    #     image_url_list=image_url_list,
-    # )
+    twitter_tool.post_tweet(
+        username=api.username,
+        password=api.password,
+        status=status,
+        image_url_list=image_url_list,
+    )
 
-    response = api.post_tweet(status=status, media_ids=media_ids)
+    # response = api.post_tweet(status=status, media_ids=media_ids)
 
-    if response.get('errors'):
-        pprint(response)
+    # if response.get('errors'):
+    #     pprint(response)
 
     id_list.append(target_id)
     r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
@@ -306,21 +306,21 @@ def search_and_retweet(account):
         status = re.sub('(http|#|@)\S*\.\.\.', '...', status)
         print(len(status))
 
-    # twitter_tool.search_and_retweet(
-    #     username=api.username,
-    #     password=api.password,
-    #     status=status,
-    #     tweet_path=attachment_url,
-    # )
-
-    response = api.post_tweet(
+    twitter_tool.search_and_retweet(
+        username=api.username,
+        password=api.password,
         status=status,
-        attachment_url=attachment_url,
-        in_reply_to_status_id=in_reply_to_status_id
+        tweet_path=attachment_url,
     )
 
-    if response.get('errors'):
-        pprint(response)
+    # response = api.post_tweet(
+    #     status=status,
+    #     attachment_url=attachment_url,
+    #     in_reply_to_status_id=in_reply_to_status_id
+    # )
+
+    # if response.get('errors'):
+    #     pprint(response)
 
     id_list.append(target['id_str'])
     id_list = list(set(id_list))
@@ -371,21 +371,21 @@ def tweet_affiliate(account):
         image_url = image_url.replace('128x128', '1000x1000')
         image_url_list.append(image_url)
 
-        try:
-            media = urllib.request.urlopen(image_url).read()
+        # try:
+        #     media = urllib.request.urlopen(image_url).read()
 
-        except Exception as e:
-            print(image_url)
-            pprint(e)
-            continue
+        # except Exception as e:
+        #     print(image_url)
+        #     pprint(e)
+        #     continue
 
-        response = api.upload_media(media)
+        # response = api.upload_media(media)
 
-        if response.get('errors'):
-            pprint(response)
-            return
+        # if response.get('errors'):
+        #     pprint(response)
+        #     return
 
-        media_ids.append(response['media_id_string'])
+        # media_ids.append(response['media_id_string'])
 
         if len(image_url_list) >= 4:
             break
@@ -403,17 +403,17 @@ def tweet_affiliate(account):
 
     status = '\n'.join(content_list)
 
-    # twitter_tool.post_tweet(
-    #     username=api.username,
-    #     password=api.password,
-    #     status=status,
-    #     image_url_list=image_url_list,
-    # )
+    twitter_tool.post_tweet(
+        username=api.username,
+        password=api.password,
+        status=status,
+        image_url_list=image_url_list,
+    )
 
-    response = api.post_tweet(status=status, media_ids=media_ids)
+    # response = api.post_tweet(status=status, media_ids=media_ids)
 
-    if response.get('errors'):
-        pprint(response)
+    # if response.get('errors'):
+    #     pprint(response)
 
     id_list.append(target_item['itemCode'])
     r.set(redis_key, json.dumps(id_list), ex=None)
