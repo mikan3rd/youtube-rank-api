@@ -279,20 +279,31 @@ def search_and_retweet(account):
         target = tweet
         break
 
+    user = target['user']
+    if not user.get('following') and not user.get('follow_request_sent') and not user.get('blocked_by'):
+        response = api.post_follow(screen_name=user['screen_name'])
+
+        if response.get('errors'):
+            pprint(response)
+
+        else:
+            print("follow:", user['screen_name'])
+
+    # 引用RTするツイートURL
+    attachment_url = 'https://twitter.com/%s/status/%s' % (user['screen_name'], target['id_str'])
+
     in_reply_to_status_id = None
     status = '今、人気のツイートはこちら！'
     if api.hashtag:
         in_reply_to_status_id = target['id_str']
-        user = target['user']
         now = datetime.now().strftime("%Y年%-m月%-d日(%a) %-H時00分")
-        status = '%s\n%s の人気ツイート\n\n%s\n%s' % (now, api.hashtag, user['name'], user['description'])
+        status = '%s\n%s の人気ツイート\n\n@%s %s\n%s' \
+            % (now, api.hashtag, user['screen_name'], user['name'], user['description'])
 
         length = 150
         status = status[:length] + ('...' if status[length:] else '')
         status = re.sub('(http|#|@)\S*\.\.\.', '...', status)
         print(len(status))
-
-    attachment_url = 'https://twitter.com/%s/status/%s' % (target['user']['screen_name'], target['id_str'])
 
     # twitter_tool.search_and_retweet(
     #     username=api.username,
@@ -304,7 +315,7 @@ def search_and_retweet(account):
     response = api.post_tweet(
         status=status,
         attachment_url=attachment_url,
-        # in_reply_to_status_id=in_reply_to_status_id
+        in_reply_to_status_id=in_reply_to_status_id
     )
 
     if response.get('errors'):
