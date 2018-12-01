@@ -85,13 +85,13 @@ def twitter_job():
     tweet_crawl.hypnosismic()
 
 
-@sched.scheduled_job('cron', hour='8,20')
-def instagram_job():
-    print('Instagram START!!')
-    instagram.get_location_japan()
-    instagram.update_hashtag()
-    instagram.add_hashtag_detail()
-    print('Instagram FINISH!!')
+# @sched.scheduled_job('cron', hour='8,20')
+# def instagram_job():
+#     print('Instagram START!!')
+#     instagram.get_location_japan()
+#     instagram.update_hashtag()
+#     instagram.add_hashtag_detail()
+#     print('Instagram FINISH!!')
 
 
 @sched.scheduled_job('cron', hour='*', minute=15)
