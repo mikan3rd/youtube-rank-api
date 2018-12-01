@@ -35,7 +35,6 @@ def search_ichiba_item(
 
 def ranking_ichiba_item(
     formatVersion=2,
-    period='realtime',
 ):
 
     endpoint = '/IchibaItem/Ranking/20170628'
@@ -44,7 +43,6 @@ def ranking_ichiba_item(
         'applicationId': RAKUTEN_APP_ID,
         'affiliateId': RAKUTEN_AFFILIATE_ID,
         'formatVersion': formatVersion,
-        'period': period,
     }
 
     res = requests.get(base_url + endpoint, params=params)

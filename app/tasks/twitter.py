@@ -27,7 +27,9 @@ from settings import (
     TWITTER_TIKTOK_ACCESS_TOKEN,
     TWITTER_TIKTOK_SECRET,
     TWITTER_VTUBER_ACCESS_TOKEN,
-    TWITTER_VTUBER_SECRET
+    TWITTER_VTUBER_SECRET,
+    TWITTER_RAKUTEN_RANK_ACCESS_TOKEN,
+    TWITTER_RAKUTEN_RANK_SECRET,
 )
 
 from app.server.helpers import firestore as helper_firestore
@@ -835,7 +837,7 @@ def get_twitter_api(account):
             "電脳少女シロ",
             "SiroArt",
             "ミライアカリ",
-            "バーチャルのじゃロリ狐娘youtuberおじさん",
+            "のじゃロリ狐娘",
             "Nora_Cat",
             "のらきゃっと",
             "みとあーと",
@@ -872,7 +874,7 @@ def get_twitter_api(account):
         password = TWITTER_PASSWORD_B
 
         hashtag = '#スマブラSP'
-        query = '(スマブラSP) (filter:images OR filter:videos) min_retweets:10'
+        query = '(#スマブラSP) (filter:images OR filter:videos) min_retweets:10'
         rakuten_query = 'スマッシュブラザーズ'
         exclude_genre_id_list = ['566404', '566406']
         target_list = ['SmashBrosJP']
@@ -897,6 +899,13 @@ def get_twitter_api(account):
         query = '(ヒプノシスマイク OR ヒプマイ) (filter:images OR filter:videos) min_retweets:10'
         rakuten_query = 'ヒプノシスマイク'
         target_list = ['hypnosismic']
+
+    elif account == 'rakuten_rank':
+        access_token = TWITTER_RAKUTEN_RANK_ACCESS_TOKEN
+        secret = TWITTER_RAKUTEN_RANK_SECRET
+        username = '_rakuten_rank'
+        password = TWITTER_PASSWORD_A
+        target_list = ['RakutenJP']
 
     else:
         print("NO MATCH")

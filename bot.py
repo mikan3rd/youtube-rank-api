@@ -39,6 +39,7 @@ def tweet_affiliate():
         'hypnosismic',
         'tiktok',
         'av_actress',
+        'rakuten_rank',
     ]
 
     for account in account_list:
@@ -65,6 +66,7 @@ def twitter_job():
         'splatoon',
         'tiktok',
         'hypnosismic',
+        'rakuten_rank',
     ]
 
     for account in account_list:
