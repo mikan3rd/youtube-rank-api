@@ -38,6 +38,7 @@ def tweet_affiliate():
         'smash_bros',
         'hypnosismic',
         'tiktok',
+        'av_actress',
     ]
 
     for account in account_list:

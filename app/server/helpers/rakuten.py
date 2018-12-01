@@ -31,3 +31,26 @@ def search_ichiba_item(
     # pprint(data['Items'][0])
 
     return data
+
+
+def ranking_ichiba_item(
+    formatVersion=2,
+    period='realtime',
+):
+
+    endpoint = '/IchibaItem/Ranking/20170628'
+
+    params = {
+        'applicationId': RAKUTEN_APP_ID,
+        'affiliateId': RAKUTEN_AFFILIATE_ID,
+        'formatVersion': formatVersion,
+        'period': period,
+    }
+
+    res = requests.get(base_url + endpoint, params=params)
+    data = res.json()
+
+    # from pprint import pprint
+    # pprint(data['Items'][0])
+
+    return data

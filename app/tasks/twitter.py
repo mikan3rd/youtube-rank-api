@@ -339,7 +339,11 @@ def tweet_affiliate(account):
         id_list = json.loads(rcache.decode())
 
     api = get_twitter_api(account)
-    response = rakuten.search_ichiba_item(keyword=api.rakuten_query)
+
+    if not api.rakuten_query:
+        response = rakuten.ranking_ichiba_item()
+    else:
+        response = rakuten.search_ichiba_item(keyword=api.rakuten_query)
 
     target_item = None
     for item in response['Items']:
@@ -807,6 +811,7 @@ def get_twitter_api(account):
         username = 'av_actress_bot'
         password = TWITTER_PASSWORD_A
         target_list = ['fanza_sns']
+        rakuten_query = '精力'
 
     elif account == "github":
         access_token = TWITTER_GITHUB_ACCESS_TOKEN
