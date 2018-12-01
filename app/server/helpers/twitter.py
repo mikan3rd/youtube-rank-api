@@ -191,18 +191,18 @@ class TwitterApi:
         media_ids=None,
         in_reply_to_status_id=None,
         attachment_url=None,
+        auto_populate_reply_metadata=True,
     ):
         endpoint = "https://api.twitter.com/1.1/statuses/update.json"
-        params = {'status': status}
-
-        if in_reply_to_status_id:
-            params['in_reply_to_status_id'] = in_reply_to_status_id
+        params = {
+            'status': status,
+            'in_reply_to_status_id': in_reply_to_status_id,
+            'auto_populate_reply_metadata': auto_populate_reply_metadata,
+            'attachment_url': attachment_url,
+        }
 
         if media_ids:
             params['media_ids'] = ','.join(media_ids)
-
-        if attachment_url:
-            params['attachment_url'] = attachment_url
 
         print(status)
         sleep(1)
