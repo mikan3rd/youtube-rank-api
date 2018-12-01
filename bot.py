@@ -28,7 +28,7 @@ def tweet_job():
     twitter.tweet_tiktok()
 
 
-@sched.scheduled_job('cron', hour='7,12,18,20,22', minute=5)
+@sched.scheduled_job('cron', hour='7,12,17,20,23', minute=5)
 def tweet_affiliate():
     print('START: tweet_affiliate')
 
@@ -53,7 +53,7 @@ def tweet_affiliate():
         print('FINISH: tweet_affiliate', account)
 
 
-@sched.scheduled_job('cron', hour='7,12,18,22', minute=30)
+@sched.scheduled_job('cron', hour='7,12,17,20,23', minute=30)
 def twitter_job():
     print('START: Follow')
 
