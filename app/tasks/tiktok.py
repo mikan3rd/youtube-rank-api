@@ -181,7 +181,7 @@ def create_video_data(data):
         if value == "":
             continue
 
-        if key == 'follower_count' and value <= 1000:
+        if key == 'follower_count' and value <= 2000:
             return None
 
         if isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
