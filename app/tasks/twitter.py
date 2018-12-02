@@ -462,8 +462,8 @@ def tweet_tiktok():
     if data.get('signature'):
         content_list.append('\n' + data['signature'] + '\n')
 
-    if data.get('twitter_name'):
-        content_list.append('【Twitter】@%s' % (data['twitter_name']))
+    # if data.get('twitter_name'):
+    #     content_list.append('【Twitter】@%s' % (data['twitter_name']))
 
     content_list.append('【TikTok】%s' % (data['share_url'].replace('/?', '')))
 
@@ -612,13 +612,14 @@ def follow_users_by_follower(account):
 
         # フォロー数の多い順にする
         for user in response['users']:
+
             if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
                 continue
 
             if user['id_str'] == account_id:
                 continue
 
-            if followers_count > 1000 and user.get('lang') not in ['en', 'ja']:
+            if user.get('lang') not in ['en', 'ja']:
                 continue
 
             user_list.add(user['screen_name'])
@@ -680,10 +681,14 @@ def follow_target_user(account):
 
     user_list = set()
     for user in response['users']:
+
         if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
             continue
 
         if user['id_str'] == account_id:
+            continue
+
+        if user.get('lang') not in ['en', 'ja']:
             continue
 
         user_list.add(user['screen_name'])
@@ -852,7 +857,7 @@ def get_twitter_api(account):
         hashtag = '#バーチャルYouTuber'
         query = '(%s) (filter:images OR filter:videos) min_retweets:50' % (' OR '.join(words))
         rakuten_query = 'キズナアイ 電脳少女シロ 輝夜月 ミライアカリ 月ノ美兎 猫宮ひなた にじさんじ'
-        target_list = ['aichan_nel', 'SIROyoutuber', 'MiraiAkari_prj', '_KaguyaLuna']
+        target_list = ['aichan_nel', 'SIROyoutuber', 'MiraiAkari_prj', '_KaguyaLuna', 'kizuna_ai_scn']
 
     elif account == 'splatoon':
         access_token = TWITTER_SPLATTON_ACCESS_TOKEN
