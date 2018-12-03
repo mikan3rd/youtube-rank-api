@@ -608,9 +608,9 @@ def follow_users_by_follower(account):
     user_list = set()
     for follower_id in follower_id_list:
         response = api.get_followers(user_id=follower_id)
+        users = sorted(response['users'], key=lambda k: k['friends_count'], reverse=True)
 
-        # フォロー数の多い順にする
-        for user in response['users']:
+        for user in users:
 
             if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
                 continue
@@ -677,9 +677,10 @@ def follow_target_user(account):
     screen_name = choice(api.target_list)
     print("target_user:", screen_name)
     response = api.get_followers(screen_name=screen_name)
+    users = sorted(response['users'], key=lambda k: k['friends_count'], reverse=True)
 
     user_list = set()
-    for user in response['users']:
+    for user in users:
 
         if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
             continue
