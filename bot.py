@@ -25,6 +25,8 @@ def tweet_job():
     twitter.search_and_retweet('smash_bros')
     twitter.search_and_retweet('hypnosismic')
 
+    twitter.tweet_affiliate('rakuten_rank')
+
     twitter.tweet_tiktok()
 
 
@@ -39,7 +41,6 @@ def tweet_affiliate():
         'hypnosismic',
         'tiktok',
         'av_actress',
-        'rakuten_rank',
     ]
 
     for account in account_list:

@@ -391,11 +391,10 @@ def tweet_affiliate(account):
             break
 
     length = 90
-    title = target_item.get('itemName')
+    title = target_item.get('catchcopy', '') + target_item.get('itemName')
     title = title[:length] + ('...' if title[length:] else '')
 
     content_list = [
-        target_item.get('catchcopy'),
         title,
         '',
         '【詳細URL】' + target_item.get('affiliateUrl'),
