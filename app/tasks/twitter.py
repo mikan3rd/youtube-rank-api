@@ -390,6 +390,8 @@ def tweet_affiliate(account):
         if len(image_url_list) >= 4:
             break
 
+    pprint(target_item)
+
     length = 90
     title = target_item.get('catchcopy', '') + target_item.get('itemName')
     title = title[:length] + ('...' if title[length:] else '')
@@ -880,7 +882,7 @@ def get_twitter_api(account):
         hashtag = '#スマブラSP'
         query = '(#スマブラSP) (filter:images OR filter:videos) min_retweets:10'
         rakuten_query = 'スマッシュブラザーズ'
-        exclude_genre_id_list = ['566404', '566406']
+        exclude_genre_id_list = ['566404', '566406', '566420']
         target_list = ['SmashBrosJP']
 
     elif account == 'tiktok':

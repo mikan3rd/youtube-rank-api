@@ -1,13 +1,12 @@
+from copy import deepcopy
 from datetime import datetime, timedelta
 from pprint import pprint
-from time import sleep
 
 import requests
 from firebase_admin import firestore
 from settings import TIKTOK_AID, TIKTOK_DEVICE_ID
 
 from app.server.helpers import firestore as helper_firestore
-from app.server.helpers import gspread
 
 
 SHEET_ID = "1cA3pIOPfRKw3v8oeArTsVOAszUWUO9cOZ4UKKAZ1RH4"
@@ -138,6 +137,66 @@ def update_users():
     print("SUCCESS: tiktok, update_users")
 
 
+def add_hashtag():
+    params = deepcopy(user_params)
+    params['count'] = 200
+    res = requests.get(BASE_URL + "/recommend/challenge/", headers=feed_headers, params=params)
+    data = res.json()
+    challenge_list = data.get('challenge_list')
+    challenge_list = sorted(challenge_list, key=lambda k: k.get('user_count', 0), reverse=True)
+    print(len(challenge_list))
+
+    results = []
+    for challenge in challenge_list:
+        result = create_hashtag_data(challenge)
+
+        if not result:
+            continue
+
+        results.append(result)
+
+    pprint(results)
+
+    if results:
+        helper_firestore.batch_update(
+            collection='hashtags',
+            data_list=results,
+            unique_key='cid'
+        )
+
+    print("SUCCESS: tiktok, add_hashtag")
+
+
+def trace_hashtag():
+    helper_firestore.initialize_firebase()
+    ref = firestore.client().collection('hashtags')
+
+    filter_time = datetime.now() - timedelta(days=1)
+    query = ref \
+        .where('update_at', '<', filter_time) \
+        .order_by('update_at') \
+        .order_by('view_count', direction=firestore.Query.DESCENDING) \
+        .limit(100)
+
+    docs = query.get()
+    hashtag_list = [doc.to_dict() for doc in docs]
+
+    results = []
+    for hashtag in hashtag_list:
+        params = deepcopy(user_params)
+        params['ch_id'] = hashtag['cid']
+        res = requests.get(BASE_URL + "/challenge/detail/", headers=feed_headers, params=params)
+        data = res.json()
+        challenge = data.get('ch_info')
+
+        result = create_hashtag_data(challenge)
+
+        if not result:
+            continue
+
+        results.append(result)
+
+
 def get_user_detail(uid):
     user_params['user_id'] = uid
     res = requests.get(BASE_URL + "/user/", headers=feed_headers, params=user_params)
@@ -169,6 +228,34 @@ def create_user_data(data):
         k: v
         for k, v in result.items()
         if k in allowed_keys
+    }
+
+    return result
+
+
+def create_hashtag_data(data):
+
+    if not data.get('cid'):
+        return None
+
+    invalid_characters = "~*/[]"
+
+    result = {}
+    for key, value in data.items():
+
+        if key == 'user_count' and value <= 1000:
+            return None
+
+        if value == "":
+            continue
+
+        if isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
+            result[key] = value
+
+    date_key = datetime.now().strftime("%Y_%m_%d")
+    result[date_key] = {
+        'user_count': result.get('user_count'),
+        'view_count': result.get('view_count'),
     }
 
     return result

@@ -100,6 +100,7 @@ def tiktok_job():
     print('TikTok START!!')
     tiktok.add_user()
     tiktok.update_users()
+    tiktok.add_hashtag()
 
 
 print("Scheduler START!!")
