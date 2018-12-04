@@ -155,8 +155,6 @@ def add_hashtag():
 
         results.append(result)
 
-    pprint(results)
-
     if results:
         helper_firestore.batch_update(
             collection='hashtags',
@@ -171,11 +169,11 @@ def trace_hashtag():
     helper_firestore.initialize_firebase()
     ref = firestore.client().collection('hashtags')
 
-    filter_time = datetime.now() - timedelta(days=1)
+    filter_time = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(hours=9)
     query = ref \
         .where('update_at', '<', filter_time) \
         .order_by('update_at') \
-        .order_by('view_count', direction=firestore.Query.DESCENDING) \
+        .order_by('user_count', direction=firestore.Query.DESCENDING) \
         .limit(100)
 
     docs = query.get()
@@ -188,13 +186,22 @@ def trace_hashtag():
         res = requests.get(BASE_URL + "/challenge/detail/", headers=feed_headers, params=params)
         data = res.json()
         challenge = data.get('ch_info')
-
         result = create_hashtag_data(challenge)
 
         if not result:
             continue
 
-        results.append(result)
+        hashtag.update(result)
+        results.append(hashtag)
+
+    if results:
+        helper_firestore.batch_update(
+            collection='hashtags',
+            data_list=results,
+            unique_key='cid'
+        )
+
+    print("SUCCESS: tiktok, trace_hashtag")
 
 
 def get_user_detail(uid):
