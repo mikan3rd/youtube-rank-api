@@ -238,9 +238,9 @@ def create_hashtag_data(data):
     if not data.get('cid'):
         return None
 
-    invalid_characters = "~*/[]"
+    # invalid_characters = "~*/[]"
 
-    result = {}
+    result = {'stats': {}}
     for key, value in data.items():
 
         if key == 'user_count' and value <= 1000:
@@ -253,9 +253,10 @@ def create_hashtag_data(data):
             result[key] = value
 
     date_key = datetime.now().strftime("%Y_%m_%d")
-    result[date_key] = {
+    result['stats'][date_key] = {
         'user_count': result.get('user_count'),
         'view_count': result.get('view_count'),
+        'timestamp': firestore.SERVER_TIMESTAMP,
     }
 
     return result
