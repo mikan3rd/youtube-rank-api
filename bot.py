@@ -24,6 +24,7 @@ def tweet_job():
     twitter.search_and_retweet('splatoon')
     twitter.search_and_retweet('smash_bros')
     twitter.search_and_retweet('hypnosismic')
+    twitter.search_and_retweet('tiktok')
 
     twitter.tweet_affiliate('rakuten_rank')
 
