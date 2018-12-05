@@ -13,7 +13,7 @@ def github_status_job():
     tweet_crawl.github_status()
 
 
-@sched.scheduled_job('cron', hour='0-1,6-23', minute=1)
+@sched.scheduled_job('cron', hour='*', minute=1)
 def tweet_job():
     print('START: Tweet')
 
