@@ -316,7 +316,7 @@ def search_and_retweet(account):
     response = api.post_tweet(
         status=status,
         attachment_url=attachment_url,
-        in_reply_to_status_id=in_reply_to_status_id
+        # in_reply_to_status_id=in_reply_to_status_id
     )
 
     if response.get('errors'):
