@@ -868,7 +868,7 @@ def get_twitter_api(account):
         password = TWITTER_PASSWORD_B
 
         hashtag = '#Splatoon2'
-        query = '#Splatoon2 filter:videos min_retweets:10'
+        query = '(#Splatoon2) (filter:images OR filter:videos) min_retweets:10'
         rakuten_query = 'スプラトゥーン'
         exclude_genre_id_list = ['566404', '566406']
         target_list = ['SplatoonJP']
@@ -881,7 +881,7 @@ def get_twitter_api(account):
 
         hashtag = '#スマブラSP'
         query = '(#スマブラSP) (filter:images OR filter:videos) min_retweets:10'
-        rakuten_query = 'スマッシュブラザーズ'
+        # rakuten_query = 'スマッシュブラザーズ'
         exclude_genre_id_list = ['566404', '566406', '566420']
         target_list = ['SmashBrosJP']
 
