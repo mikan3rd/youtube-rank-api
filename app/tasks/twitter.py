@@ -629,7 +629,7 @@ def follow_users_by_follower(account):
             break
 
     user_list = list(user_list)
-    limit = randint(5, 10)
+    limit = randint(5, 7)
 
     # twitter_tool.follow_users(
     #     username=api.username,
@@ -674,7 +674,7 @@ def follow_target_user(account):
         return
 
     account_id = response['id_str']
-    LIMIT = randint(5, 10)
+    LIMIT = randint(5, 7)
 
     screen_name = choice(api.target_list)
     print("target_user:", screen_name)
