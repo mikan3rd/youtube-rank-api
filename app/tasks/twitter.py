@@ -881,7 +881,7 @@ def get_twitter_api(account):
 
         hashtag = '#スマブラSP'
         query = '(#スマブラSP) (filter:images OR filter:videos) min_retweets:10'
-        # rakuten_query = 'スマッシュブラザーズ'
+        rakuten_query = 'カービィ'
         exclude_genre_id_list = ['566404', '566406', '566420']
         target_list = ['SmashBrosJP']
 
