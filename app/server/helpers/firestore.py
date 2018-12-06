@@ -24,6 +24,13 @@ def batch_update(collection, data_list, unique_key=None):
         if result:
             print("update:", num)
             _id = result[0].id
+            prev_data = result[0].to_dict()
+
+            for k, v in data.items():
+                if isinstance(v, dict) and prev_data.get(k):
+                    prev_data[k].update(v)
+                    data[k] = prev_data[k]
+
             batch.update(ref.document(_id), data)
             continue
 
