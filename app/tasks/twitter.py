@@ -352,9 +352,6 @@ def tweet_affiliate(account):
         if item['genreId'] in api.exclude_genre_id_list:
             continue
 
-        if not target_item:
-            target_item = item
-
         if item['itemCode'] in id_list:
             continue
 
