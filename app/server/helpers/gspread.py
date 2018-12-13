@@ -24,14 +24,14 @@ def get_sheet_values(sheet_id, _range, render='FORMATTED_VALUE'):
     return response
 
 
-def update_sheet_values(sheet_id, _range, body):
+def update_sheet_values(sheet_id, _range, body, valueInputOption='USER_ENTERED'):
     credentials = get_credentials()
     service = build('sheets', 'v4', credentials=credentials)
     response = service.spreadsheets().values().update(
         spreadsheetId=sheet_id,
         range=_range,
         body=body,
-        valueInputOption='USER_ENTERED'
+        valueInputOption=valueInputOption
     ).execute()
     pprint(response)
     return response

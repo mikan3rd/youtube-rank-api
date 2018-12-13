@@ -6,10 +6,11 @@ import requests
 from firebase_admin import firestore
 from settings import TIKTOK_AID, TIKTOK_DEVICE_ID
 
+from app.server.helpers import gspread
 from app.server.helpers import firestore as helper_firestore
 
 
-SHEET_ID = "1cA3pIOPfRKw3v8oeArTsVOAszUWUO9cOZ4UKKAZ1RH4"
+SHEET_ID = "1gT0vS912lxkWLggJLjWygGbqSw6rLteRkFzlqsPZI44"
 BASE_URL = "https://api.tiktokv.com/aweme/v1"
 
 twitter_url = "https://twitter.com"
@@ -305,3 +306,70 @@ allowed_keys = [
     'short_id',
     'uid',
 ]
+
+
+def update_spread_sheet():
+
+    helper_firestore.initialize_firebase()
+    ref = firestore.client().collection('hashtags')
+
+    query = ref \
+        .order_by('view_count', direction=firestore.Query.DESCENDING) \
+        .limit(20)
+
+    docs = query.get()
+
+    label_list = []
+    hashtag_list = []
+
+    for doc in docs:
+        hashtag = doc.to_dict()
+        hashtag['ハッシュタグ'] = hashtag['cha_name']
+
+        for _period, stat in hashtag['stats'].items():
+            period = _period.replace('_', '/')
+
+            if period not in label_list:
+                label_list.append(period)
+
+            hashtag[period] = stat['view_count']
+
+        hashtag_list.append(hashtag)
+
+    label_list = sorted(label_list)
+    label_list.insert(0, 'ハッシュタグ')
+
+    body = {
+        'values': gspread.convert_to_sheet_values(label_list, hashtag_list),
+        'majorDimension': 'COLUMNS',
+    }
+    gspread.update_sheet_values(SHEET_ID, '視聴回数合計', body, valueInputOption='RAW')
+
+    del label_list[0]
+    for hashtag in hashtag_list:
+
+        prev_count = 0
+        for period in label_list:
+
+            count = hashtag.get(period)
+            if not count:
+                continue
+
+            if prev_count == 0:
+                hashtag[period] = ''
+
+            else:
+                hashtag[period] = count - prev_count
+
+            prev_count = count
+
+    del label_list[0]
+    label_list.insert(0, 'ハッシュタグ')
+    body = {
+        'values': gspread.convert_to_sheet_values(label_list, hashtag_list),
+        'majorDimension': 'COLUMNS',
+    }
+
+    gspread.update_sheet_values(SHEET_ID, '視聴回数（日別）', body, valueInputOption='RAW')
+
+    print('SUCCESS: update_spread_sheet')
