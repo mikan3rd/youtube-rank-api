@@ -58,6 +58,7 @@ def search_items(
     article=None,
     article_id=None,
     hits=100,
+    offset=1,
 ):
     endpoint = '/ItemList'
 
@@ -71,6 +72,7 @@ def search_items(
         'article': article,
         'article_id': article_id,
         'hits': hits,
+        'offset': offset,
         'output': 'json',
     }
 

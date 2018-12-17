@@ -135,21 +135,27 @@ def post_av_actress():
         print("cache HIT!! %s" % (redis_key))
         id_list = json.loads(rcache.decode())
 
-    response = dmm.search_items(keyword='単体作品')
-
     tmp_id = None
     target_id = None
-    for item in response['result']['items']:
-        for actress in item['iteminfo'].get('actress', []):
-            if not isinstance(actress['id'], int):
-                continue
 
-            if actress['id'] not in id_list:
-                target_id = actress['id']
+    hits = 100
+    for i in range(10):
+        response = dmm.search_items(keyword='単体作品', offset=i * hits + 1)
+
+        for item in response['result']['items']:
+            for actress in item['iteminfo'].get('actress', []):
+                if not isinstance(actress['id'], int):
+                    continue
+
+                if actress['id'] not in id_list:
+                    target_id = actress['id']
+                    break
+
+                if not tmp_id:
+                    tmp_id = actress['id']
+
+            if target_id:
                 break
-
-            if not tmp_id:
-                tmp_id = actress['id']
 
         if target_id:
             break
