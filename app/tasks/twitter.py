@@ -324,7 +324,7 @@ def search_and_retweet(account):
 
     id_list.append(target['id_str'])
     id_list = list(set(id_list))
-    r.set(redis_key, json.dumps(id_list), ex=None)
+    r.set(redis_key, json.dumps(id_list), ex=60 * 60 * 24 * 30)
     print("SUCCESS: twitter:", account)
 
 
@@ -514,7 +514,7 @@ def tweet_tiktok():
         pprint(response)
 
     start_follower = data['follower_count']
-    r.set(redis_key, json.dumps(start_follower), ex=None)
+    r.set(redis_key, json.dumps(start_follower), ex=60 * 60 * 24 * 30)
 
     print("SUCCESS: tweet_tiktok", account)
 
@@ -528,9 +528,6 @@ def follow_users_by_retweet(account):
         pprint(response)
         return
 
-    if response['followers_count'] >= 5:
-        return
-
     response = api.get_home_timeline()
     if isinstance(response, dict) and response.get('errors'):
         pprint(response)
@@ -538,9 +535,14 @@ def follow_users_by_retweet(account):
 
     retweeter_count = 0
     tweet_id_list = set()
-    for tweet in response:
+
+    tweet_list = sorted(response, key=lambda k: k.get('retweet_count', 0), reverse=True)
+    for tweet in tweet_list:
 
         if tweet.get('retweet_count', 0) <= 1:
+            continue
+
+        if tweet.get('lang') not in ['ja']:
             continue
 
         retweeter_count += tweet['retweet_count']
@@ -561,16 +563,20 @@ def follow_users_by_retweet(account):
             pprint(response)
             continue
 
-        for tweet in response:
+        tweet_list = sorted(response, key=lambda k: k['user'].get('friends_count', 0), reverse=True)
+        for tweet in tweet_list:
             user = tweet['user']
 
             if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
                 continue
 
-            user_id_list.add(user['id_str'])
+            if user.get('lang') not in ['en', 'ja']:
+                continue
+
+            user_id_list.add(user['screen_name'])
 
     for num, user_id in enumerate(list(user_id_list)[:5], 1):
-        response = api.post_follow(user_id=user_id)
+        response = api.post_follow(screen_name=user_id)
 
         if response.get('errors'):
             pprint(response)
@@ -633,7 +639,7 @@ def follow_users_by_follower(account):
             break
 
     user_list = list(user_list)
-    limit = randint(4, 6)
+    limit = 5
 
     # twitter_tool.follow_users(
     #     username=api.username,
@@ -678,7 +684,7 @@ def follow_target_user(account):
         return
 
     account_id = response['id_str']
-    LIMIT = randint(4, 6)
+    LIMIT = 5
 
     screen_name = choice(api.target_list)
     print("target_user:", screen_name)
