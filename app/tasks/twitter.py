@@ -341,25 +341,34 @@ def tweet_affiliate(account):
 
     api = get_twitter_api(account)
 
-    if not api.rakuten_query:
-        response = rakuten.ranking_ichiba_item()
-    else:
-        response = rakuten.search_ichiba_item(keyword=api.rakuten_query)
-
     target_item = None
-    for item in response['Items']:
+    first_item = None
+    for i in range(10):
 
-        if item['genreId'] in api.exclude_genre_id_list:
-            continue
+        if not api.rakuten_query:
+            response = rakuten.ranking_ichiba_item(page=i + 1)
+        else:
+            response = rakuten.search_ichiba_item(keyword=api.rakuten_query, page=i + 1)
 
-        if item['itemCode'] in id_list:
-            continue
+        for item in response['Items']:
 
-        target_item = item
-        break
+            if item['genreId'] in api.exclude_genre_id_list:
+                continue
+
+            if not first_item:
+                first_item = item
+
+            if item['itemCode'] in id_list:
+                continue
+
+            target_item = item
+            break
+
+        if target_item:
+            break
 
     if not target_item:
-        target_item = response['Items'][0]
+        target_item = first_item
         id_list = []
 
     media_ids = []
@@ -624,7 +633,7 @@ def follow_users_by_follower(account):
             break
 
     user_list = list(user_list)
-    limit = randint(5, 8)
+    limit = randint(4, 6)
 
     # twitter_tool.follow_users(
     #     username=api.username,
@@ -669,7 +678,7 @@ def follow_target_user(account):
         return
 
     account_id = response['id_str']
-    LIMIT = randint(5, 8)
+    LIMIT = randint(4, 6)
 
     screen_name = choice(api.target_list)
     print("target_user:", screen_name)

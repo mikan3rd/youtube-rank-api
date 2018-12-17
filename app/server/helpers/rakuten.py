@@ -12,6 +12,7 @@ def search_ichiba_item(
     carrier=2,
     orFlag=1,
     field=0,
+    page=1,
 ):
     endpoint = '/IchibaItem/Search/20170706'
 
@@ -24,6 +25,7 @@ def search_ichiba_item(
         'carrier': carrier,
         'orFlag': orFlag,
         'field': field,
+        'page': page,
     }
 
     res = requests.get(base_url + endpoint, params=params)
@@ -37,6 +39,7 @@ def search_ichiba_item(
 
 def ranking_ichiba_item(
     formatVersion=2,
+    page=1.
 ):
 
     endpoint = '/IchibaItem/Ranking/20170628'
@@ -45,6 +48,7 @@ def ranking_ichiba_item(
         'applicationId': RAKUTEN_APP_ID,
         'affiliateId': RAKUTEN_AFFILIATE_ID,
         'formatVersion': formatVersion,
+        'page': page,
     }
 
     res = requests.get(base_url + endpoint, params=params)
