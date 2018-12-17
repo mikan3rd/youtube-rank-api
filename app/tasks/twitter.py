@@ -465,7 +465,7 @@ def tweet_tiktok():
     content_list.append('ファン： %s人' % (follower))
 
     if data.get('signature'):
-        content_list.append('\n' + data['signature'] + '\n')
+        content_list.append('\n' + str(data['signature']) + '\n')
 
     # if data.get('twitter_name'):
     #     content_list.append('【Twitter】@%s' % (data['twitter_name']))
