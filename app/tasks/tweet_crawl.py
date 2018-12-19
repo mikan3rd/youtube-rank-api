@@ -7,32 +7,20 @@ from bs4 import BeautifulSoup
 from settings import REDIS_URL
 
 from app.tasks import twitter, twitter_tool
+from pprint import pprint
 
 
 def github_status():
-    url = 'https://status.github.com/messages'
+    url = 'https://www.githubstatus.com/'
     response = requests.get(url)
     soup = BeautifulSoup(response.content, "lxml")
 
-    div_tag = soup.find('div', class_="message")
-    class_list = div_tag.get('class')
+    div_tag = soup.find('div', class_="incident-container")
+    title_tag = div_tag.find('div', class_='incident-title')
 
-    if 'good' in class_list:
-        path = 'ok'
-
-    elif 'minor' in class_list:
-        path = 'caution'
-
-    elif 'major' in class_list:
-        path = 'error'
-
-    else:
-        print('GitHubStatus: no match')
-        return
-
-    title = div_tag.find('span', class_='title')
-    text = title.text
-    print(text)
+    update_tag = div_tag.find('div', class_="update")
+    strong_tag = update_tag.find('strong')
+    description = strong_tag.next_sibling.replace(' -', '').strip()
 
     redis_key = 'GitHubStatus'
     r = redis.from_url(REDIS_URL)
@@ -42,9 +30,35 @@ def github_status():
         print("cache HIT!! %s" % (redis_key))
         redis_value = json.loads(rcache.decode())
 
-        if redis_value == text:
+        if redis_value == description:
             print('GitHubStatus: No Change!')
             return
+
+    status = '[%s] %s\n\n%s\n' % (strong_tag.text, title_tag.text.strip(), description)
+
+    class_list = title_tag.get('class')
+    detail_class_list = update_tag.get('class')
+
+    if 'impact-maintenance' in class_list:
+        path = 'ok'
+
+    elif 'impact-minor' in class_list:
+        if 'resolved' in detail_class_list:
+            path = 'ok'
+        else:
+            path = 'caution'
+
+    elif 'impact-major' in class_list:
+        if 'resolved' in detail_class_list:
+            path = 'ok'
+        else:
+            path = 'error'
+
+    else:
+        print('GitHubStatus: no match')
+        return
+
+    print(path)
 
     api = twitter.get_twitter_api('github')
 
@@ -53,8 +67,6 @@ def github_status():
     media = open(image_path, 'rb')
     response = api.upload_media(media)
     media_id = response['media_id_string']    # type: ignore
-
-    status = text + "\n#github\n" + url
 
     # twitter_tool.post_tweet(
     #     username=api.username,
@@ -65,7 +77,7 @@ def github_status():
 
     response = api.post_tweet(status=status, media_ids=[media_id])
 
-    r.set(redis_key, json.dumps(text), ex=None)
+    r.set(redis_key, json.dumps(description), ex=None)
     print("SUCCESS:crawl:GitHubStatus")
 
 
