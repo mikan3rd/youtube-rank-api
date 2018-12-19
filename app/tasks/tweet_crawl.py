@@ -34,7 +34,7 @@ def github_status():
             print('GitHubStatus: No Change!')
             return
 
-    status = '[%s] %s\n\n%s\n\n%s' % (strong_tag.text, title_tag.text.strip(), description, url)
+    status = '[%s]\n%s\n\n%s\n\n%s' % (strong_tag.text, title_tag.text.strip(), description, url)
 
     class_list = title_tag.get('class')
     detail_class_list = update_tag.get('class')
