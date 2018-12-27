@@ -581,7 +581,7 @@ def follow_users_by_retweet(account):
 
             user_id_list.add(user['screen_name'])
 
-    for num, user_id in enumerate(list(user_id_list)[:5], 1):
+    for num, user_id in enumerate(list(user_id_list)[:3], 1):
         response = api.post_follow(screen_name=user_id)
 
         if response.get('errors'):
@@ -645,7 +645,7 @@ def follow_users_by_follower(account):
             break
 
     user_list = list(user_list)
-    limit = 5
+    limit = 3
 
     # twitter_tool.follow_users(
     #     username=api.username,
@@ -690,7 +690,7 @@ def follow_target_user(account):
         return
 
     account_id = response['id_str']
-    LIMIT = 5
+    LIMIT = 3
 
     screen_name = choice(api.target_list)
     print("target_user:", screen_name)
@@ -786,7 +786,7 @@ def remove_follow(account):
             break
 
     user_list = list(reversed(user_list))
-    limit = randint(5, 10)
+    limit = randint(3, 6)
 
     # twitter_tool.follow_users(
     #     username=api.username,
