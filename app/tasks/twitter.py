@@ -274,7 +274,7 @@ def search_and_retweet(account):
             break
 
         tweet_list += response['statuses']
-        next_results = response['search_metadata']['next_results']
+        next_results = response['search_metadata'].get('next_results')
 
         if not next_results:
             break
