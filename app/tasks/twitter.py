@@ -575,7 +575,7 @@ def follow_users_by_retweet(account):
             if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
                 continue
 
-            if user.get('lang') not in ['en', 'ja']:
+            if user.get('lang') not in ['ja']:
                 continue
 
             user_id_list.add(user['screen_name'])
@@ -635,7 +635,7 @@ def follow_users_by_follower(account):
             if user['id_str'] == account_id:
                 continue
 
-            if user.get('lang') not in ['en', 'ja']:
+            if user.get('lang') not in ['ja']:
                 continue
 
             user_list.add(user['screen_name'])
@@ -705,7 +705,7 @@ def follow_target_user(account):
         if user['id_str'] == account_id:
             continue
 
-        if user.get('lang') not in ['en', 'ja']:
+        if user.get('lang') not in ['ja']:
             continue
 
         user_list.add(user['screen_name'])
