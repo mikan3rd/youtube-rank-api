@@ -168,13 +168,23 @@ class TwitterApi:
         q,
         count=100,
         lang='ja',
+        result_type='mixed',
+        next_results=None,
     ):
         endpoint = "https://api.twitter.com/1.1/search/tweets.json"
-        params = {
-            'q': q,
-            'count': count,
-            'lang': lang,
-        }
+        params = {}
+
+        if next_results:
+            endpoint += next_results
+
+        else:
+            params = {
+                'q': q,
+                'count': count,
+                'lang': lang,
+                'result_type': result_type,
+            }
+
         response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
 

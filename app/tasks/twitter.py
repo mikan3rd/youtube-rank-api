@@ -262,16 +262,26 @@ def search_and_retweet(account):
         print("cache HIT!! %s" % (redis_key))
         id_list = json.loads(rcache.decode())
 
-    response = api.get_search_tweet(q=api.query)
+    next_results = None
+    tweet_list = []
 
-    if response.get('errors'):
-        pprint(response)
-        return
+    for _ in range(10):
 
-    tweet_list = response['statuses']
+        response = api.get_search_tweet(q=api.query, next_results=next_results)
+
+        if response.get('errors'):
+            pprint(response)
+            break
+
+        tweet_list += response['statuses']
+        next_results = response['search_metadata']['next_results']
+
+        if not next_results:
+            break
+
     tweet_list = sorted(tweet_list, key=lambda k: k['retweet_count'], reverse=True)
-
     target = None
+
     for tweet in tweet_list:
 
         if tweet.get('retweeted_status'):
@@ -299,10 +309,10 @@ def search_and_retweet(account):
     # 引用RTするツイートURL
     attachment_url = 'https://twitter.com/%s/status/%s' % (user['screen_name'], target['id_str'])
 
-    in_reply_to_status_id = None
+    # in_reply_to_status_id = None
     status = '今、人気のツイートはこちら！'
     if api.hashtag:
-        in_reply_to_status_id = target['id_str']
+        # in_reply_to_status_id = target['id_str']
         now = datetime.now().strftime("%Y年%-m月%-d日(%a) %-H時00分")
         status = '%s\n%s の人気ツイート\n\n%s\n\n%s' % (now, api.hashtag, user['name'], user['description'])
 
