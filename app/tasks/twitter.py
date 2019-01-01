@@ -167,8 +167,7 @@ def post_av_actress():
     response = dmm.search_actress(actress_id=target_id)
     actress_info = response['result']['actress'][0]
 
-    keyword = '%s 単体作品' % (actress_info['name'])
-    response = dmm.search_items(keyword=keyword)
+    response = dmm.search_items(keyword='単体作品', article='actress', article_id=actress_info['id'])
     items = response['result']['items']
 
     api = get_twitter_api('av_actress')
