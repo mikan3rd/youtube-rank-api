@@ -28,7 +28,7 @@ def tweet_job():
 
     twitter.tweet_affiliate('rakuten_rank')
 
-    twitter.tweet_tiktok()
+    # twitter.tweet_tiktok()
 
 
 @sched.scheduled_job('cron', hour='7,12,17,20,23', minute=5)
