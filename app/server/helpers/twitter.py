@@ -195,6 +195,52 @@ class TwitterApi:
         response = self.api.post(endpoint, files=files)
         return json.loads(response.text)
 
+    def upload_video_init(self, total_bytes, media_type):
+        endpoint = "https://upload.twitter.com/1.1/media/upload.json"
+        params = {
+            'command': 'INIT',
+            'total_bytes': total_bytes,
+            'media_type': media_type,
+            'media_category': 'tweet_video',
+        }
+        sleep(1)
+        response = self.api.post(endpoint, params=params)
+        return json.loads(response.text)
+
+    def upload_video_append(self, media_id, media, segment_index):
+        endpoint = "https://upload.twitter.com/1.1/media/upload.json"
+        files = {'media': media}
+        params = {
+            'command': 'APPEND',
+            'media_id': media_id,
+            'segment_index': segment_index,
+        }
+        sleep(1)
+        response = self.api.post(endpoint, params=params, files=files)
+        print(response.status_code)
+        return
+
+    def upload_video_final(self, media_id):
+        endpoint = "https://upload.twitter.com/1.1/media/upload.json"
+        params = {
+            'command': 'FINALIZE',
+            'media_id': media_id,
+        }
+        sleep(1)
+        response = self.api.post(endpoint, params=params)
+        return json.loads(response.text)
+
+    def upload_video_status(self, media_id):
+        endpoint = "https://upload.twitter.com/1.1/media/upload.json"
+        params = {
+            'command': 'STATUS',
+            'media_id': media_id,
+        }
+        print(params)
+        sleep(1)
+        response = self.api.get(endpoint, params=params)
+        return json.loads(response.text)
+
     def post_tweet(
         self,
         status,
