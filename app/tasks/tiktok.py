@@ -6,8 +6,8 @@ import requests
 from firebase_admin import firestore
 from settings import TIKTOK_AID, TIKTOK_DEVICE_ID
 
-from app.server.helpers import gspread
 from app.server.helpers import firestore as helper_firestore
+from app.server.helpers import gspread
 
 
 SHEET_ID = "1gT0vS912lxkWLggJLjWygGbqSw6rLteRkFzlqsPZI44"
@@ -50,12 +50,14 @@ user_params = {
     'sys_region': 'JP',
     'app_language': 'ja',
     'tz_name': 'Asia/Tokyo',
+    'iid': '6642644565000111873'
 }
 
 
 def add_user():
-    feed_params['ts'] = datetime.now().strftime('%s')
-    res = requests.get(BASE_URL + "/feed/", headers=feed_headers, params=feed_params)
+    params = deepcopy(feed_params)
+    params['ts'] = datetime.now().strftime('%s')
+    res = requests.get(BASE_URL + "/feed/", headers=feed_headers, params=params)
     feed_data = res.json()
 
     user_list = []
@@ -206,8 +208,9 @@ def trace_hashtag():
 
 
 def get_user_detail(uid):
-    user_params['user_id'] = uid
-    res = requests.get(BASE_URL + "/user/", headers=feed_headers, params=user_params)
+    params = deepcopy(user_params)
+    params['user_id'] = uid
+    res = requests.get(BASE_URL + "/user/", headers=feed_headers, params=params)
 
     data = res.json()
     return data.get('user')
