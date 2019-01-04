@@ -35,48 +35,95 @@ from settings import (
 from app.server.helpers import firestore as helper_firestore
 from app.server.helpers import dmm, rakuten
 from app.server.helpers.twitter import TwitterApi
-from app.tasks import twitter_tool
+# from app.tasks import twitter_tool
 
 
 def post_av_sommlier():
+    api = get_twitter_api('av_sommlier')
 
-    redis_key = 'twitter:av_sommlier'
+    redis_key = 'twitter:av_movie'
     r = redis.from_url(REDIS_URL)
     rcache = r.get(redis_key)
 
-    title_list = []
+    id_list = []
     if rcache:
         print("cache HIT!! %s" % (redis_key))
-        title_list = json.loads(rcache.decode())
+        id_list = json.loads(rcache.decode())
 
-    response = dmm.search_items()
-    items = response['result']['items']
+    response = dmm.search_items(keyword='単体作品')
 
-    target_index = 0
-    for index, item in enumerate(items):
+    target = None
+    for item in response['result']['items']:
+        if item['product_id'] not in id_list and item.get('sampleMovieURL'):
 
-        if item['content_id'] in title_list:
-            continue
+            product_id = item['product_id']
+            video_url = 'http://cc3001.dmm.co.jp/litevideo/freepv/%s/%s/%s/%s_dmb_w.mp4' \
+                % (product_id[0], product_id[:3], product_id, product_id)
 
-        target_index = index
-        break
+            try:
+                data = urllib.request.urlopen(video_url)
 
-    else:
-        title_list = []
+            except Exception:
+                continue
 
-    target = items[target_index]
+            target = item
+            break
 
-    api = get_twitter_api('av_sommlier')
+    if not target:
+        return
 
-    image_url = target['imageURL']['large']
-    # media = urllib.request.urlopen(image_url).read()
-    # response = api.upload_media(media)
+    print(product_id)
+    print(video_url)
 
-    # if response.get('errors'):
-    #     pprint(response)
-    #     return
+    media_type = data.info()['Content-Type']
+    total_bytes = data.info()['Content-Length']
+    print(media_type, total_bytes, 'bytes')
 
-    # media_id = response['media_id_string']    # type: ignore
+    response = api.upload_video_init(total_bytes, media_type)
+
+    if response.get('errors'):
+        pprint(response)
+        return
+
+    media_id = response['media_id_string']
+    print("media_id:", media_id)
+
+    # 5MB
+    limit = 1048576 * 5
+
+    segment_index = 0
+    while True:
+        media = data.read(limit)
+
+        if not media:
+            break
+
+        print(segment_index)
+        api.upload_video_append(media_id, media, segment_index)
+        segment_index += 1
+
+    response = api.upload_video_final(media_id)
+
+    if response.get('processing_info'):
+
+        while True:
+            check_after_secs = response['processing_info'].get('check_after_secs')
+
+            if check_after_secs:
+                sleep(check_after_secs)
+
+            response = api.upload_video_status(media_id)
+
+            state = response['processing_info'].get('state')
+            if state == 'in_progress':
+                continue
+
+            elif state == 'succeeded':
+                break
+
+            else:
+                pprint(response)
+                return
 
     item_info = target['iteminfo']
     # maker = '【メーカー】' + item_info['maker'][0]['name'] if item_info.get('maker') else ''
@@ -108,20 +155,20 @@ def post_av_sommlier():
 
         break
 
-    twitter_tool.post_tweet(
-        username=api.username,
-        password=api.password,
-        status=status,
-        image_url_list=[image_url],
-    )
+    response = api.post_tweet(status=status, media_ids=[media_id])
 
-    # response = api.post_tweet(status=status, media_ids=[media_id])
+    if response.get('errors'):
+        pprint(response)
 
-    # if response.get('errors'):
-    #     pprint(response)
+    # twitter_tool.post_tweet(
+    #     username=api.username,
+    #     password=api.password,
+    #     status=status,
+    #     image_url_list=[image_url],
+    # )
 
-    title_list.append(target['content_id'])
-    r.set(redis_key, json.dumps(list(set(title_list))), ex=None)
+    id_list.append(target['content_id'])
+    r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
     print("SUCCESS: twitter:av_sommlier")
 
 
@@ -165,6 +212,12 @@ def post_av_actress():
         id_list = []
 
     response = dmm.search_actress(actress_id=target_id)
+
+    if response['result']['result_count'] == 0:
+        id_list.append(target_id)
+        r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
+        return
+
     actress_info = response['result']['actress'][0]
 
     response = dmm.search_items(keyword='単体作品', article='actress', article_id=actress_info['id'])

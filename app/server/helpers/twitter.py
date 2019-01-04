@@ -236,7 +236,6 @@ class TwitterApi:
             'command': 'STATUS',
             'media_id': media_id,
         }
-        print(params)
         sleep(1)
         response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
