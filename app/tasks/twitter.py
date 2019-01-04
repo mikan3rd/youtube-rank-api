@@ -6,6 +6,7 @@ from pprint import pprint
 from random import choice, randint, shuffle
 from time import sleep
 
+import cv2
 import redis
 from firebase_admin import firestore
 from settings import (
@@ -20,6 +21,8 @@ from settings import (
     TWITTER_HYPNOSISMIC_SECRET,
     TWITTER_PASSWORD_A,
     TWITTER_PASSWORD_B,
+    TWITTER_RAKUTEN_RANK_ACCESS_TOKEN,
+    TWITTER_RAKUTEN_RANK_SECRET,
     TWITTER_SMASH_BROS_ACCESS_TOKEN,
     TWITTER_SMASH_BROS_SECRET,
     TWITTER_SPLATOON_SECRET,
@@ -27,14 +30,14 @@ from settings import (
     TWITTER_TIKTOK_ACCESS_TOKEN,
     TWITTER_TIKTOK_SECRET,
     TWITTER_VTUBER_ACCESS_TOKEN,
-    TWITTER_VTUBER_SECRET,
-    TWITTER_RAKUTEN_RANK_ACCESS_TOKEN,
-    TWITTER_RAKUTEN_RANK_SECRET,
+    TWITTER_VTUBER_SECRET
 )
 
 from app.server.helpers import firestore as helper_firestore
 from app.server.helpers import dmm, rakuten
 from app.server.helpers.twitter import TwitterApi
+
+
 # from app.tasks import twitter_tool
 
 
@@ -50,26 +53,46 @@ def post_av_sommlier():
         print("cache HIT!! %s" % (redis_key))
         id_list = json.loads(rcache.decode())
 
-    response = dmm.search_items(keyword='単体作品')
-
     target = None
-    for item in response['result']['items']:
-        if item['product_id'] not in id_list and item.get('sampleMovieURL'):
+    filename = 'trial_video.mp4'
 
-            product_id = item['product_id']
-            video_url = 'http://cc3001.dmm.co.jp/litevideo/freepv/%s/%s/%s/%s_dmb_w.mp4' \
-                % (product_id[0], product_id[:3], product_id, product_id)
+    hits = 100
+    for i in range(10):
+        response = dmm.search_items(offset=i * hits + 1)
 
-            try:
-                data = urllib.request.urlopen(video_url)
+        for item in response['result']['items']:
+            if item['product_id'] not in id_list and item.get('sampleMovieURL'):
 
-            except Exception:
-                continue
+                product_id = item['product_id']
+                video_url = 'http://cc3001.dmm.co.jp/litevideo/freepv/%s/%s/%s/%s_dmb_w.mp4' \
+                    % (product_id[0], product_id[:3], product_id, product_id)
 
-            target = item
+                try:
+                    data = urllib.request.urlopen(video_url)
+
+                except Exception:
+                    print('NOT FOUND:', item['sampleMovieURL'].get('size_720_480'))
+                    continue
+
+                with open(filename, 'wb') as f:
+                    f.write(data.read())
+
+                cap = cv2.VideoCapture(filename)            # 動画を読み込む
+                video_frame = cap.get(cv2.CAP_PROP_FRAME_COUNT)  # フレーム数を取得する
+                video_fps = cap.get(cv2.CAP_PROP_FPS)           # FPS を取得する
+                video_len_sec = video_frame / video_fps         # 長さ（秒）を計算する
+
+                if video_len_sec > 140:
+                    continue
+
+                target = item
+                break
+
+        if target:
             break
 
     if not target:
+        id_list = []
         return
 
     print(product_id)
@@ -91,6 +114,7 @@ def post_av_sommlier():
     # 5MB
     limit = 1048576 * 5
 
+    data = urllib.request.urlopen(video_url)
     segment_index = 0
     while True:
         media = data.read(limit)
