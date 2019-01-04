@@ -3,5 +3,3 @@ build:
     - python
   packages:
     - libopencv-dev
-run:
-  web: gunicorn web:app --log-file=-
