@@ -4,5 +4,4 @@ build:
   packages:
     - libopencv-dev
 run:
-  web: python server.py
   bot: python bot.py
