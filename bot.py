@@ -17,6 +17,8 @@ def github_status_job():
 def tweet_job():
     print('START: Tweet')
 
+    twitter.tweet_affiliate('rakuten_rank')
+
     twitter.post_av_sommlier()
     twitter.post_av_actress()
 
@@ -25,8 +27,6 @@ def tweet_job():
     twitter.search_and_retweet('smash_bros')
     twitter.search_and_retweet('hypnosismic')
     twitter.search_and_retweet('tiktok')
-
-    twitter.tweet_affiliate('rakuten_rank')
 
     # twitter.tweet_tiktok()
 
@@ -56,7 +56,7 @@ def tweet_affiliate():
         print('FINISH: tweet_affiliate', account)
 
 
-@sched.scheduled_job('cron', hour='0,9,12,15,18,21', minute=30)
+@sched.scheduled_job('cron', hour='0,12,15,18,21', minute=30)
 def twitter_job():
     print('START: Follow')
 
@@ -101,7 +101,7 @@ def twitter_job():
 def tiktok_job():
     print('TikTok START!!')
     tiktok.add_user()
-    tiktok.update_users()
+    # tiktok.update_users()
     tiktok.trace_hashtag()
 
 

@@ -38,9 +38,6 @@ from app.server.helpers import dmm, rakuten
 from app.server.helpers.twitter import TwitterApi
 
 
-# from app.tasks import twitter_tool
-
-
 def post_av_sommlier():
     api = get_twitter_api('av_sommlier')
 
@@ -372,6 +369,9 @@ def search_and_retweet(account):
 
         target = tweet
         break
+
+    if not target:
+        return
 
     user = target['user']
     if not user.get('following') and not user.get('follow_request_sent') and not user.get('blocked_by'):
@@ -892,7 +892,7 @@ def remove_follow(account):
         if num >= limit:
             break
 
-        sleep_time = randint(10, 30)
+        sleep_time = randint(5, 15)
         print("sleep_time:", sleep_time)
         sleep(sleep_time)
 
