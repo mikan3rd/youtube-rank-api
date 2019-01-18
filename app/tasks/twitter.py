@@ -96,6 +96,7 @@ def post_av_sommlier():
                 video_len_sec = video_frame / video_fps         # 長さ（秒）を計算する
 
                 if video_len_sec > 140:
+                    id_list.append(item['content_id'])
                     continue
 
                 target = item
@@ -185,7 +186,7 @@ def post_av_sommlier():
     status = '\n'.join(content_list)
 
     for i in range(2):
-        if len(status) > 260:
+        if len(status) > 250:
             del content_list[2]
             status = '\n'.join(content_list)
             continue
