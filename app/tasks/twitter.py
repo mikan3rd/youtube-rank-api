@@ -76,8 +76,16 @@ def post_av_sommlier():
                         data = urllib.request.urlopen(video_url)
 
                     except Exception:
-                        print('NOT FOUND:', item['sampleMovieURL'].get('size_720_480'))
-                        continue
+
+                        try:
+                            tmp_id_2 = product_id[:5] + product_id[-3:]
+                            video_url = 'http://cc3001.dmm.co.jp/litevideo/freepv/%s/%s/%s/%s_sm_w.mp4' \
+                                % (tmp_id_2[0], tmp_id_2[:3], tmp_id_2, tmp_id_2)
+                            data = urllib.request.urlopen(video_url)
+
+                        except Exception:
+                            print('NOT FOUND:', item['sampleMovieURL'].get('size_720_480'))
+                            continue
 
                 with open(filename, 'wb') as f:
                     f.write(data.read())
