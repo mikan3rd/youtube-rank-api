@@ -63,6 +63,11 @@ def add_user():
     user_list = []
     video_list = []
     for aweme in feed_data['aweme_list']:
+        video = create_video_data(aweme)
+
+        if video:
+            video_list.append(video)
+
         uid = aweme['author'].get('uid')
 
         if not uid:
@@ -216,6 +221,18 @@ def get_user_detail(uid):
     return data.get('user')
 
 
+def get_user_video(uid):
+    params = deepcopy(user_params)
+    params['user_id'] = uid
+    res = requests.get(BASE_URL + "/aweme/post/", headers=feed_headers, params=params)
+
+    data = res.json()
+
+    pprint(data['aweme_list'][0])
+
+    return data.get('user')
+
+
 def create_user_data(data):
     result = {}
 
@@ -277,17 +294,33 @@ def create_video_data(data):
     result = {}
 
     for key, value in data.items():
-        if value == "":
-            continue
 
-        if key == 'follower_count' and value <= 2000:
-            return None
+        if key == 'statistics':
+            digg_count = value.get('digg_count', 0)
 
-        if isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
+            if digg_count < 10000:
+                return None
+
+            result['digg_count'] = digg_count
+            result['comment_count'] = value.get('comment_count', 0)
+
+        elif key == 'author':
+            result['uid'] = value.get('uid')
+            result['nickname'] = value.get('nickname')
+
+        elif key == 'video':
+            result['download_url'] = value['download_addr']['url_list'][0]
+
+        elif key == 'music':
+            result['mid'] = value.get('mid')
+            # result['music_album'] = value.get('album')
+            # result['music_title'] = value.get('title')
+            # result['music_author'] = value.get('author')
+
+        elif key in ['aweme_id', 'share_url', 'desc', 'create_time']:
             result[key] = value
 
-        elif key == 'share_info':
-            result['share_url'] = value.get('share_url').replace('/?', '')
+    return result
 
 
 allowed_keys = [
