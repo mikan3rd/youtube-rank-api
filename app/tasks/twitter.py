@@ -8,8 +8,13 @@ from time import sleep
 
 import cv2
 import redis
+import requests
+from bs4 import BeautifulSoup
 from firebase_admin import firestore
+from selenium.webdriver import Chrome, ChromeOptions
 from settings import (
+    DRIVER_PATH,
+    GOOGLE_CHROME_PATH,
     REDIS_URL,
     TWITTER_AV_ACTRESS_ACCESS_TOKEN,
     TWITTER_AV_ACTRESS_SECRET,
@@ -59,33 +64,26 @@ def post_av_sommlier():
 
         for item in response['result']['items']:
             if item['product_id'] not in id_list and item.get('sampleMovieURL'):
-
-                product_id = item['product_id']
-                video_url = 'http://cc3001.dmm.co.jp/litevideo/freepv/%s/%s/%s/%s_dmb_w.mp4' \
-                    % (product_id[0], product_id[:3], product_id, product_id)
+                movie_url = item['sampleMovieURL'].get('size_720_480')
+                print(movie_url)
 
                 try:
+                    response = requests.get(movie_url)
+                    soup = BeautifulSoup(response.content, "lxml")
+                    iframe_tag = soup.find('iframe')
+                    iframe_url = 'https:' + iframe_tag.get('src')
+
+                    driver = get_driver()
+                    driver.get(iframe_url)
+                    html_source = driver.page_source
+                    soup = BeautifulSoup(html_source, "lxml")
+                    video_tag = soup.find('video')
+                    video_url = 'https:' + video_tag.get('src')
                     data = urllib.request.urlopen(video_url)
 
-                except Exception:
-
-                    try:
-                        tmp_id = product_id[:6] + product_id[-3:]
-                        video_url = 'http://cc3001.dmm.co.jp/litevideo/freepv/%s/%s/%s/%s_sm_w.mp4' \
-                            % (tmp_id[0], tmp_id[:3], tmp_id, tmp_id)
-                        data = urllib.request.urlopen(video_url)
-
-                    except Exception:
-
-                        try:
-                            tmp_id_2 = product_id[:5] + product_id[-3:]
-                            video_url = 'http://cc3001.dmm.co.jp/litevideo/freepv/%s/%s/%s/%s_sm_w.mp4' \
-                                % (tmp_id_2[0], tmp_id_2[:3], tmp_id_2, tmp_id_2)
-                            data = urllib.request.urlopen(video_url)
-
-                        except Exception:
-                            print('NOT FOUND:', item['sampleMovieURL'].get('size_720_480'))
-                            continue
+                except Exception as e:
+                    pprint(e)
+                    return
 
                 with open(filename, 'wb') as f:
                     f.write(data.read())
@@ -99,6 +97,7 @@ def post_av_sommlier():
                     id_list.append(item['content_id'])
                     continue
 
+                print(video_url)
                 target = item
                 break
 
@@ -108,9 +107,6 @@ def post_av_sommlier():
     if not target:
         id_list = []
         return
-
-    print(product_id)
-    print(video_url)
 
     media_type = data.info()['Content-Type']
     total_bytes = data.info()['Content-Length']
@@ -1046,3 +1042,21 @@ def get_twitter_api(account):
         exclude_genre_id_list=exclude_genre_id_list,
         target_list=target_list,
     )
+
+
+def get_driver():
+    options = ChromeOptions()
+    options.binary_location = GOOGLE_CHROME_PATH
+    options.add_argument('--headless')
+    options.add_argument("start-maximized")  # open Browser in maximized mode
+    options.add_argument("disable-infobars")  # disabling infobars
+    options.add_argument("--disable-extensions")  # disabling extensions
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")  # overcome limited resource problem
+
+    driver = Chrome(executable_path=DRIVER_PATH, chrome_options=options)
+    driver.set_page_load_timeout(10)
+    driver.set_script_timeout(10)
+    driver.implicitly_wait(10)
+
+    return driver

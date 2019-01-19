@@ -102,13 +102,14 @@ def tiktok_job():
     print('TikTok START!!')
     tiktok.add_user()
     # tiktok.update_users()
-    tiktok.trace_hashtag()
+    # tiktok.trace_hashtag()
 
 
 @sched.scheduled_job('cron', hour='3')
 def oneday_job():
-    tiktok.add_hashtag()
-    tiktok.update_spread_sheet()
+    pass
+    # tiktok.add_hashtag()
+    # tiktok.update_spread_sheet()
 
 
 print("Scheduler START!!")
