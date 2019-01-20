@@ -3,5 +3,7 @@ build:
     - python
   packages:
     - libopencv-dev
+    - heroku-buildpack-google-chrome
+    - heroku-buildpack-chromedriver
 run:
   bot: python bot.py
