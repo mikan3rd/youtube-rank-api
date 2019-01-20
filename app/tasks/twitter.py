@@ -4,7 +4,7 @@ import urllib.request
 from datetime import datetime
 from pprint import pprint
 from random import choice, randint, shuffle
-from time import sleep
+from time import sleep, time
 
 import cv2
 import redis
@@ -626,6 +626,69 @@ def tweet_tiktok():
     print("SUCCESS: tweet_tiktok", account)
 
 
+def tweet_tiktok_video():
+    account = 'tiktok'
+    api = get_twitter_api(account)
+
+    redis_key = 'tweet_tiktok_video'
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    id_list = []
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        id_list = json.loads(rcache.decode())
+
+    # 1週間前
+    filter_time = int(time()) - (60 * 60 * 24 * 7)
+
+    helper_firestore.initialize_firebase()
+    ref = firestore.client().collection('videos')
+
+    query = ref \
+        .where('create_time', '>', filter_time) \
+        .order_by('create_time') \
+        .order_by('digg_count', direction=firestore.Query.DESCENDING)
+
+    docs = query.limit(5).get()
+
+    target = None
+    for doc in docs:
+        data = doc.to_dict()
+
+        if not target:
+            target = data
+
+        if data.get('aweme_id') in id_list:
+            continue
+
+        target = data
+        break
+
+    media_id = upload_video(api, video_url=target['download_url'])
+
+    if not media_id:
+        return
+
+    content_list = []
+
+    content_list.append(target.get('nickname'))
+    content_list.append(target.get('desc', '') + ' #TikTok')
+    content_list.append('\n【詳細URL】%s' % (target.get('share_url')))
+
+    status = '\n'.join(content_list)
+    response = api.post_tweet(status=status, media_ids=[media_id])
+
+    if response.get('errors'):
+        pprint(response)
+        return
+
+    id_list.append(target.get('aweme_id'))
+    r.set(redis_key, json.dumps(id_list), ex=60 * 60 * 24 * 30)
+
+    print("SUCCESS: tweet_tiktok_video", account)
+
+
 def follow_users_by_retweet(account):
 
     api = get_twitter_api(account)
@@ -1046,6 +1109,59 @@ def get_twitter_api(account):
     )
 
 
+def upload_video(api, video_url):
+    data = urllib.request.urlopen(video_url)
+    media_type = data.info()['Content-Type']
+    total_bytes = data.info()['Content-Length']
+    response = api.upload_video_init(total_bytes, media_type)
+
+    if response.get('errors'):
+        pprint(response)
+        return None
+
+    media_id = response['media_id_string']
+
+    # 5MB
+    limit = 1048576 * 5
+
+    data = urllib.request.urlopen(video_url)
+    segment_index = 0
+    while True:
+        media = data.read(limit)
+
+        if not media:
+            break
+
+        print(segment_index)
+        api.upload_video_append(media_id, media, segment_index)
+        segment_index += 1
+
+    response = api.upload_video_final(media_id)
+
+    if response.get('processing_info'):
+
+        while True:
+            check_after_secs = response['processing_info'].get('check_after_secs')
+
+            if check_after_secs:
+                sleep(check_after_secs)
+
+            response = api.upload_video_status(media_id)
+
+            state = response['processing_info'].get('state')
+            if state == 'in_progress':
+                continue
+
+            elif state == 'succeeded':
+                break
+
+            else:
+                pprint(response)
+                return None
+
+    return media_id
+
+
 def get_driver():
     options = ChromeOptions()
     options.binary_location = GOOGLE_CHROME_PATH
@@ -1056,6 +1172,7 @@ def get_driver():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")  # overcome limited resource problem
 
+    print("DRIVER_PATH:", DRIVER_PATH)
     driver = Chrome(executable_path=DRIVER_PATH, chrome_options=options)
     driver.set_page_load_timeout(10)
     driver.set_script_timeout(10)
