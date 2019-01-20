@@ -25,10 +25,10 @@ def tweet_job():
     twitter.search_and_retweet('hypnosismic')
     twitter.search_and_retweet('tiktok')
 
-    twitter.post_av_sommlier()
+    twitter.post_av_actress()
 
     twitter.tweet_tiktok_video()
-    twitter.post_av_actress()
+    twitter.post_av_sommlier()
 
     # twitter.tweet_tiktok()
 
