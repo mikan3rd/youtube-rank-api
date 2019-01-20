@@ -3,7 +3,5 @@ build:
     - python
   packages:
     - libopencv-dev
-    - chromium-browser
-    - google-chrome-stable
 run:
   bot: python bot.py
