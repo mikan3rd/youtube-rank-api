@@ -122,7 +122,6 @@ def post_av_sommlier():
         return
 
     media_id = response['media_id_string']
-    print("media_id:", media_id)
 
     # 5MB
     limit = 1048576 * 5
@@ -184,7 +183,7 @@ def post_av_sommlier():
 
     status = '\n'.join(content_list)
 
-    for i in range(2):
+    for i in range(4):
         if len(status) > 250:
             del content_list[2]
             status = '\n'.join(content_list)
