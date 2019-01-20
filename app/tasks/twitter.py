@@ -85,6 +85,9 @@ def post_av_sommlier():
                     pprint(e)
                     return
 
+                finally:
+                    driver.quit()
+
                 with open(filename, 'wb') as f:
                     f.write(data.read())
 
