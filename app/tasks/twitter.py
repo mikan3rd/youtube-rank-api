@@ -681,7 +681,6 @@ def tweet_tiktok_video():
 
     if response.get('errors'):
         pprint(response)
-        return
 
     id_list.append(target.get('aweme_id'))
     r.set(redis_key, json.dumps(id_list), ex=60 * 60 * 24 * 30)
