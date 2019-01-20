@@ -1176,7 +1176,6 @@ def get_driver():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")  # overcome limited resource problem
 
-    print("DRIVER_PATH:", DRIVER_PATH)
     driver = Chrome(executable_path=DRIVER_PATH, chrome_options=options)
     driver.set_page_load_timeout(10)
     driver.set_script_timeout(10)
