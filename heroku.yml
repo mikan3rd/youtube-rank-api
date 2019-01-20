@@ -3,7 +3,6 @@ build:
     - python
   packages:
     - libopencv-dev
-    - https://github.com/heroku/heroku-buildpack-google-chrome.git
-    - https://github.com/heroku/heroku-buildpack-chromedriver.git
+    - chromium-browser
 run:
   bot: python bot.py
