@@ -640,30 +640,35 @@ def tweet_tiktok_video():
         id_list = json.loads(rcache.decode())
 
     # 1週間前
-    filter_time = int(time()) - (60 * 60 * 24 * 7)
+    # filter_time = int(time()) - (60 * 60 * 24 * 7)
 
     helper_firestore.initialize_firebase()
     ref = firestore.client().collection('videos')
 
+    # .where('create_time', '>', filter_time) \
     query = ref \
-        .where('create_time', '>', filter_time) \
         .order_by('create_time') \
         .order_by('digg_count', direction=firestore.Query.DESCENDING)
 
     docs = query.limit(5).get()
 
     target = None
+    tmp = None
     for doc in docs:
         data = doc.to_dict()
 
-        if not target:
-            target = data
+        if not tmp:
+            tmp = data
 
         if data.get('aweme_id') in id_list:
             continue
 
         target = data
         break
+
+    if not target:
+        target = tmp
+        id_list = []
 
     media_id = upload_video(api, video_url=target['download_url'])
 
