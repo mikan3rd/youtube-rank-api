@@ -19,14 +19,14 @@ def tweet_job():
 
     twitter.tweet_affiliate('rakuten_rank')
 
-    twitter.post_av_sommlier()
-    twitter.post_av_actress()
-
     twitter.search_and_retweet('vtuber')
     twitter.search_and_retweet('splatoon')
     twitter.search_and_retweet('smash_bros')
     twitter.search_and_retweet('hypnosismic')
     twitter.search_and_retweet('tiktok')
+
+    twitter.post_av_sommlier()
+    twitter.post_av_actress()
 
     # twitter.tweet_tiktok()
 
