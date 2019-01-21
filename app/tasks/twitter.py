@@ -646,25 +646,36 @@ def tweet_tiktok_video():
     ref = firestore.client().collection('videos')
 
     # .where('create_time', '>', filter_time) \
-    query = ref \
-        .order_by('create_time') \
-        .order_by('digg_count', direction=firestore.Query.DESCENDING)
 
-    docs = query.limit(24).get()
-
+    digg_count = None
     target = None
     tmp = None
-    for doc in docs:
-        data = doc.to_dict()
+    for _ in range(50):
 
-        if not tmp:
-            tmp = data
+        query = ref \
+            .order_by('create_time') \
+            .order_by('digg_count', direction=firestore.Query.DESCENDING)
 
-        if data.get('aweme_id') in id_list:
-            continue
+        if digg_count:
+            query = query.start_after({'digg_count': digg_count})
 
-        target = data
-        break
+        docs = query.limit(10).get()
+
+        for doc in docs:
+            data = doc.to_dict()
+            digg_count = data.get('digg_count')
+
+            if not tmp:
+                tmp = data
+
+            if data.get('aweme_id') in id_list:
+                continue
+
+            target = data
+            break
+
+        if target:
+            break
 
     if not target:
         target = tmp
