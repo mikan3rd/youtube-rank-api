@@ -650,7 +650,7 @@ def tweet_tiktok_video():
         .order_by('create_time') \
         .order_by('digg_count', direction=firestore.Query.DESCENDING)
 
-    docs = query.limit(5).get()
+    docs = query.limit(24).get()
 
     target = None
     tmp = None
