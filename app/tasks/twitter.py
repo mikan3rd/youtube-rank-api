@@ -648,22 +648,25 @@ def tweet_tiktok_video():
     # .where('create_time', '>', filter_time) \
     # .order_by('create_time') \
 
-    digg_count = None
+    last_data = None
     target = None
     tmp = None
     for _ in range(50):
 
         query = ref \
+            .order_by('create_time') \
             .order_by('digg_count', direction=firestore.Query.DESCENDING)
 
-        if digg_count:
-            query = query.start_after({'digg_count': digg_count})
+        if last_data:
+            query = query.start_after({
+                'create_time': last_data.get('create_time'),
+                'digg_count': last_data.get('digg_count'),
+            })
 
         docs = query.limit(10).get()
+        results = [doc.to_dict() for doc in docs]
 
-        for doc in docs:
-            data = doc.to_dict()
-            digg_count = data.get('digg_count')
+        for data in results:
 
             if not tmp:
                 tmp = data
@@ -677,6 +680,8 @@ def tweet_tiktok_video():
         if target:
             break
 
+        last_data = results[-1]
+
     if not target:
         target = tmp
         id_list = []
@@ -689,7 +694,7 @@ def tweet_tiktok_video():
     content_list = []
 
     content_list.append(target.get('nickname'))
-    content_list.append(target.get('desc', '') + ' #TikTok')
+    content_list.append(target.get('desc', ''))
     content_list.append('\n【詳細URL】%s' % (target.get('share_url')))
 
     status = '\n'.join(content_list)
