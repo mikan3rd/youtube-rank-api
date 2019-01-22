@@ -646,6 +646,7 @@ def tweet_tiktok_video():
     ref = firestore.client().collection('videos')
 
     # .where('create_time', '>', filter_time) \
+    # .order_by('create_time') \
 
     digg_count = None
     target = None
@@ -653,7 +654,6 @@ def tweet_tiktok_video():
     for _ in range(50):
 
         query = ref \
-            .order_by('create_time') \
             .order_by('digg_count', direction=firestore.Query.DESCENDING)
 
         if digg_count:
