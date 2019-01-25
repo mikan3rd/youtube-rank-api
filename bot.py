@@ -28,11 +28,8 @@ def tweet_job():
     twitter.post_av_actress()
 
     twitter.tweet_tiktok_video()
-    twitter.post_av_sommlier()
 
     # twitter.tweet_tiktok()
-
-    twitter.tweet_affiliate('av_sommlier')
 
 
 @sched.scheduled_job('cron', hour='7,12,17,20,23', minute=5)
@@ -58,6 +55,8 @@ def tweet_affiliate():
 
         print('FINISH: tweet_affiliate', account)
 
+    twitter.post_av_sommlier()
+
 
 @sched.scheduled_job('cron', hour='0,12,15,18,21', minute=30)
 def twitter_job():
@@ -80,7 +79,7 @@ def twitter_job():
         try:
             twitter.remove_follow(account)
             twitter.follow_users_by_follower(account)
-            # twitter.follow_target_user(account)
+            twitter.follow_target_user(account)
             # twitter.follow_users_by_retweet(account)
 
         except Exception as e:
