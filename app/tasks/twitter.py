@@ -533,6 +533,45 @@ def tweet_affiliate(account):
     print("SUCCESS: tweet_affiliate", account)
 
 
+def retweet_user(account):
+    api = get_twitter_api(account)
+
+    if not api.retweet_list:
+        return
+
+    redis_key = 'retweet_user:%s' % (account)
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    id_list = []
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        id_list = json.loads(rcache.decode())
+
+    screen_name = choice(api.retweet_list)
+    response = api.get_user_timeline(screen_name)
+    tweet_list = sorted(response, key=lambda k: k.get('favorite_count', 0), reverse=True)
+
+    target = None
+    for tweet in tweet_list:
+        if tweet['id_str'] not in id_list:
+            target = tweet
+            break
+
+    if not target:
+        target = tweet_list[0]
+        id_list = []
+
+    response = api.post_retweet(target['id_str'])
+    if response.get('errors'):
+        pprint(response)
+
+    id_list.append(target['id_str'])
+    r.set(redis_key, json.dumps(id_list), ex=None)
+
+    print("SUCCESS: retweet_user", account)
+
+
 def tweet_tiktok():
     account = 'tiktok'
     api = get_twitter_api(account)
@@ -1005,13 +1044,15 @@ def get_twitter_api(account):
     rakuten_query = ''
     exclude_genre_id_list = []
     target_list = []
+    retweet_list = []
 
     if account == 'av_sommlier':
         access_token = TWITTER_AV_SOMMLIER_ACCESS_TOKEN
         secret = TWITTER_AV_SOMMLIER_SECRET
-        username = 'av_movie_bot'
+        username = 'av_video_bot'
         password = TWITTER_PASSWORD_A
         target_list = ['fanza_sns']
+        retweet_list = ['av_actress_bot']
 
     elif account == 'av_actress':
         access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
@@ -1126,6 +1167,7 @@ def get_twitter_api(account):
         rakuten_query=rakuten_query,
         exclude_genre_id_list=exclude_genre_id_list,
         target_list=target_list,
+        retweet_list=retweet_list,
     )
 
 

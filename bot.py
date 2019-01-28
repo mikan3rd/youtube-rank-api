@@ -29,7 +29,7 @@ def tweet_job():
 
     twitter.tweet_tiktok_video()
 
-    twitter.tweet_affiliate('av_sommlier')
+    twitter.retweet_user('av_sommlier')
 
 
 @sched.scheduled_job('cron', hour='7,12,17,20,23', minute=5)
@@ -43,6 +43,7 @@ def tweet_affiliate():
         'hypnosismic',
         'tiktok',
         'av_actress',
+        'av_sommlier',
     ]
 
     for account in account_list:
@@ -66,9 +67,9 @@ def twitter_job():
         'av_actress',
         'smash_bros',
         'github',
-        'vtuber',
+        # 'vtuber',
         'splatoon',
-        'tiktok',
+        # 'tiktok',
         'hypnosismic',
         'rakuten_rank',
     ]

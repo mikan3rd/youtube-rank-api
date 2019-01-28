@@ -17,6 +17,7 @@ class TwitterApi:
         rakuten_query='',
         exclude_genre_id_list=[],
         target_list=[],
+        retweet_list=[],
         hashtag='',
     ):
 
@@ -34,6 +35,7 @@ class TwitterApi:
         self.__rakuten_query = rakuten_query
         self.__exclude_genre_id_list = exclude_genre_id_list
         self.__target_list = target_list
+        self.__retweet_list = retweet_list
 
     @property
     def username(self):
@@ -63,9 +65,26 @@ class TwitterApi:
     def target_list(self):
         return self.__target_list
 
+    @property
+    def retweet_list(self):
+        return self.__retweet_list
+
     def get_account(self):
         endpoint = "https://api.twitter.com/1.1/account/verify_credentials.json"
         response = self.api.get(endpoint)
+        return json.loads(response.text)
+
+    def get_tweet(
+        self,
+        tweet_id,
+        tweet_mode='extended',
+    ):
+        endpoint = "https://api.twitter.com/1.1/statuses/show.json"
+        params = {
+            'id': tweet_id,
+            'tweet_mode': tweet_mode,
+        }
+        response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
 
     def get_home_timeline(
@@ -104,6 +123,31 @@ class TwitterApi:
         params = {
             'count': count,
             'trim_user': trim_user,
+        }
+        response = self.api.get(endpoint, params=params)
+        return json.loads(response.text)
+
+    def get_retweeter_id(
+        self,
+        tweet_id,
+        count=100,
+        cursor=None,
+        stringify_ids=True,
+    ):
+        endpoint = "https://api.twitter.com/1.1/statuses/retweeters/ids.json"
+        params = {
+            'id': tweet_id,
+            'count': count,
+            'cursor': cursor,
+            'stringify_ids': stringify_ids,
+        }
+        response = self.api.get(endpoint, params=params)
+        return json.loads(response.text)
+
+    def get_user_detail(self, user_id):
+        endpoint = "https://api.twitter.com/1.1/users/show.json"
+        params = {
+            'user_id': user_id,
         }
         response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
@@ -170,6 +214,8 @@ class TwitterApi:
         lang='ja',
         result_type='mixed',
         next_results=None,
+        since_id=None,
+        until=None,
     ):
         endpoint = "https://api.twitter.com/1.1/search/tweets.json"
         params = {}
@@ -183,6 +229,8 @@ class TwitterApi:
                 'count': count,
                 'lang': lang,
                 'result_type': result_type,
+                'since_id': since_id,
+                'until': until,
             }
 
         response = self.api.get(endpoint, params=params)
