@@ -57,6 +57,7 @@ def tweet_affiliate():
         print('FINISH: tweet_affiliate', account)
 
     twitter.post_av_sommlier()
+    twitter.retweet_user('av_actress')
 
 
 @sched.scheduled_job('cron', hour='0,12,15,18,21', minute=30)

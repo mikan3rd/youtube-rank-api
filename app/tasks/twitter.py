@@ -554,6 +554,10 @@ def retweet_user(account):
 
     target = None
     for tweet in tweet_list:
+
+        if tweet.get('retweeted'):
+            continue
+
         if tweet['id_str'] not in id_list:
             target = tweet
             break
@@ -1061,6 +1065,7 @@ def get_twitter_api(account):
         password = TWITTER_PASSWORD_A
         target_list = ['fanza_sns']
         rakuten_query = '精力'
+        retweet_list = ['av_video_bot']
 
     elif account == "github":
         access_token = TWITTER_GITHUB_ACCESS_TOKEN
