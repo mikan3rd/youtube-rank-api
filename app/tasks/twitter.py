@@ -539,15 +539,6 @@ def retweet_user(account):
     if not api.retweet_list:
         return
 
-    redis_key = 'retweet_user:%s' % (account)
-    r = redis.from_url(REDIS_URL)
-    rcache = r.get(redis_key)
-
-    id_list = []
-    if rcache:
-        print("cache HIT!! %s" % (redis_key))
-        id_list = json.loads(rcache.decode())
-
     screen_name = choice(api.retweet_list)
     response = api.get_user_timeline(screen_name)
     tweet_list = sorted(response, key=lambda k: k.get('favorite_count', 0), reverse=True)
@@ -558,20 +549,15 @@ def retweet_user(account):
         if tweet.get('retweeted'):
             continue
 
-        if tweet['id_str'] not in id_list:
-            target = tweet
-            break
+        target = tweet
+        break
 
     if not target:
-        target = tweet_list[0]
-        id_list = []
+        return
 
     response = api.post_retweet(target['id_str'])
     if response.get('errors'):
         pprint(response)
-
-    id_list.append(target['id_str'])
-    r.set(redis_key, json.dumps(id_list), ex=None)
 
     print("SUCCESS: retweet_user", account)
 
