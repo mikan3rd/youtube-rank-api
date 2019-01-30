@@ -236,6 +236,11 @@ class TwitterApi:
         response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
 
+    def get_trend(self, woeid=1118370):
+        endpoint = "https://api.twitter.com/1.1/trends/place.json?id=%s" % (woeid)
+        response = self.api.get(endpoint)
+        return json.loads(response.text)
+
     def upload_media(self, media):
         endpoint = "https://upload.twitter.com/1.1/media/upload.json"
         files = {'media': media}
@@ -347,4 +352,10 @@ class TwitterApi:
     ):
         endpoint = "https://api.twitter.com/1.1/statuses/retweet/%s.json" % (tweet_id)
         response = self.api.post(endpoint)
+        return json.loads(response.text)
+
+    def post_favorite(self, tweet_id):
+        endpoint = "https://api.twitter.com/1.1/favorites/create.json"
+        response = self.api.post(endpoint, params={'id': tweet_id})
+        sleep(1)
         return json.loads(response.text)

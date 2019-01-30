@@ -177,6 +177,7 @@ def post_av_sommlier():
         actress,
         '',
         '【ジャンル】\n' + '\n'.join(['#' + genre['name'] for genre in item_info['genre']]),
+        '#140秒動画',
         '',
         '【詳細URL】' + target['affiliateURL'],
     ]
@@ -562,6 +563,29 @@ def retweet_user(account, screen_name=None):
         pprint(response)
 
     print("SUCCESS: retweet_user", account)
+
+
+def favorite_tweet(account):
+    api = get_twitter_api(account)
+
+    response = api.get_trend()
+    trends = response[0]['trends']
+    trend = choice(trends)
+    print(trend['name'])
+
+    response = api.get_search_tweet(q=trend['name'], result_type='recent')
+    tweet_list = response['statuses']
+    target_list = list(filter(lambda x: x.get('favorited') is False and x.get('lang') == 'ja', tweet_list))
+
+    for i, target in enumerate(target_list[:5]):
+        print(i)
+        response = api.post_favorite(target['id_str'])
+
+        if response.get('errors'):
+            pprint(response)
+            return
+
+    print("SUCCESS: favorite_tweet", account)
 
 
 def tweet_tiktok():

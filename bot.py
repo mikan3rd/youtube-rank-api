@@ -82,6 +82,7 @@ def twitter_job():
             twitter.follow_users_by_follower(account)
             twitter.follow_target_user(account)
             twitter.follow_users_by_retweet(account)
+            twitter.favorite_tweet(account)
 
         except Exception as e:
             pass
