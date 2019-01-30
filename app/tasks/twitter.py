@@ -533,13 +533,15 @@ def tweet_affiliate(account):
     print("SUCCESS: tweet_affiliate", account)
 
 
-def retweet_user(account):
+def retweet_user(account, screen_name=None):
     api = get_twitter_api(account)
 
     if not api.retweet_list:
         return
 
-    screen_name = choice(api.retweet_list)
+    if not screen_name:
+        screen_name = choice(api.retweet_list)
+
     response = api.get_user_timeline(screen_name)
     tweet_list = sorted(response, key=lambda k: k.get('favorite_count', 0), reverse=True)
 

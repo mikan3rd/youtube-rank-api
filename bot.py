@@ -27,8 +27,6 @@ def tweet_job():
 
     twitter.post_av_actress()
 
-    twitter.tweet_tiktok_video()
-
     twitter.retweet_user('av_sommlier')
 
 
@@ -43,7 +41,6 @@ def tweet_affiliate():
         'hypnosismic',
         'tiktok',
         'av_actress',
-        'av_sommlier',
     ]
 
     for account in account_list:
@@ -57,7 +54,10 @@ def tweet_affiliate():
         print('FINISH: tweet_affiliate', account)
 
     twitter.post_av_sommlier()
+    twitter.tweet_tiktok_video()
+
     twitter.retweet_user('av_actress')
+    twitter.retweet_user('av_sommlier', '_rakuten_rank')
 
 
 @sched.scheduled_job('cron', hour='0,12,15,18,21', minute=30)
@@ -81,7 +81,7 @@ def twitter_job():
             twitter.remove_follow(account)
             twitter.follow_users_by_follower(account)
             twitter.follow_target_user(account)
-            # twitter.follow_users_by_retweet(account)
+            twitter.follow_users_by_retweet(account)
 
         except Exception as e:
             pass
