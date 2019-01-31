@@ -7,10 +7,10 @@ from app.tasks import instagram, tiktok, tweet_crawl, twitter
 sched = BlockingScheduler(timezone="Asia/Tokyo")
 
 
-@sched.scheduled_job('interval', minutes=5)
-def github_status_job():
-    print('GitHubStatus: START!!')
-    tweet_crawl.github_status()
+# @sched.scheduled_job('interval', minutes=5)
+# def github_status_job():
+#     print('GitHubStatus: START!!')
+#     tweet_crawl.github_status()
 
 
 @sched.scheduled_job('cron', hour='*', minute=1)
