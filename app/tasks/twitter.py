@@ -572,12 +572,12 @@ def retweet_user(account, screen_name=None):
 def favorite_tweet(account):
     api = get_twitter_api(account)
 
-    response = api.get_trend()
-    trends = response[0]['trends']
-    trend = choice(trends)
-    print(trend['name'])
+    # response = api.get_trend()
+    # trends = response[0]['trends']
+    # trend = choice(trends)
+    # print(trend['name'])
 
-    response = api.get_search_tweet(q=trend['name'], result_type='recent')
+    response = api.get_search_tweet(q='#いいねした人全員フォローする')
     tweet_list = response['statuses']
     target_list = list(filter(lambda x: x.get('favorited') is False and x.get('lang') == 'ja', tweet_list))
 
