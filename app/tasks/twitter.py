@@ -546,6 +546,7 @@ def retweet_user(account, screen_name=None):
     response = api.get_user_timeline(screen_name)
     if isinstance(response, dict) and response.get('errors'):
         pprint(response)
+        return
 
     tweet_list = sorted(response, key=lambda k: k.get('favorite_count', 0), reverse=True)
 
