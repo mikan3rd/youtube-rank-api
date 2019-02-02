@@ -29,6 +29,9 @@ def tweet_job():
 
     twitter.retweet_user('av_sommlier')
 
+    tweet_crawl.hypnosismic()
+    tweet_crawl.smash_bros()
+
 
 @sched.scheduled_job('cron', hour='7,12,17,20,23', minute=5)
 def tweet_affiliate():
@@ -88,8 +91,6 @@ def twitter_job():
             pass
 
         print('FINISH: Twitter', account)
-
-    tweet_crawl.hypnosismic()
 
 
 @sched.scheduled_job('cron', hour='*/2', minute=10)

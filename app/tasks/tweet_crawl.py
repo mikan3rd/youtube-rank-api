@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup
 from settings import REDIS_URL
 
 from app.tasks import twitter, twitter_tool
-from pprint import pprint
 
 
 def github_status():
@@ -108,7 +107,7 @@ def hypnosismic():
     date = a_tag.find('span', class_='lists__list__date').text
     link = a_tag.get('href')
 
-    status = '【更新】%s\n\n%s\n\n詳細は公式サイトをチェック！\n%s' % (date, text, link)
+    status = '【更新】%s\n\n%s\n\n詳細は公式サイトをチェック！\n#ヒプノシスマイク\n%s' % (date, text, link)
     pprint(status)
 
     api = twitter.get_twitter_api(account)
@@ -118,6 +117,47 @@ def hypnosismic():
     #     status=status,
     # )
 
+    response = api.post_tweet(status=status)
+
+    r.set(redis_key, json.dumps(text), ex=None)
+    print("SUCCESS:crawl:", account)
+
+
+def smash_bros():
+    account = 'smash_bros'
+
+    redis_key = 'crawl:%s' % (account)
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    redis_value = None
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        redis_value = json.loads(rcache.decode())
+
+    url = "https://gamerch.com/smashbros/entry/58307"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "lxml")
+
+    target = None
+    for div_tag in soup.find_all("div", class_="mu__table"):
+
+        if div_tag.find('th').text == 'VIPボーダー':
+            target = div_tag.find('td')
+
+    pprint(target)
+
+    if not target:
+        return
+
+    text = target.text
+    if text == redis_value:
+        return
+
+    contents = [span.text for span in target.find_all('span')]
+    status = '【スマブラSP VIPマッチボーダー】\n\n%s\n\n#VIPボーダー\n#スマブラSP' % ("\n".join(contents))
+
+    api = twitter.get_twitter_api(account)
     response = api.post_tweet(status=status)
 
     r.set(redis_key, json.dumps(text), ex=None)
