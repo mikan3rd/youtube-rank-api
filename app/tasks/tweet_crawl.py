@@ -155,7 +155,7 @@ def smash_bros():
         return
 
     contents = [span.text for span in target.find_all('span')]
-    status = '【スマブラSP VIPマッチボーダー】\n\n%s\n\n#VIPボーダー\n#スマブラSP' % ("\n".join(contents))
+    status = '【更新】スマブラSP VIPマッチボーダー\n\n%s\n\n#VIPボーダー\n#スマブラSP' % ("\n".join(contents))
 
     api = twitter.get_twitter_api(account)
     response = api.post_tweet(status=status)
