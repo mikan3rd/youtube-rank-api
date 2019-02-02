@@ -79,7 +79,6 @@ def twitter_job():
     for account in account_list:
 
         try:
-            twitter.favorite_tweet(account)
             twitter.remove_follow(account)
             # twitter.follow_users_by_follower(account)
             # twitter.follow_target_user(account)
@@ -91,6 +90,31 @@ def twitter_job():
         print('FINISH: Twitter', account)
 
     tweet_crawl.hypnosismic()
+
+
+@sched.scheduled_job('cron', hour='*/2', minute=10)
+def twitter_favorite_job():
+    print('START: Twitter Favorite')
+
+    account_list = [
+        'vtuber',
+        'splatoon',
+        'tiktok',
+        'hypnosismic',
+        'rakuten_rank',
+        'av_actress',
+        'av_sommlier',
+        'smash_bros',
+        'github',
+    ]
+
+    for account in account_list:
+
+        try:
+            twitter.favorite_tweet(account)
+
+        except Exception as e:
+            pass
 
 
 # @sched.scheduled_job('cron', hour='8,20')
