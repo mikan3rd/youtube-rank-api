@@ -280,10 +280,10 @@ def post_av_actress():
         if len(image_url_list) >= 4:
             break
 
-    ruby = '（%s）' % (actress_info['ruby']) if actress_info.get('ruby') else ''
+    ruby = '\n%s' % (actress_info['ruby']) if actress_info.get('ruby') else ''
 
     content_list = [
-        '#%s %s' % (actress_info['name'], ruby),
+        '#%s%s' % (actress_info['name'], ruby),
         '',
     ]
 
