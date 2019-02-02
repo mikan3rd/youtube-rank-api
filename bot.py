@@ -72,10 +72,10 @@ def twitter_job():
         'splatoon',
         'tiktok',
         'hypnosismic',
+        'smash_bros',
         'rakuten_rank',
         'av_actress',
         'av_sommlier',
-        'smash_bros',
         'github',
     ]
 

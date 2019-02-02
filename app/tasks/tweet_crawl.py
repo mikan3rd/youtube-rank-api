@@ -145,13 +145,13 @@ def smash_bros():
         if div_tag.find('th').text == 'VIPボーダー':
             target = div_tag.find('td')
 
-    pprint(target)
-
     if not target:
+        print("NOT FOUND", account)
         return
 
     text = target.text
     if text == redis_value:
+        print("NO CHANGE", account)
         return
 
     contents = [span.text for span in target.find_all('span')]
