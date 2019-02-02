@@ -35,7 +35,9 @@ from settings import (
     TWITTER_TIKTOK_ACCESS_TOKEN,
     TWITTER_TIKTOK_SECRET,
     TWITTER_VTUBER_ACCESS_TOKEN,
-    TWITTER_VTUBER_SECRET
+    TWITTER_VTUBER_SECRET,
+    TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN,
+    TWITTER_RAKUTEN_TRABEL_SECRET
 )
 
 from app.server.helpers import firestore as helper_firestore
@@ -534,11 +536,64 @@ def tweet_affiliate(account):
     print("SUCCESS: tweet_affiliate", account)
 
 
+def tweet_rakuten_travel():
+    account = 'rakuten_travel'
+
+    redis_key = 'rakuten:%s' % (account)
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    id_list = []
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        id_list = json.loads(rcache.decode())
+
+    results = rakuten.get_travel_ranking()
+
+    hotel_list = []
+    for ranking in results['Rankings']:
+        hotel_list += ranking['hotels']
+
+    target = None
+    for hotel in hotel_list:
+        if hotel['hotelNo'] in id_list:
+            continue
+        target = hotel
+
+    if not target:
+        id_list = []
+        target = hotel_list[0]
+
+    result = rakuten.get_travel_detail(hotelNo=target['hotelNo'])
+    detail = result['hotels'][0]
+    basic_info = detail[0]['hotelBasicInfo']
+    pprint(basic_info)
+
+    content_list = [
+        basic_info['hotelName'],
+        '',
+        '【平均評価】%s （%s件）' % (str(basic_info['reviewAverage']), str(basic_info['reviewCount'])),
+        '【最寄駅】%s %s駅' % (basic_info['address1'], basic_info['nearestStation']),
+        basic_info['hotelSpecial'],
+        basic_info['hotelInformationUrl']
+    ]
+
+    status = '\n'.join(content_list)
+
+    api = get_twitter_api(account)
+    response = api.post_tweet(status=status)
+
+    if response.get('errors'):
+        pprint(response)
+
+    id_list.append(target['hotelNo'])
+    r.set(redis_key, json.dumps(id_list), ex=None)
+
+    print("SUCCESS: tweet_rakuten_travel", account)
+
+
 def retweet_user(account, screen_name=None):
     api = get_twitter_api(account)
-
-    if not api.retweet_list:
-        return
 
     if not screen_name:
         screen_name = choice(api.retweet_list)
@@ -1174,6 +1229,10 @@ def get_twitter_api(account):
         username = '_rakuten_rank'
         password = TWITTER_PASSWORD_A
         target_list = ['RakutenJP']
+
+    elif account == 'rakuten_travel':
+        access_token = TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN
+        secret = TWITTER_RAKUTEN_TRABEL_SECRET
 
     else:
         print("NO MATCH")

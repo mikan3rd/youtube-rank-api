@@ -31,9 +31,6 @@ def search_ichiba_item(
     res = requests.get(base_url + endpoint, params=params)
     data = res.json()
 
-    # from pprint import pprint
-    # pprint(data['Items'][0])
-
     return data
 
 
@@ -54,7 +51,41 @@ def ranking_ichiba_item(
     res = requests.get(base_url + endpoint, params=params)
     data = res.json()
 
-    # from pprint import pprint
-    # pprint(data['Items'][0])
-
     return data
+
+
+def get_travel_ranking(
+    formatVersion=2,
+    genre='all,onsen,premium'
+):
+    endpoint = '/Travel/HotelRanking/20170426'
+
+    params = {
+        'applicationId': RAKUTEN_APP_ID,
+        'affiliateId': RAKUTEN_AFFILIATE_ID,
+        'formatVersion': formatVersion,
+        'genre': genre,
+    }
+
+    res = requests.get(base_url + endpoint, params=params)
+    return res.json()
+
+
+def get_travel_detail(
+    hotelNo,
+    formatVersion=2,
+    hotelThumbnailSize=3,
+    responseType='large',
+):
+    endpoint = '/Travel/HotelDetailSearch/20170426'
+    params = {
+        'applicationId': RAKUTEN_APP_ID,
+        'affiliateId': RAKUTEN_AFFILIATE_ID,
+        'formatVersion': formatVersion,
+        'hotelNo': hotelNo,
+        'hotelThumbnailSize': hotelThumbnailSize,
+        'responseType': responseType,
+    }
+
+    res = requests.get(base_url + endpoint, params=params)
+    return res.json()

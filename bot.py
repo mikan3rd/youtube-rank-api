@@ -32,6 +32,8 @@ def tweet_job():
     tweet_crawl.hypnosismic()
     tweet_crawl.smash_bros()
 
+    twitter.tweet_rakuten_travel()
+
 
 @sched.scheduled_job('cron', hour='7,12,17,20,23', minute=5)
 def tweet_affiliate():
@@ -55,6 +57,8 @@ def tweet_affiliate():
             pass
 
     twitter.retweet_user('av_sommlier', '_rakuten_rank')
+    twitter.retweet_user('rakuten_rank', '_rakuten_travel')
+    twitter.retweet_user('rakuten_travel', '_rakuten_rank')
 
 
 @sched.scheduled_job('cron', hour='0,12,15,18,21', minute=30)
@@ -94,12 +98,13 @@ def twitter_favorite_job():
     account_list = [
         'vtuber',
         'splatoon',
+        'smash_bros',
         'tiktok',
         'hypnosismic',
         'rakuten_rank',
+        'rakuten_travel',
         'av_actress',
         'av_sommlier',
-        'smash_bros',
         'github',
     ]
 
