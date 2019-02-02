@@ -54,12 +54,6 @@ def tweet_affiliate():
         except Exception as e:
             pass
 
-        print('FINISH: tweet_affiliate', account)
-
-    twitter.post_av_sommlier()
-    twitter.tweet_tiktok_video()
-
-    twitter.retweet_user('av_actress')
     twitter.retweet_user('av_sommlier', '_rakuten_rank')
 
 
@@ -118,6 +112,14 @@ def twitter_favorite_job():
             pass
 
 
+@sched.scheduled_job('cron', hour='*/3', minute=5)
+def twitter_video_job():
+    print('START: Twitter VIDEO')
+
+    twitter.post_av_sommlier()
+    twitter.tweet_tiktok_video()
+    twitter.retweet_user('av_actress')
+
 # @sched.scheduled_job('cron', hour='8,20')
 # def instagram_job():
 #     print('Instagram START!!')
@@ -135,11 +137,10 @@ def tiktok_job():
     # tiktok.trace_hashtag()
 
 
-@sched.scheduled_job('cron', hour='3')
-def oneday_job():
-    pass
-    # tiktok.add_hashtag()
-    # tiktok.update_spread_sheet()
+# @sched.scheduled_job('cron', hour='3')
+# def oneday_job():
+#     tiktok.add_hashtag()
+#     tiktok.update_spread_sheet()
 
 
 print("Scheduler START!!")
