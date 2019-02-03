@@ -43,7 +43,7 @@ from settings import (
 )
 
 from app.server.helpers import firestore as helper_firestore
-from app.server.helpers import dmm, rakuten
+from app.server.helpers import dmm, rakuten, valuecommerce
 from app.server.helpers.twitter import TwitterApi
 
 
@@ -543,6 +543,111 @@ def tweet_affiliate(account):
     print("SUCCESS: tweet_affiliate", account)
 
 
+def tweet_valuecommerce(account):
+    """バリューコマースのリンクをTwitetrで閲覧しようとすると警告が表示されるため未使用
+    """
+
+    redis_key = 'tweet_valuecommerce:%s' % (account)
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    id_list = []
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        id_list = json.loads(rcache.decode())
+
+    api = get_twitter_api(account)
+
+    if api.valuecommerce:
+        return
+
+    else:
+        category = choice([
+            'book_magazine_comics',
+            'cosmetics_beauty_perfume',
+            'fashion',
+            'health_medicalcare_care',
+            'trip',
+            'toy_game',
+        ])
+        results = valuecommerce.search_product(category=category)
+
+    item_list = results['items']
+    print(category)
+
+    target = None
+    for item in item_list:
+        unique_id = item['ecCode'] + item['productCode']
+
+        if item['stock'] == 'なし':
+            continue
+
+        if unique_id in id_list:
+            continue
+
+        target = item
+        break
+
+    if not target:
+        id_list = []
+        target = item_list[0]
+
+    pprint(target)
+
+    image_url = None
+    media_id = None
+    if target['imageLarge'].get('url'):
+        image_url = target['imageLarge'].get('url')
+
+    elif target['imageFree'].get('url'):
+        image_url = target['imageFree'].get('url')
+
+    elif target['imageSmall'].get('url'):
+        image_url = target['imageSmall'].get('url')
+
+    try:
+        image_url = re.sub('/i/[a-z]/', '/i/l/', image_url)
+        media = urllib.request.urlopen(image_url).read()
+        response = api.upload_media(media)
+        media_id = response['media_id_string']
+
+    except Exception as e:
+        print(image_url)
+        pprint(e)
+
+    if response.get('errors'):
+        pprint(response)
+        return
+
+    bottom_content = '【詳細URL】https:' + target['link']
+    length = 275 - len(bottom_content)
+    print(length)
+    main_content = '%s\n\n%s' % (target['title'], target['description'])
+    main_content = main_content[:length] + ('...' if main_content[length:] else '')
+
+    content_list = [
+        main_content,
+        '',
+        bottom_content,
+    ]
+
+    status = '\n'.join(content_list)
+    print(len(status))
+
+    api = get_twitter_api(account)
+    response = api.post_tweet(status=status, media_ids=[media_id])
+
+    if response.get('errors'):
+        pprint(response)
+        return
+
+    unique_id = target['ecCode'] + target['productCode']
+    id_list.append(unique_id)
+    r.set(redis_key, json.dumps(id_list), ex=None)
+
+    print("SUCCESS: tweet_valuecommerce", account)
+
+
 def tweet_rakuten_travel():
     account = 'rakuten_travel'
 
@@ -566,8 +671,8 @@ def tweet_rakuten_travel():
         if hotel['hotelNo'] in id_list:
             continue
 
-        result = rakuten.get_travel_detail(hotelNo=hotel['hotelNo'])
-        if result.get('error'):
+        tmp_result = rakuten.get_travel_detail(hotelNo=hotel['hotelNo'])
+        if tmp_result.get('error'):
             continue
 
         target = hotel
@@ -577,6 +682,7 @@ def tweet_rakuten_travel():
         id_list = []
         target = hotel_list[0]
 
+    result = rakuten.get_travel_detail(hotelNo=target['hotelNo'])
     detail = result['hotels'][0]
     basic_info = detail[0]['hotelBasicInfo']
 
