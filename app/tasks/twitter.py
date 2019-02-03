@@ -37,7 +37,9 @@ from settings import (
     TWITTER_VTUBER_ACCESS_TOKEN,
     TWITTER_VTUBER_SECRET,
     TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN,
-    TWITTER_RAKUTEN_TRABEL_SECRET
+    TWITTER_RAKUTEN_TRABEL_SECRET,
+    TWITTER_TREND_VIDEO_ACCESS_TOKEN,
+    TWITTER_TREND_VIDEO_SECRET,
 )
 
 from app.server.helpers import firestore as helper_firestore
@@ -1239,6 +1241,11 @@ def get_twitter_api(account):
     elif account == 'rakuten_travel':
         access_token = TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN
         secret = TWITTER_RAKUTEN_TRABEL_SECRET
+
+    elif account == 'trend_video':
+        access_token = TWITTER_TREND_VIDEO_ACCESS_TOKEN
+        secret = TWITTER_TREND_VIDEO_SECRET
+        query = 'filter:videos min_retweets:1000'
 
     else:
         print("NO MATCH")

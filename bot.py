@@ -56,9 +56,10 @@ def tweet_affiliate():
         except Exception as e:
             pass
 
-    twitter.retweet_user('av_sommlier', '_rakuten_rank')
     twitter.retweet_user('rakuten_rank', '_rakuten_travel')
+    twitter.retweet_user('av_sommlier', '_rakuten_rank')
     twitter.retweet_user('rakuten_travel', '_rakuten_rank')
+    twitter.retweet_user('trend_video', '_rakuten_rank')
 
 
 @sched.scheduled_job('cron', hour='0,12,15,18,21', minute=30)
@@ -105,6 +106,7 @@ def twitter_favorite_job():
         'rakuten_travel',
         'av_actress',
         'av_sommlier',
+        'trend_video',
         'github',
     ]
 
