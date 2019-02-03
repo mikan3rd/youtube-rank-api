@@ -565,13 +565,18 @@ def tweet_rakuten_travel():
     for hotel in hotel_list:
         if hotel['hotelNo'] in id_list:
             continue
+
+        result = rakuten.get_travel_detail(hotelNo=hotel['hotelNo'])
+        if result.get('error'):
+            continue
+
         target = hotel
+        break
 
     if not target:
         id_list = []
         target = hotel_list[0]
 
-    result = rakuten.get_travel_detail(hotelNo=target['hotelNo'])
     detail = result['hotels'][0]
     basic_info = detail[0]['hotelBasicInfo']
 
