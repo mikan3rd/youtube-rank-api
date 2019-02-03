@@ -407,10 +407,12 @@ def search_and_retweet(account):
     attachment_url = 'https://twitter.com/%s/status/%s' % (user['screen_name'], target['id_str'])
 
     # in_reply_to_status_id = None
-    status = '今、人気のツイートはこちら！'
+
+    now = datetime.now().strftime("%Y年%-m月%-d日(%a) %-H時00分")
+    status = '%s\n\n%s' % (now, user['name'])
+
     if api.hashtag:
         # in_reply_to_status_id = target['id_str']
-        now = datetime.now().strftime("%Y年%-m月%-d日(%a) %-H時00分")
         status = '%s\n%s の人気ツイート\n\n%s' % (now, api.hashtag, user['name'])
 
         length = 150

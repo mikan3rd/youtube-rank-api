@@ -24,6 +24,7 @@ def tweet_job():
     twitter.search_and_retweet('smash_bros')
     twitter.search_and_retweet('hypnosismic')
     twitter.search_and_retweet('tiktok')
+    twitter.search_and_retweet('trend_video')
 
     twitter.post_av_actress()
 
@@ -75,6 +76,7 @@ def twitter_job():
         'rakuten_rank',
         'av_actress',
         'av_sommlier',
+        'trend_video',
         'github',
     ]
 
