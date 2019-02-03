@@ -13,6 +13,7 @@ def search_ichiba_item(
     orFlag=1,
     field=0,
     page=1,
+    availability=1,
 ):
     endpoint = '/IchibaItem/Search/20170706'
 
@@ -26,6 +27,7 @@ def search_ichiba_item(
         'orFlag': orFlag,
         'field': field,
         'page': page,
+        'availability': availability,
     }
 
     res = requests.get(base_url + endpoint, params=params)
