@@ -686,6 +686,19 @@ def tweet_rakuten_travel():
     detail = result['hotels'][0]
     basic_info = detail[0]['hotelBasicInfo']
 
+    api = get_twitter_api(account)
+
+    media_ids = []
+    try:
+        image_url = basic_info['hotelImageUrl']
+        media = urllib.request.urlopen(image_url).read()
+        response = api.upload_media(media)
+        media_ids.append(response['media_id_string'])
+
+    except Exception as e:
+        print(image_url)
+        pprint(e)
+
     content_list = [
         basic_info['hotelName'],
         '',
@@ -699,14 +712,11 @@ def tweet_rakuten_travel():
 
     content_list += [
         basic_info['hotelSpecial'],
-        basic_info['hotelInformationUrl']
+        '【詳細URL】' + basic_info['hotelInformationUrl']
     ]
 
     status = '\n'.join(content_list)
-
-    api = get_twitter_api(account)
-    response = api.post_tweet(status=status)
-
+    response = api.post_tweet(status=status, media_ids=media_ids)
     if response.get('errors'):
         pprint(response)
 
