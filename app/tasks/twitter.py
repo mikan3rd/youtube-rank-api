@@ -384,6 +384,9 @@ def search_and_retweet(account):
         if not target:
             target = tweet
 
+        if tweet['user'].get('blocked_by'):
+            continue
+
         if tweet['id_str'] in id_list:
             continue
 
