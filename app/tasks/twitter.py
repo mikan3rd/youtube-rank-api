@@ -567,13 +567,19 @@ def tweet_rakuten_travel():
     result = rakuten.get_travel_detail(hotelNo=target['hotelNo'])
     detail = result['hotels'][0]
     basic_info = detail[0]['hotelBasicInfo']
-    pprint(basic_info)
 
     content_list = [
         basic_info['hotelName'],
         '',
-        '【平均評価】%s （%s件）' % (str(basic_info['reviewAverage']), str(basic_info['reviewCount'])),
-        '【最寄駅】%s %s駅' % (basic_info['address1'], basic_info['nearestStation']),
+        '【最寄駅】%s %s' % (basic_info['address1'], basic_info['nearestStation'] if basic_info['nearestStation'] else ''),
+    ]
+
+    if basic_info['reviewAverage']:
+        review_count = '（%s件）' % (str(basic_info['reviewCount'])) if basic_info['reviewCount'] else ''
+        review = '【平均評価】%s%s' % (str(basic_info['reviewAverage']), review_count)
+        content_list.append(review)
+
+    content_list += [
         basic_info['hotelSpecial'],
         basic_info['hotelInformationUrl']
     ]
