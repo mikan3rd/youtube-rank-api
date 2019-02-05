@@ -83,7 +83,7 @@ def post_av_sommlier():
                     html_source = driver.page_source
                     soup = BeautifulSoup(html_source, "lxml")
                     video_tag = soup.find('video')
-                    video_url = 'https:' + video_tag.get('src')
+                    video_url = 'https:' + video_tag.get('src').replace('_sm_w', '_dm_w')
                     data = urllib.request.urlopen(video_url)
 
                 except Exception as e:
@@ -191,7 +191,7 @@ def post_av_sommlier():
     status = '\n'.join(content_list)
 
     for i in range(4):
-        if len(status) > 250:
+        if len(status) > 240:
             del content_list[2]
             status = '\n'.join(content_list)
             continue
