@@ -770,7 +770,7 @@ def favorite_tweet(account):
     tweet_list = response['statuses']
     target_list = list(filter(lambda x: x.get('favorited') is False and x.get('lang') == 'ja', tweet_list))
 
-    for i, target in enumerate(target_list[:5]):
+    for i, target in enumerate(target_list[:9]):
         print(i)
         response = api.post_favorite(target['id_str'])
 
