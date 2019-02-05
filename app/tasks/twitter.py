@@ -776,7 +776,6 @@ def favorite_tweet(account):
 
         if response.get('errors'):
             pprint(response)
-            return
 
     print("SUCCESS: favorite_tweet", account)
 
