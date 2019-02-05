@@ -87,7 +87,7 @@ def post_av_sommlier():
 
                 except Exception as e:
                     pprint(e)
-                    return
+                    continue
 
                 finally:
                     driver.quit()
