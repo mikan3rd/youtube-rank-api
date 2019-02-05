@@ -71,6 +71,7 @@ def post_av_sommlier():
                 movie_url = item['sampleMovieURL'].get('size_720_480')
                 print(movie_url)
 
+                driver = None
                 try:
                     response = requests.get(movie_url)
                     soup = BeautifulSoup(response.content, "lxml")
@@ -90,7 +91,8 @@ def post_av_sommlier():
                     continue
 
                 finally:
-                    driver.quit()
+                    if driver:
+                        driver.quit()
 
                 with open(filename, 'wb') as f:
                     f.write(data.read())
