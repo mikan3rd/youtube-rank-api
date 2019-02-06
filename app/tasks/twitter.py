@@ -83,7 +83,15 @@ def post_av_sommlier():
                     html_source = driver.page_source
                     soup = BeautifulSoup(html_source, "lxml")
                     video_tag = soup.find('video')
-                    video_url = 'https:' + video_tag.get('src').replace('_sm_w', '_dm_w')
+                    div_tag = soup.find('div', class_="box-bitrate")
+                    li_tag = div_tag.find_all('li')[-1]
+
+                    if '1500' in li_tag.text:
+                        video_url = 'https:' + video_tag.get('src').replace('_sm_w', '_dmb_w')
+
+                    elif '1000' in li_tag.text:
+                        video_url = 'https:' + video_tag.get('src').replace('_sm_w', '_dm_w')
+
                     data = urllib.request.urlopen(video_url)
 
                 except Exception as e:
