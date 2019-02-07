@@ -63,7 +63,7 @@ def tweet_affiliate():
     twitter.retweet_user('trend_video', '_rakuten_rank')
 
 
-@sched.scheduled_job('cron', hour='0,12,15,18,21', minute=30)
+@sched.scheduled_job('cron', hour='*/4', minute=30)
 def twitter_job():
     print('START: Follow')
 
