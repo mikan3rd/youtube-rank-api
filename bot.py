@@ -121,7 +121,7 @@ def twitter_favorite_job():
             pass
 
 
-@sched.scheduled_job('cron', hour='*/4', minute=5)
+@sched.scheduled_job('cron', hour='*/3', minute=5)
 def twitter_video_job():
     print('START: Twitter VIDEO')
 
