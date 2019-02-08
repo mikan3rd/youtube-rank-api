@@ -1227,7 +1227,7 @@ def remove_follow(account):
             break
 
     user_list = list(reversed(user_list))
-    limit = 8
+    limit = 5
 
     # twitter_tool.follow_users(
     #     username=api.username,
