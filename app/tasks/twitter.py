@@ -1,20 +1,25 @@
 import json
 import re
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta
 from pprint import pprint
 from random import choice, randint, shuffle
 from time import sleep, time
 
 import cv2
+import pytz
 import redis
 import requests
 from bs4 import BeautifulSoup
 from firebase_admin import firestore
+from linebot import LineBotApi
+from linebot.models import TextSendMessage
 from selenium.webdriver import Chrome, ChromeOptions
 from settings import (
     DRIVER_PATH,
     GOOGLE_CHROME_PATH,
+    LINE_DEVELOP_ACCESS_TOKEN,
+    LINE_USER_ID,
     REDIS_URL,
     TWITTER_AV_ACTRESS_ACCESS_TOKEN,
     TWITTER_AV_ACTRESS_SECRET,
@@ -28,23 +33,27 @@ from settings import (
     TWITTER_PASSWORD_B,
     TWITTER_RAKUTEN_RANK_ACCESS_TOKEN,
     TWITTER_RAKUTEN_RANK_SECRET,
+    TWITTER_RAKUTEN_TRABEL_SECRET,
+    TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN,
     TWITTER_SMASH_BROS_ACCESS_TOKEN,
     TWITTER_SMASH_BROS_SECRET,
     TWITTER_SPLATOON_SECRET,
     TWITTER_SPLATTON_ACCESS_TOKEN,
     TWITTER_TIKTOK_ACCESS_TOKEN,
     TWITTER_TIKTOK_SECRET,
-    TWITTER_VTUBER_ACCESS_TOKEN,
-    TWITTER_VTUBER_SECRET,
-    TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN,
-    TWITTER_RAKUTEN_TRABEL_SECRET,
     TWITTER_TREND_VIDEO_ACCESS_TOKEN,
     TWITTER_TREND_VIDEO_SECRET,
+    TWITTER_VTUBER_ACCESS_TOKEN,
+    TWITTER_VTUBER_SECRET
 )
 
 from app.server.helpers import firestore as helper_firestore
 from app.server.helpers import dmm, rakuten, valuecommerce
 from app.server.helpers.twitter import TwitterApi
+
+
+tz = pytz.timezone('Asia/Tokyo')
+line_bot_api = LineBotApi(LINE_DEVELOP_ACCESS_TOKEN)
 
 
 def post_av_sommlier():
@@ -1450,6 +1459,75 @@ def upload_video(api, video_url):
                 return None
 
     return media_id
+
+
+def check_account_activity(account):
+    filter_time = datetime.now(tz) - timedelta(days=1)
+    print(filter_time)
+    api = get_twitter_api(account)
+
+    response = api.get_account()
+    if response.get('errors'):
+        pprint(response)
+        text = '%s\n%s' % (account, str(response))
+        line_bot_api.push_message(LINE_USER_ID, TextSendMessage(text=text))
+        return
+
+    target_user = response
+    screen_name = target_user['screen_name']
+    tweet_list = api.get_user_timeline(screen_name=screen_name)
+
+    popular_tweet = None
+    results = {
+        'tweet_count': 0,
+        'retweeted_count': 0,
+        'retweet_count': 0,
+        'favorite_count': 0,
+    }
+
+    for tweet in tweet_list:
+        create_at = datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S %z %Y')
+
+        if create_at < filter_time:
+            continue
+
+        results['tweet_count'] += 1
+
+        if tweet['retweeted']:
+
+            if tweet.get('retweeted_status'):
+                results['retweeted_count'] += 1
+
+            continue
+
+        results['retweet_count'] += tweet['retweet_count']
+        results['favorite_count'] += tweet['favorite_count']
+
+        if not popular_tweet:
+            popular_tweet = tweet
+
+        elif tweet['favorite_count'] + tweet['retweet_count'] > popular_tweet['favorite_count'] + popular_tweet['retweet_count']:
+            popular_tweet = tweet
+
+    url = 'なし'
+    if popular_tweet:
+        url = 'https://twitter.com/%s/status/%s' % (popular_tweet['user']['screen_name'], popular_tweet['id_str'])
+
+    content_list = [
+        screen_name,
+        target_user['name'],
+        '',
+        'フォロー: %s' % (target_user['friends_count']),
+        'フォロワー: %s' % (target_user['followers_count']),
+        '',
+        'ツイート数: %s' % (results['tweet_count']),
+        'RTされた数: %s' % (results['retweet_count']),
+        'likeされた数: %s' % (results['favorite_count']),
+        '',
+        '人気のツイート:\n%s' % (url),
+    ]
+    text = '\n'.join(content_list)
+    line_bot_api.push_message(LINE_USER_ID, TextSendMessage(text=text))
 
 
 def get_driver():

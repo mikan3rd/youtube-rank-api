@@ -129,6 +129,34 @@ def twitter_video_job():
     twitter.tweet_tiktok_video()
     twitter.retweet_user('av_actress')
 
+
+@sched.scheduled_job('cron', hour='0,9,21')
+def twitter_health_check():
+    print('START: Twitter Health Check')
+
+    account_list = [
+        'vtuber',
+        'splatoon',
+        'smash_bros',
+        'tiktok',
+        'hypnosismic',
+        'rakuten_rank',
+        'rakuten_travel',
+        'av_actress',
+        'av_sommlier',
+        'trend_video',
+        'github',
+    ]
+
+    for account in account_list:
+
+        try:
+            twitter.check_account_activity(account)
+
+        except Exception as e:
+            pass
+
+
 # @sched.scheduled_job('cron', hour='8,20')
 # def instagram_job():
 #     print('Instagram START!!')
