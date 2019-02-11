@@ -94,7 +94,7 @@ def twitter_job():
         print('FINISH: Twitter', account)
 
 
-@sched.scheduled_job('cron', hour='*/2', minute=10)
+@sched.scheduled_job('cron', hour='*/3', minute=10)
 def twitter_favorite_job():
     print('START: Twitter Favorite')
 
