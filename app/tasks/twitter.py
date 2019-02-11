@@ -1475,7 +1475,21 @@ def check_account_activity(account):
 
     target_user = response
     screen_name = target_user['screen_name']
-    tweet_list = api.get_user_timeline(screen_name=screen_name)
+
+    response = api.get_user_timeline(screen_name=screen_name)
+    if response.get('errors'):
+        pprint(response)
+        content_list = [
+            screen_name,
+            target_user['name'],
+            '',
+            str(response),
+        ]
+        text = '\n'.join(content_list)
+        line_bot_api.push_message(LINE_USER_ID, TextSendMessage(text=text))
+        return
+
+    tweet_list = response
 
     popular_tweet = None
     results = {
