@@ -1477,7 +1477,7 @@ def check_account_activity(account):
     screen_name = target_user['screen_name']
 
     response = api.get_user_timeline(screen_name=screen_name)
-    if response.get('errors'):
+    if isinstance(response, dict) and response.get('errors'):
         pprint(response)
         content_list = [
             screen_name,
