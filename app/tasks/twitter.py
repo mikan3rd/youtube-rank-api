@@ -33,7 +33,7 @@ from settings import (
     TWITTER_PASSWORD_B,
     TWITTER_RAKUTEN_RANK_ACCESS_TOKEN,
     TWITTER_RAKUTEN_RANK_SECRET,
-    TWITTER_RAKUTEN_TRABEL_SECRET,
+    TWITTER_RAKUTEN_TRAVEL_SECRET,
     TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN,
     TWITTER_SMASH_BROS_ACCESS_TOKEN,
     TWITTER_SMASH_BROS_SECRET,
@@ -795,7 +795,7 @@ def favorite_tweet(account):
         x['user'].get('lang') == 'ja',
         tweet_list))
     target_list = sorted(target_list, key=lambda k: k['user'].get('friends_count', 0), reverse=True)
-    limit = randint(5,10)
+    limit = randint(5, 10)
 
     for i, target in enumerate(target_list[:limit]):
         print(i, target['user']['friends_count'])
@@ -1392,7 +1392,7 @@ def get_twitter_api(account):
 
     elif account == 'rakuten_travel':
         access_token = TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN
-        secret = TWITTER_RAKUTEN_TRABEL_SECRET
+        secret = TWITTER_RAKUTEN_TRAVEL_SECRET
 
     elif account == 'trend_video':
         access_token = TWITTER_TREND_VIDEO_ACCESS_TOKEN
