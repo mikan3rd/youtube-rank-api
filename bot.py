@@ -68,15 +68,15 @@ def twitter_job():
     print('START: Follow')
 
     account_list = [
-        'vtuber',
-        'splatoon',
-        'tiktok',
-        'hypnosismic',
-        'smash_bros',
-        'rakuten_rank',
-        'av_actress',
-        'av_sommlier',
-        'trend_video',
+        # 'vtuber',
+        # 'splatoon',
+        # 'tiktok',
+        # 'hypnosismic',
+        # 'smash_bros',
+        # 'rakuten_rank',
+        # 'av_actress',
+        # 'av_sommlier',
+        # 'trend_video',
         'github',
     ]
 
@@ -149,12 +149,7 @@ def twitter_health_check():
     ]
 
     for account in account_list:
-
-        try:
-            twitter.check_account_activity(account)
-
-        except Exception as e:
-            pass
+        twitter.check_account_activity(account)
 
 
 # @sched.scheduled_job('cron', hour='8,20')
