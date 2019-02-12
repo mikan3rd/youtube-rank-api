@@ -787,10 +787,18 @@ def favorite_tweet(account):
 
     response = api.get_search_tweet(q='#いいねした人全員フォローする')
     tweet_list = response['statuses']
-    target_list = list(filter(lambda x: x.get('favorited') is False and x.get('lang') == 'ja', tweet_list))
+    target_list = list(filter(
+        lambda x:
+        x.get('favorited') is False and
+        x.get('lang') == 'ja' and
+        not x.get('retweeted_status') and
+        x['user'].get('lang') == 'ja',
+        tweet_list))
+    target_list = sorted(target_list, key=lambda k: k['user'].get('friends_count', 0), reverse=True)
+    limit = randint(5,10)
 
-    for i, target in enumerate(target_list[:5]):
-        print(i)
+    for i, target in enumerate(target_list[:limit]):
+        print(i, target['user']['friends_count'])
         response = api.post_favorite(target['id_str'])
 
         if response.get('errors'):
@@ -1236,7 +1244,7 @@ def remove_follow(account):
             break
 
     user_list = list(reversed(user_list))
-    limit = 5
+    limit = randint(5, 10)
 
     # twitter_tool.follow_users(
     #     username=api.username,
