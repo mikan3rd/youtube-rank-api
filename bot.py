@@ -113,12 +113,7 @@ def twitter_favorite_job():
     ]
 
     for account in account_list:
-
-        try:
-            twitter.favorite_tweet(account)
-
-        except Exception as e:
-            pass
+        twitter.favorite_tweet(account)
 
 
 @sched.scheduled_job('cron', hour='*/3', minute=5)
@@ -130,7 +125,7 @@ def twitter_video_job():
     twitter.retweet_user('av_actress')
 
 
-@sched.scheduled_job('cron', hour='9,21')
+@sched.scheduled_job('cron', hour='8,21')
 def twitter_health_check():
     print('START: Twitter Health Check')
 

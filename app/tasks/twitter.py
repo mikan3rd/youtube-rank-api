@@ -800,6 +800,7 @@ def favorite_tweet(account):
     for i, target in enumerate(target_list[:limit]):
         print(i, target['user']['friends_count'])
         response = api.post_favorite(target['id_str'])
+        sleep(randint(0, 3))
 
         if response.get('errors'):
             pprint(response)
