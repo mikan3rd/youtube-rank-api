@@ -1522,6 +1522,8 @@ def check_account_activity(account):
 
     popular_tweet = None
     results = {
+        'friends_count': target_user['friends_count'],
+        'followers_count': target_user['followers_count'],
         'tweet_count': 0,
         'retweeted_count': 0,
         'retweet_count': 0,
@@ -1556,21 +1558,35 @@ def check_account_activity(account):
     if popular_tweet:
         url = 'https://twitter.com/%s/status/%s' % (popular_tweet['user']['screen_name'], popular_tweet['id_str'])
 
+    redis_key = 'twitter_activity:%s' % (account)
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    prev_results = {}
+
+    if rcache:
+        prev_results = json.loads(rcache.decode())
+
     content_list = [
         screen_name,
         target_user['name'],
         '',
-        'フォロー: %s' % (target_user['friends_count']),
-        'フォロワー: %s' % (target_user['followers_count']),
+        'フォロー: %s（%s）' % (results['friends_count'], results['friends_count'] - prev_results.get('friends_count', 0)),
+        'フォロワー: %s （%s）'
+        % (results['followers_count'], results['followers_count'] - prev_results.get('followers_count', 0)),
         '',
-        'ツイート数: %s' % (results['tweet_count']),
-        'RTされた数: %s' % (results['retweet_count']),
-        'likeされた数: %s' % (results['favorite_count']),
+        'ツイート数: %s（%s）' % (results['tweet_count'], results['tweet_count'] - prev_results.get('tweet_count', 0)),
+        'RTされた数: %s（%s）' % (results['retweet_count'], results['retweet_count'] - prev_results.get('retweet_count', 0)),
+        'likeされた数: %s（%s）' % (results['favorite_count'], results['favorite_count'] -
+                              prev_results.get('favorite_count', 0)),
         '',
         '人気のツイート:\n%s' % (url),
     ]
     text = '\n'.join(content_list)
     line_bot_api.push_message(LINE_USER_ID, TextSendMessage(text=text))
+
+    r.set(redis_key, json.dumps(results), ex=None)
+    print("SUCCESS: twitter:check_account_activity", account)
 
 
 def get_driver():
