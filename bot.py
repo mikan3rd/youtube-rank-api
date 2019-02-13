@@ -144,7 +144,7 @@ def twitter_health_check():
 def tiktok_job():
     print('TikTok START!!')
     tiktok.add_user()
-    # tiktok.update_users()
+    tiktok.update_users()
     # tiktok.trace_hashtag()
 
 

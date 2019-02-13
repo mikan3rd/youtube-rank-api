@@ -212,6 +212,42 @@ def trace_hashtag():
     print("SUCCESS: tiktok, trace_hashtag")
 
 
+def update_user_video():
+    helper_firestore.initialize_firebase()
+    ref = firestore.client().collection('users')
+
+    query = ref \
+        .where('region', '==', 'JP') \
+        .order_by('follower_count', direction=firestore.Query.DESCENDING)
+
+    docs = query.get()
+    user_list = [doc.to_dict() for doc in docs]
+
+    video_list = []
+    for user in user_list:
+
+        if user.get('region') != 'JP':
+            continue
+
+        result = get_user_video(user['uid'])
+
+        for aweme in result.get('aweme_list', []):
+            video = create_video_data(aweme)
+
+            if video:
+                video_list.append(video)
+                print(video['nickname'])
+
+    if video_list:
+        helper_firestore.batch_update(
+            collection='videos',
+            data_list=video_list,
+            unique_key='aweme_id'
+        )
+
+    print("SUCCESS: tiktok, update_user_video")
+
+
 def get_user_detail(uid):
     params = deepcopy(user_params)
     params['user_id'] = uid
@@ -225,12 +261,7 @@ def get_user_video(uid):
     params = deepcopy(user_params)
     params['user_id'] = uid
     res = requests.get(BASE_URL + "/aweme/post/", headers=feed_headers, params=params)
-
-    data = res.json()
-
-    pprint(data['aweme_list'][0])
-
-    return data.get('user')
+    return res.json()
 
 
 def create_user_data(data):
@@ -241,6 +272,9 @@ def create_user_data(data):
             continue
 
         if key == 'follower_count' and value <= 1000:
+            return None
+
+        if key == 'region' and value != 'JP':
             return None
 
         if isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
@@ -341,6 +375,8 @@ allowed_keys = [
     'youtube_channel_title',
     'short_id',
     'uid',
+    'language',
+    'region',
 ]
 
 
