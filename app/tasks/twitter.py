@@ -1470,6 +1470,26 @@ def upload_video(api, video_url):
     return media_id
 
 
+def health_check():
+
+    account_list = [
+        'vtuber',
+        'splatoon',
+        'smash_bros',
+        'tiktok',
+        'hypnosismic',
+        'rakuten_rank',
+        'rakuten_travel',
+        'av_actress',
+        'av_sommlier',
+        'trend_video',
+        'github',
+    ]
+
+    for account in account_list:
+        check_account_activity(account)
+
+
 def check_account_activity(account):
     filter_time = datetime.now(tz) - timedelta(days=1)
     print(filter_time)
