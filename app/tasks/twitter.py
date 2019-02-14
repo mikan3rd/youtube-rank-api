@@ -416,14 +416,14 @@ def search_and_retweet(account):
         return
 
     user = target['user']
-    if not user.get('following') and not user.get('follow_request_sent') and not user.get('blocked_by'):
-        response = api.post_follow(screen_name=user['screen_name'])
+    # if not user.get('following') and not user.get('follow_request_sent') and not user.get('blocked_by'):
+    #     response = api.post_follow(screen_name=user['screen_name'])
 
-        if response.get('errors'):
-            pprint(response)
+    #     if response.get('errors'):
+    #         pprint(response)
 
-        else:
-            print("follow:", user['screen_name'])
+    #     else:
+    #         print("follow:", user['screen_name'])
 
     # 引用RTするツイートURL
     attachment_url = 'https://twitter.com/%s/status/%s' % (user['screen_name'], target['id_str'])
