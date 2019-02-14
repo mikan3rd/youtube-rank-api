@@ -417,13 +417,12 @@ def search_and_retweet(account):
 
     user = target['user']
     # if not user.get('following') and not user.get('follow_request_sent') and not user.get('blocked_by'):
-    #     response = api.post_follow(screen_name=user['screen_name'])
 
-    #     if response.get('errors'):
-    #         pprint(response)
-
-    #     else:
-    #         print("follow:", user['screen_name'])
+    if user['friends_count'] > 5000:
+        try:
+            add_list(account, user_ids=[user['id_str']])
+        except Exception as e:
+            pprint(e)
 
     # 引用RTするツイートURL
     attachment_url = 'https://twitter.com/%s/status/%s' % (user['screen_name'], target['id_str'])
@@ -1270,6 +1269,33 @@ def remove_follow(account):
         sleep(sleep_time)
 
     print("SUCCESS: twitter:remove_follow %s" % (account))
+
+
+def add_list(account, user_ids):
+    api = get_twitter_api(account)
+    response = api.get_list()
+
+    if len(response) == 0:
+        target = api.create_list(name='test')
+
+    else:
+        target = response[0]
+
+    response = api.add_list_member(list_id=target['id_str'], user_ids=user_ids)
+    pprint(response)
+
+
+def update_list(account):
+    api = get_twitter_api(account)
+    response = api.get_list()
+
+    # if len(response) == 0:
+
+    target = response[0]
+    response = api.get_list_members(list_id=target['id_str'])
+
+    for user in response['users']:
+        print(user['screen_name'])
 
 
 def get_twitter_api(account):

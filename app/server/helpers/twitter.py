@@ -19,6 +19,7 @@ class TwitterApi:
         target_list=[],
         retweet_list=[],
         hashtag='',
+        valuecommerce='',
     ):
 
         self.api = OAuth1Session(
@@ -36,6 +37,7 @@ class TwitterApi:
         self.__exclude_genre_id_list = exclude_genre_id_list
         self.__target_list = target_list
         self.__retweet_list = retweet_list
+        self.__valuecommerce = valuecommerce
 
     @property
     def username(self):
@@ -69,10 +71,14 @@ class TwitterApi:
     def retweet_list(self):
         return self.__retweet_list
 
+    @property
+    def valuecommerce(self):
+        return self.__valuecommerce
+
     def get_account(self):
         endpoint = "https://api.twitter.com/1.1/account/verify_credentials.json"
         response = self.api.get(endpoint)
-        return json.loads(response.text)
+        return response.json()
 
     def get_tweet(
         self,
@@ -241,6 +247,19 @@ class TwitterApi:
         response = self.api.get(endpoint)
         return json.loads(response.text)
 
+    def get_list(self):
+        endpoint = 'https://api.twitter.com/1.1/lists/list.json'
+        response = self.api.get(endpoint)
+        return response.json()
+
+    def get_list_members(self, list_id):
+        endpoint = 'https://api.twitter.com/1.1/lists/members.json'
+        params = {
+            'list_id': list_id,
+        }
+        response = self.api.get(endpoint, params=params)
+        return response.json()
+
     def upload_media(self, media):
         endpoint = "https://upload.twitter.com/1.1/media/upload.json"
         files = {'media': media}
@@ -359,3 +378,19 @@ class TwitterApi:
         response = self.api.post(endpoint, params={'id': tweet_id})
         sleep(1)
         return json.loads(response.text)
+
+    def create_list(self, name):
+        endpoint = 'https://api.twitter.com/1.1/lists/create.json'
+        response = self.api.post(endpoint, params={'name': name})
+        sleep(1)
+        return response.json()
+
+    def add_list_member(self, list_id, user_ids):
+        endpoint = 'https://api.twitter.com/1.1/lists/members/create_all.json'
+        params = {
+            'list_id': list_id,
+            'user_id': ','.join(user_ids),
+        }
+        response = self.api.post(endpoint, params=params)
+        sleep(1)
+        return response.json()
