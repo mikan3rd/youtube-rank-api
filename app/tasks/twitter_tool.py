@@ -2,8 +2,8 @@
 import os
 import urllib
 from pprint import pprint
-from time import sleep
 from random import randint
+from time import sleep
 
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.by import By
