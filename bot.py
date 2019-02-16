@@ -50,12 +50,7 @@ def tweet_affiliate():
     ]
 
     for account in account_list:
-
-        try:
-            twitter.tweet_affiliate(account)
-
-        except Exception as e:
-            pass
+        twitter.tweet_affiliate(account)
 
     twitter.retweet_user('rakuten_rank', '_rakuten_travel')
     twitter.retweet_user('av_sommlier', '_rakuten_rank')
@@ -82,14 +77,10 @@ def twitter_job():
 
     for account in account_list:
 
-        try:
-            twitter.remove_follow(account)
-            # twitter.follow_users_by_follower(account)
-            # twitter.follow_target_user(account)
-            # twitter.follow_users_by_retweet(account)
-
-        except Exception as e:
-            pass
+        twitter.remove_follow(account)
+        # twitter.follow_users_by_follower(account)
+        # twitter.follow_target_user(account)
+        # twitter.follow_users_by_retweet(account)
 
         print('FINISH: Twitter', account)
 

@@ -1306,7 +1306,7 @@ def add_list(account):
     response = api.get_list()
 
     if len(response) == 0:
-        target = api.create_list(name='test')
+        target = api.create_list(name='人気ユーザー')
 
     else:
         target = response[0]
