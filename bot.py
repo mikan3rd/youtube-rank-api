@@ -148,8 +148,26 @@ def tiktok_job():
     # tiktok.trace_hashtag()
 
 
-# @sched.scheduled_job('cron', hour='3')
-# def oneday_job():
+@sched.scheduled_job('cron', hour='3')
+def oneday_job():
+    print('START: oneday_job')
+    account_list = [
+        'vtuber',
+        'splatoon',
+        'smash_bros',
+        'tiktok',
+        'hypnosismic',
+        'rakuten_rank',
+        'rakuten_travel',
+        'av_actress',
+        'av_sommlier',
+        'trend_video',
+        'github',
+    ]
+
+    for account in account_list:
+        twitter.add_list()
+
 #     tiktok.add_hashtag()
 #     tiktok.update_spread_sheet()
 

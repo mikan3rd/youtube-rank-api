@@ -4,7 +4,7 @@ import urllib.request
 from datetime import datetime, timedelta
 from pprint import pprint
 from random import choice, randint, shuffle
-from time import sleep, time
+from time import sleep
 
 import cv2
 import pytz
@@ -57,7 +57,11 @@ line_bot_api = LineBotApi(LINE_DEVELOP_ACCESS_TOKEN)
 
 
 def post_av_sommlier():
-    api = get_twitter_api('av_sommlier')
+    account = 'av_sommlier'
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
 
     redis_key = 'twitter:av_movie'
     r = redis.from_url(REDIS_URL)
@@ -233,6 +237,12 @@ def post_av_sommlier():
 
 
 def post_av_actress():
+    account = 'av_actress'
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
+
     redis_key = 'twitter:av_actress'
     r = redis.from_url(REDIS_URL)
     rcache = r.get(redis_key)
@@ -282,8 +292,6 @@ def post_av_actress():
 
     response = dmm.search_items(keyword='単体作品', article='actress', article_id=actress_info['id'])
     items = response['result']['items']
-
-    api = get_twitter_api('av_actress')
 
     media_ids = []
     image_url_list = []
@@ -359,11 +367,9 @@ def post_av_actress():
 
 
 def search_and_retweet(account):
-    api = get_twitter_api(account)
-    response = api.get_account()
-
-    if response.get('errors'):
-        pprint(response)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
         return
 
     redis_key = 'twitter:%s' % (account)
@@ -418,12 +424,6 @@ def search_and_retweet(account):
     user = target['user']
     # if not user.get('following') and not user.get('follow_request_sent') and not user.get('blocked_by'):
 
-    if user['friends_count'] > 5000:
-        try:
-            add_list(account, user_ids=[user['id_str']])
-        except Exception as e:
-            pprint(e)
-
     # 引用RTするツイートURL
     attachment_url = 'https://twitter.com/%s/status/%s' % (user['screen_name'], target['id_str'])
 
@@ -464,6 +464,10 @@ def search_and_retweet(account):
 
 
 def tweet_affiliate(account):
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
 
     redis_key = 'rakuten:%s' % (account)
     r = redis.from_url(REDIS_URL)
@@ -473,8 +477,6 @@ def tweet_affiliate(account):
     if rcache:
         print("cache HIT!! %s" % (redis_key))
         id_list = json.loads(rcache.decode())
-
-    api = get_twitter_api(account)
 
     target_item = None
     first_item = None
@@ -564,6 +566,10 @@ def tweet_affiliate(account):
 def tweet_valuecommerce(account):
     """バリューコマースのリンクをTwitetrで閲覧しようとすると警告が表示されるため未使用
     """
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
 
     redis_key = 'tweet_valuecommerce:%s' % (account)
     r = redis.from_url(REDIS_URL)
@@ -573,8 +579,6 @@ def tweet_valuecommerce(account):
     if rcache:
         print("cache HIT!! %s" % (redis_key))
         id_list = json.loads(rcache.decode())
-
-    api = get_twitter_api(account)
 
     if api.valuecommerce:
         return
@@ -652,7 +656,6 @@ def tweet_valuecommerce(account):
     status = '\n'.join(content_list)
     print(len(status))
 
-    api = get_twitter_api(account)
     response = api.post_tweet(status=status, media_ids=[media_id])
 
     if response.get('errors'):
@@ -668,6 +671,10 @@ def tweet_valuecommerce(account):
 
 def tweet_rakuten_travel():
     account = 'rakuten_travel'
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
 
     redis_key = 'rakuten:%s' % (account)
     r = redis.from_url(REDIS_URL)
@@ -703,8 +710,6 @@ def tweet_rakuten_travel():
     result = rakuten.get_travel_detail(hotelNo=target['hotelNo'])
     detail = result['hotels'][0]
     basic_info = detail[0]['hotelBasicInfo']
-
-    api = get_twitter_api(account)
 
     media_ids = []
     try:
@@ -745,7 +750,10 @@ def tweet_rakuten_travel():
 
 
 def retweet_user(account, screen_name=None):
-    api = get_twitter_api(account)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
 
     if not screen_name:
         screen_name = choice(api.retweet_list)
@@ -777,7 +785,10 @@ def retweet_user(account, screen_name=None):
 
 
 def favorite_tweet(account):
-    api = get_twitter_api(account)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
 
     # response = api.get_trend()
     # trends = response[0]['trends']
@@ -809,7 +820,10 @@ def favorite_tweet(account):
 
 def tweet_tiktok():
     account = 'tiktok'
-    api = get_twitter_api(account)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
 
     redis_key = 'tweet_tiktok'
     r = redis.from_url(REDIS_URL)
@@ -902,7 +916,10 @@ def tweet_tiktok():
 
 def tweet_tiktok_video():
     account = 'tiktok'
-    api = get_twitter_api(account)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
 
     redis_key = 'tweet_tiktok_video'
     r = redis.from_url(REDIS_URL)
@@ -984,19 +1001,12 @@ def tweet_tiktok_video():
 
 
 def follow_users_by_retweet(account):
-
-    api = get_twitter_api(account)
-    response = api.get_account()
-
-    if response.get('errors'):
-        pprint(response)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
         return
 
     response = api.get_home_timeline()
-    if isinstance(response, dict) and response.get('errors'):
-        pprint(response)
-        return
-
     retweeter_count = 0
     tweet_id_list = set()
 
@@ -1056,13 +1066,12 @@ def follow_users_by_retweet(account):
 
 
 def follow_users_by_follower(account):
-    api = get_twitter_api(account)
-    response = api.get_account()
-
-    if response.get('errors'):
-        pprint(response)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
         return
 
+    response = api.get_account()
     followers_count = response['followers_count']
     if followers_count == 0:
         return
@@ -1131,7 +1140,10 @@ def follow_users_by_follower(account):
 
 
 def follow_target_user(account):
-    api = get_twitter_api(account)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
 
     if not api.target_list:
         return
@@ -1200,14 +1212,12 @@ def follow_target_user(account):
 
 
 def remove_follow(account):
-
-    api = get_twitter_api(account)
-    response = api.get_account()
-
-    if response.get('errors'):
-        pprint(response)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
         return
 
+    response = api.get_account()
     if response['friends_count'] < 100:
         return
 
@@ -1271,8 +1281,28 @@ def remove_follow(account):
     print("SUCCESS: twitter:remove_follow %s" % (account))
 
 
-def add_list(account, user_ids):
-    api = get_twitter_api(account)
+def add_list(account):
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
+
+    query = api.query
+
+    if not query:
+        query = 'min_retweets:1000'
+
+    response = api.get_search_tweet(q=query)
+    tweet_list = list(filter(
+        lambda x:
+        x['user']['friends_count'] > 5000 and
+        x['user'].get('lang') == 'ja' and
+        x.get('lang') == 'ja',
+        response['statuses']
+    ))
+
+    user_ids = [tweet['user']['id_str'] for tweet in tweet_list]
+
     response = api.get_list()
 
     if len(response) == 0:
@@ -1282,11 +1312,15 @@ def add_list(account, user_ids):
         target = response[0]
 
     response = api.add_list_member(list_id=target['id_str'], user_ids=user_ids)
-    pprint(response)
+    print('SUCCESS: add_list', account)
 
 
 def update_list(account):
-    api = get_twitter_api(account)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
+
     response = api.get_list()
 
     # if len(response) == 0:
@@ -1429,7 +1463,7 @@ def get_twitter_api(account):
     else:
         print("NO MATCH")
 
-    return TwitterApi(
+    api = TwitterApi(
         access_token,
         secret,
         username=username,
@@ -1441,6 +1475,20 @@ def get_twitter_api(account):
         target_list=target_list,
         retweet_list=retweet_list,
     )
+
+    response = api.get_account()
+    if response.get('errors'):
+        pprint(response)
+        text = '%s\n%s' % (account, str(response))
+        raise Exception(text)
+
+    response = api.get_user_timeline(screen_name=response['screen_name'])
+    if isinstance(response, dict) and response.get('errors'):
+        pprint(response)
+        text = '%s\n%s' % (account, str(response))
+        raise Exception(text)
+
+    return api
 
 
 def upload_video(api, video_url):
@@ -1519,7 +1567,10 @@ def health_check():
 def check_account_activity(account):
     filter_time = datetime.now(tz) - timedelta(days=1)
     print(filter_time)
-    api = get_twitter_api(account)
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        pass
 
     response = api.get_account()
     if response.get('errors'):
