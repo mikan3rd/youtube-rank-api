@@ -148,10 +148,10 @@ def oneday_job():
         'smash_bros',
         'tiktok',
         'hypnosismic',
-        'rakuten_rank',
+        # 'rakuten_rank',
         'rakuten_travel',
-        'av_actress',
-        'av_sommlier',
+        # 'av_actress',
+        # 'av_sommlier',
         'trend_video',
         'github',
     ]
