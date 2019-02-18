@@ -63,8 +63,8 @@ def twitter_job():
     print('START: Follow')
 
     account_list = [
-        # 'vtuber',
-        # 'splatoon',
+        'vtuber',
+        'splatoon',
         # 'tiktok',
         # 'hypnosismic',
         # 'smash_bros',
