@@ -805,7 +805,7 @@ def favorite_tweet(account):
         x['user'].get('lang') == 'ja',
         tweet_list))
     target_list = sorted(target_list, key=lambda k: k['user'].get('friends_count', 0), reverse=True)
-    limit = randint(5, 10)
+    limit = randint(5, 15)
 
     for i, target in enumerate(target_list[:limit]):
         print(i, target['user']['friends_count'])
@@ -1254,7 +1254,7 @@ def remove_follow(account):
             break
 
     user_list = list(reversed(user_list))
-    limit = randint(5, 10)
+    limit = randint(5, 15)
 
     # twitter_tool.follow_users(
     #     username=api.username,
@@ -1274,7 +1274,7 @@ def remove_follow(account):
         if num >= limit:
             break
 
-        sleep_time = randint(5, 15)
+        sleep_time = randint(5, 10)
         print("sleep_time:", sleep_time)
         sleep(sleep_time)
 
