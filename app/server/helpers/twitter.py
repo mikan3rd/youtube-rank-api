@@ -242,6 +242,20 @@ class TwitterApi:
         response = self.api.get(endpoint, params=params)
         return json.loads(response.text)
 
+    def get_favorite_list(self, screen_name, count=200):
+        endpoint = 'https://api.twitter.com/1.1/favorites/list.json'
+        params = {
+            'screen_name': screen_name,
+            'count': count,
+        }
+        response = self.api.get(endpoint, params=params)
+        return response.json()
+
+    def get_mute_users(self):
+        endpoint = 'https://api.twitter.com/1.1/mutes/users/list.json'
+        response = self.api.get(endpoint)
+        return response.json()
+
     def get_trend(self, woeid=1118370):
         endpoint = "https://api.twitter.com/1.1/trends/place.json?id=%s" % (woeid)
         response = self.api.get(endpoint)
@@ -390,6 +404,15 @@ class TwitterApi:
         params = {
             'list_id': list_id,
             'user_id': ','.join(user_ids),
+        }
+        response = self.api.post(endpoint, params=params)
+        sleep(1)
+        return response.json()
+
+    def post_mute(self, screen_name):
+        endpoint = 'https://api.twitter.com/1.1/mutes/users/create.json'
+        params = {
+            'screen_name': screen_name,
         }
         response = self.api.post(endpoint, params=params)
         sleep(1)

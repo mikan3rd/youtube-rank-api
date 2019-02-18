@@ -818,6 +818,46 @@ def favorite_tweet(account):
     print("SUCCESS: favorite_tweet", account)
 
 
+def check_favorite(account):
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
+
+    response = api.get_account()
+    response = api.get_favorite_list(screen_name=response['screen_name'])
+
+    filter_time = datetime.now(tz) - timedelta(days=3)
+    print(filter_time)
+    screen_name_list = []
+
+    for tweet in response:
+        create_at = datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S %z %Y')
+
+        if create_at < filter_time:
+            screen_name_list.append(tweet['user']['screen_name'])
+
+    print('expired:', len(screen_name_list))
+    screen_name_list = list(set(screen_name_list))
+    print('single:', len(screen_name_list))
+
+    response = api.get_friendships(screen_name=','.join(screen_name_list[:100]))
+    black_list = list(filter(lambda x: 'followed_by' not in x['connections'], response))
+    black_names = {black['screen_name'] for black in black_list}
+    print('not followed_by:', len(black_names))
+
+    response = api.get_mute_users()
+    mute_list = {user['screen_name'] for user in response['users']}
+    print('mute_num:', len(mute_list))
+    differences = black_names - mute_list
+    print('differences: ', len(differences))
+
+    limit = randint(5, 10)
+    for screen_name in list(differences)[:limit]:
+        response = api.post_mute(screen_name)
+        print(response.get('muting'))
+
+
 def tweet_tiktok():
     account = 'tiktok'
     try:

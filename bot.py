@@ -105,6 +105,7 @@ def twitter_favorite_job():
 
     for account in account_list:
         twitter.favorite_tweet(account)
+        twitter.check_favorite(account)
 
 
 @sched.scheduled_job('cron', hour='*/3', minute=5)
