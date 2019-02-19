@@ -795,11 +795,25 @@ def favorite_tweet(account):
     # trend = choice(trends)
     # print(trend['name'])
 
+    response = api.get_list()
+    list_name = 'いいね済フォロー待ち'
+    result = list(filter(lambda x: x['name'].startswith('いいね済フォロー待ち'), response))
+
+    if len(result) == 0:
+        target = api.create_list(name=list_name)
+
+    else:
+        target = result[0]
+
+    response = api.get_list_members(target['id_str'])
+    black_user_ids = [user['id_str'] for user in response['users']]
+
     response = api.get_search_tweet(q='#いいねした人全員フォローする')
     tweet_list = response['statuses']
     target_list = list(filter(
         lambda x:
         x.get('favorited') is False and
+        x['user'].get('id_str') not in black_user_ids and
         x.get('lang') == 'ja' and
         not x.get('retweeted_status') and
         x['user'].get('lang') == 'ja',
@@ -808,7 +822,6 @@ def favorite_tweet(account):
     limit = randint(5, 15)
 
     for i, target in enumerate(target_list[:limit]):
-        print(i, target['user']['friends_count'])
         response = api.post_favorite(target['id_str'])
         sleep(randint(0, 5))
 
@@ -825,7 +838,6 @@ def check_favorite(account):
         return
 
     response = api.get_list()
-
     list_name = 'いいね済フォロー待ち'
     result = list(filter(lambda x: x['name'].startswith('いいね済フォロー待ち'), response))
 
