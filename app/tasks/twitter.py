@@ -824,11 +824,26 @@ def check_favorite(account):
     except Exception:
         return
 
+    response = api.get_list()
+
+    list_name = 'いいね済フォロー待ち'
+    result = list(filter(lambda x: x['name'].startswith('いいね済フォロー待ち'), response))
+
+    if len(result) == 0:
+        target = api.create_list(name=list_name)
+
+    else:
+        target = result[0]
+
+    response = api.get_list_members(target['id_str'])
+    # mute_list = {user['screen_name'] for user in response['users']}
+    # print('mute_num:', len(mute_list))
+    # return
+
     response = api.get_account()
     response = api.get_favorite_list(screen_name=response['screen_name'])
 
     filter_time = datetime.now(tz) - timedelta(days=3)
-    print(filter_time)
     screen_name_list = []
 
     for tweet in response:
@@ -842,20 +857,17 @@ def check_favorite(account):
     print('single:', len(screen_name_list))
 
     response = api.get_friendships(screen_name=','.join(screen_name_list[:100]))
-    black_list = list(filter(lambda x: 'followed_by' not in x['connections'], response))
-    black_names = {black['screen_name'] for black in black_list}
-    print('not followed_by:', len(black_names))
+    not_follow_list = list(filter(lambda x: 'followed_by' not in x['connections'], response))
+    not_follow_names = {black['screen_name'] for black in not_follow_list}
+    print('not followed_by:', len(not_follow_names))
 
-    response = api.get_mute_users()
-    mute_list = {user['screen_name'] for user in response['users']}
-    print('mute_num:', len(mute_list))
-    differences = black_names - mute_list
-    print('differences: ', len(differences))
+    # differences = not_follow_names - mute_list
+    # print('differences: ', len(differences))
 
-    limit = randint(5, 10)
-    for screen_name in list(differences)[:limit]:
-        response = api.post_mute(screen_name)
-        print(response.get('muting'))
+    response = api.add_list_member(list_id=target['id_str'], screen_names=not_follow_names)
+    pprint(response)
+
+    print("SUCCESS: check_favorite", account)
 
 
 def tweet_tiktok():

@@ -266,10 +266,11 @@ class TwitterApi:
         response = self.api.get(endpoint)
         return response.json()
 
-    def get_list_members(self, list_id):
+    def get_list_members(self, list_id, count=5000):
         endpoint = 'https://api.twitter.com/1.1/lists/members.json'
         params = {
             'list_id': list_id,
+            'count': count,
         }
         response = self.api.get(endpoint, params=params)
         return response.json()
@@ -399,11 +400,12 @@ class TwitterApi:
         sleep(1)
         return response.json()
 
-    def add_list_member(self, list_id, user_ids):
+    def add_list_member(self, list_id, user_ids=[], screen_names=[]):
         endpoint = 'https://api.twitter.com/1.1/lists/members/create_all.json'
         params = {
             'list_id': list_id,
             'user_id': ','.join(user_ids),
+            'screen_name': ','.join(screen_names),
         }
         response = self.api.post(endpoint, params=params)
         sleep(1)
