@@ -1365,7 +1365,7 @@ def add_list(account):
         response['statuses']
     ))
 
-    user_ids = [tweet['user']['id_str'] for tweet in tweet_list]
+    user_ids = list({tweet['user']['id_str'] for tweet in tweet_list})
 
     response = api.get_list()
     list_name = '人気ユーザー'
