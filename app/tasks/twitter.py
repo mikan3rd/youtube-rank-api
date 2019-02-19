@@ -797,7 +797,7 @@ def favorite_tweet(account):
 
     response = api.get_list()
     list_name = 'いいね済フォロー待ち'
-    result = list(filter(lambda x: x['name'].startswith('いいね済フォロー待ち'), response))
+    result = list(filter(lambda x: x['name'].startswith(list_name), response))
 
     if len(result) == 0:
         target = api.create_list(name=list_name)
@@ -839,7 +839,7 @@ def check_favorite(account):
 
     response = api.get_list()
     list_name = 'いいね済フォロー待ち'
-    result = list(filter(lambda x: x['name'].startswith('いいね済フォロー待ち'), response))
+    result = list(filter(lambda x: x['name'].startswith(list_name), response))
 
     if len(result) == 0:
         target = api.create_list(name=list_name)
@@ -1368,12 +1368,14 @@ def add_list(account):
     user_ids = [tweet['user']['id_str'] for tweet in tweet_list]
 
     response = api.get_list()
+    list_name = '人気ユーザー'
+    result = list(filter(lambda x: x['name'].startswith(list_name), response))
 
-    if len(response) == 0:
-        target = api.create_list(name='人気ユーザー')
+    if len(result) == 0:
+        target = api.create_list(name=list_name)
 
     else:
-        target = response[0]
+        target = result[0]
 
     response = api.add_list_member(list_id=target['id_str'], user_ids=user_ids)
     print('SUCCESS: add_list', account)
