@@ -1398,7 +1398,7 @@ def update_list(account):
         print(user['screen_name'])
 
 
-def get_twitter_api(account):
+def get_twitter_api(account, check=True):
     username = ''
     password = ''
     hashtag = ''
@@ -1542,6 +1542,9 @@ def get_twitter_api(account):
         retweet_list=retweet_list,
     )
 
+    if check is False:
+        return api
+
     response = api.get_account()
     if response.get('errors'):
         pprint(response)
@@ -1634,7 +1637,7 @@ def check_account_activity(account):
     filter_time = datetime.now(tz) - timedelta(days=1)
     print(filter_time)
     try:
-        api = get_twitter_api(account)
+        api = get_twitter_api(account, check=False)
     except Exception:
         pass
 
@@ -1725,9 +1728,9 @@ def check_account_activity(account):
         '',
         '人気のツイート:\n%s' % (url),
     ]
+
     text = '\n'.join(content_list)
     line_bot_api.push_message(LINE_USER_ID, TextSendMessage(text=text))
-
     r.set(redis_key, json.dumps(results), ex=None)
     print("SUCCESS: twitter:check_account_activity", account)
 
