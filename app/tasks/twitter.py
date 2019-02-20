@@ -1635,11 +1635,7 @@ def health_check():
 
 def check_account_activity(account):
     filter_time = datetime.now(tz) - timedelta(days=1)
-    print(filter_time)
-    try:
-        api = get_twitter_api(account, check=False)
-    except Exception:
-        pass
+    api = get_twitter_api(account, check=False)
 
     response = api.get_account()
     if response.get('errors'):
