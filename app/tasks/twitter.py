@@ -1318,7 +1318,7 @@ def remove_follow(account):
             break
 
     user_list = list(reversed(user_list))
-    limit = randint(5, 15)
+    limit = randint(10, 20)
 
     # twitter_tool.follow_users(
     #     username=api.username,
