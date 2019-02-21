@@ -68,10 +68,10 @@ def twitter_job():
         'tiktok',
         'hypnosismic',
         'smash_bros',
-        # 'rakuten_rank',
+        'rakuten_rank',
         'av_actress',
-        # 'av_sommlier',
-        # 'trend_video',
+        'av_sommlier',
+        'trend_video',
         'github',
     ]
 
