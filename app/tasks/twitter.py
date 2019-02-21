@@ -847,7 +847,7 @@ def check_favorite(account):
     else:
         target = result[0]
 
-    response = api.get_list_members(target['id_str'])
+    # response = api.get_list_members(target['id_str'])
     # mute_list = {user['screen_name'] for user in response['users']}
     # print('mute_num:', len(mute_list))
     # return
@@ -864,21 +864,19 @@ def check_favorite(account):
         if create_at < filter_time:
             screen_name_list.append(tweet['user']['screen_name'])
 
-    print('expired:', len(screen_name_list))
+    # print('expired:', len(screen_name_list))
     screen_name_list = list(set(screen_name_list))
-    print('single:', len(screen_name_list))
+    # print('single:', len(screen_name_list))
 
     response = api.get_friendships(screen_name=','.join(screen_name_list[:100]))
     not_follow_list = list(filter(lambda x: 'followed_by' not in x['connections'], response))
     not_follow_names = {black['screen_name'] for black in not_follow_list}
-    print('not followed_by:', len(not_follow_names))
+    # print('not followed_by:', len(not_follow_names))
 
     # differences = not_follow_names - mute_list
     # print('differences: ', len(differences))
 
     response = api.add_list_member(list_id=target['id_str'], screen_names=not_follow_names)
-    pprint(response)
-
     print("SUCCESS: check_favorite", account)
 
 
@@ -1209,67 +1207,43 @@ def follow_target_user(account):
     except Exception:
         return
 
-    if not api.target_list:
-        return
-
     response = api.get_account()
-
-    if response.get('errors'):
-        pprint(response)
-        return
+    account_id = response['id_str']
 
     friends_count = response['friends_count']
     followers_count = response['followers_count']
     if friends_count >= 4950 and friends_count - followers_count > 0:
         return
 
-    account_id = response['id_str']
-    LIMIT = 3
+    response = api.get_list()
+    list_name = '人気ユーザー'
+    result = list(filter(lambda x: x['name'].startswith(list_name), response))
 
-    screen_name = choice(api.target_list)
+    if len(result) == 0:
+        return
+
+    response = api.get_list_members(result[0]['id_str'])
+    target = choice(response['users'])
+    screen_name = target['screen_name']
     print("target_user:", screen_name)
     response = api.get_followers(screen_name=screen_name)
-    users = sorted(response['users'], key=lambda k: k['friends_count'], reverse=True)
 
-    user_list = set()
-    for user in users:
+    users = list(filter(
+        lambda user:
+        not user.get('following') and
+        not user.get('follow_request_sent') and
+        not user.get('blocked_by') and
+        user.get('id_str') != account_id and
+        user.get('lang') == 'ja',
+        response['users']
+    ))
+    users = sorted(users, key=lambda k: k['friends_count'], reverse=True)
 
-        if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
-            continue
-
-        if user['id_str'] == account_id:
-            continue
-
-        if user.get('lang') not in ['ja']:
-            continue
-
-        user_list.add(user['screen_name'])
-
-        if len(user_list) > LIMIT:
-            break
-
-    user_list = list(user_list)
-
-    # twitter_tool.follow_users(
-    #     username=api.username,
-    #     password=api.password,
-    #     user_list=user_list[:LIMIT],
-    # )
-
-    for num, screen_name in enumerate(list(user_list)[:LIMIT], 1):
-        response = api.post_follow(screen_name=screen_name)
-
-        if response.get('errors'):
-            pprint(response)
-            break
-
-        print("SUCCESS:%s follow:%s" % (num, screen_name))
-
-        if num >= LIMIT:
-            break
-
-        sleep_time = randint(1, 10)
-        print("sleep_time:", sleep_time)
+    LIMIT = randint(5, 10)
+    for num, user in enumerate(users[:LIMIT], 1):
+        print(num, user['screen_name'])
+        response = api.post_follow(screen_name=user['screen_name'])
+        sleep_time = randint(1, 5)
         sleep(sleep_time)
 
     print("SUCCESS: twitter:follow_target_user %s" % (account))

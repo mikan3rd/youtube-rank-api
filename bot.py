@@ -79,7 +79,7 @@ def twitter_job():
 
         twitter.remove_follow(account)
         # twitter.follow_users_by_follower(account)
-        # twitter.follow_target_user(account)
+        twitter.follow_target_user(account)
         # twitter.follow_users_by_retweet(account)
 
         print('FINISH: Twitter', account)
