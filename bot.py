@@ -65,10 +65,11 @@ def twitter_job():
     account_list = [
         'vtuber',
         'splatoon',
+        'smash_bros',
         'tiktok',
         'hypnosismic',
-        'smash_bros',
         'rakuten_rank',
+        'rakuten_travel',
         'av_actress',
         'av_sommlier',
         'trend_video',
