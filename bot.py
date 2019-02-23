@@ -45,8 +45,6 @@ def tweet_affiliate():
         'splatoon',
         'smash_bros',
         'hypnosismic',
-        'tiktok',
-        'av_actress',
     ]
 
     for account in account_list:
@@ -56,6 +54,8 @@ def tweet_affiliate():
     twitter.retweet_user('av_sommlier', '_rakuten_rank')
     twitter.retweet_user('rakuten_travel', '_rakuten_rank')
     twitter.retweet_user('trend_video', '_rakuten_rank')
+    twitter.retweet_user('av_actress', '_rakuten_rank')
+    twitter.retweet_user('tiktok', '_rakuten_rank')
 
 
 @sched.scheduled_job('cron', hour='*/6', minute=30)
