@@ -1236,7 +1236,7 @@ def follow_target_user(account):
     ))
     users = sorted(users, key=lambda k: k['friends_count'], reverse=True)
 
-    LIMIT = randint(5, 10)
+    LIMIT = randint(5, 15)
     for num, user in enumerate(users[:LIMIT], 1):
         print(num, user['screen_name'])
         response = api.post_follow(screen_name=user['screen_name'])
@@ -1289,7 +1289,7 @@ def remove_follow(account):
             break
 
     user_list = list(reversed(user_list))
-    limit = randint(10, 20)
+    limit = randint(10, 25)
 
     # twitter_tool.follow_users(
     #     username=api.username,
