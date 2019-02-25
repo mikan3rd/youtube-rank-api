@@ -1289,13 +1289,7 @@ def remove_follow(account):
             break
 
     user_list = list(reversed(user_list))
-    limit = randint(10, 25)
-
-    # twitter_tool.follow_users(
-    #     username=api.username,
-    #     password=api.password,
-    #     user_list=user_list[:limit],
-    # )
+    limit = randint(15, 25)
 
     for num, screen_name in enumerate(user_list[:limit], 1):
         response = api.post_unfollow(screen_name=screen_name)
