@@ -819,7 +819,7 @@ def favorite_tweet(account):
         x['user'].get('lang') == 'ja',
         tweet_list))
     target_list = sorted(target_list, key=lambda k: k['user'].get('friends_count', 0), reverse=True)
-    limit = randint(5, 15)
+    limit = randint(5, 10)
 
     for i, target in enumerate(target_list[:limit]):
         response = api.post_favorite(target['id_str'])
