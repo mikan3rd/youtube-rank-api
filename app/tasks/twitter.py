@@ -819,7 +819,7 @@ def favorite_tweet(account):
         x['user'].get('lang') == 'ja',
         tweet_list))
     target_list = sorted(target_list, key=lambda k: k['user'].get('friends_count', 0), reverse=True)
-    limit = randint(5, 10)
+    limit = randint(5, 15)
 
     for i, target in enumerate(target_list[:limit]):
         response = api.post_favorite(target['id_str'])
@@ -1236,7 +1236,7 @@ def follow_target_user(account):
     ))
     users = sorted(users, key=lambda k: k['friends_count'], reverse=True)
 
-    LIMIT = randint(5, 15)
+    LIMIT = randint(5, 10)
     for num, user in enumerate(users[:LIMIT], 1):
         print(num, user['screen_name'])
         response = api.post_follow(screen_name=user['screen_name'])
