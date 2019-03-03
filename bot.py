@@ -152,7 +152,7 @@ def oneday_job():
         'tiktok',
         'hypnosismic',
         # 'rakuten_rank',
-        'duga_video',
+        # 'duga_video',
         # 'av_actress',
         # 'av_sommlier',
         'trend_video',
