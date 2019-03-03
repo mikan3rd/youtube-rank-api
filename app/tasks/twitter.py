@@ -1355,8 +1355,14 @@ def remove_follow(account):
         return
 
     response = api.get_account()
-    if response['friends_count'] < 100:
+    if response['friends_count'] < 1000:
         return
+
+    if response['friends_count'] > response['followers_count']:
+        limit = randint(10, 20)
+
+    else:
+        limit = randint(5, 10)
 
     account_id = response['id_str']
 
