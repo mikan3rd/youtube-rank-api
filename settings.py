@@ -46,6 +46,9 @@ LINE_USER_ID = os.environ.get('LINE_USER_ID')
 DMM_API_ID = os.environ.get('DMM_API_ID')
 DMM_AFFILIATE_ID = os.environ.get('DMM_AFFILIATE_ID')
 
+# DUGA
+DUGA_APP_ID = os.environ.get('DUGA_APP_ID')
+
 # 東京公共交通オープンデータ
 ACL_CONSUMERKEY = os.environ.get('ACL_CONSUMERKEY')
 
