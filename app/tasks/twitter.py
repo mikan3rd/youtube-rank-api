@@ -48,7 +48,7 @@ from settings import (
 )
 
 from app.server.helpers import firestore as helper_firestore
-from app.server.helpers import dmm, rakuten, valuecommerce
+from app.server.helpers import dmm, rakuten, valuecommerce, duga
 from app.server.helpers.twitter import TwitterApi
 
 
@@ -364,6 +364,108 @@ def post_av_actress():
     id_list.append(target_id)
     r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
     print("SUCCESS: twitter:av_actress")
+
+
+def post_duga():
+    account = 'duga_video'
+    try:
+        api = get_twitter_api(account)
+    except Exception:
+        return
+
+    redis_key = 'twitter:duga'
+    r = redis.from_url(REDIS_URL)
+    rcache = r.get(redis_key)
+
+    id_list = []
+    if rcache:
+        print("cache HIT!! %s" % (redis_key))
+        id_list = json.loads(rcache.decode())
+
+    target = None
+    filename = 'duga_video.mp4'
+
+    hits = 100
+    for i in range(10):
+        response = duga.search(offset=i * hits + 1)
+
+        for _item in response['items']:
+            item = _item['item']
+
+            if item['productid'] not in id_list and item.get('samplemovie'):
+                pprint(item.get('samplemovie'))
+                video_url = item['samplemovie'][0]['midium']['movie']
+
+                try:
+                    data = urllib.request.urlopen(video_url)
+
+                except Exception as e:
+                    pprint(e)
+                    continue
+
+                with open(filename, 'wb') as f:
+                    f.write(data.read())
+
+                cap = cv2.VideoCapture(filename)            # 動画を読み込む
+                video_frame = cap.get(cv2.CAP_PROP_FRAME_COUNT)  # フレーム数を取得する
+                video_fps = cap.get(cv2.CAP_PROP_FPS)           # FPS を取得する
+                video_len_sec = video_frame / video_fps         # 長さ（秒）を計算する
+
+                if video_len_sec > 140:
+                    id_list.append(item['productid'])
+                    continue
+
+                target = item
+                break
+
+        if target:
+            break
+
+    if not target:
+        id_list = []
+        return
+
+    video_url = target['samplemovie'][0]['midium']['movie']
+    media_id = upload_video(api, video_url=video_url)
+
+    if not media_id:
+        return
+
+    actress_list = [
+        '#' + performer['data']['name']
+        for performer in target.get('performer', [])
+    ]
+    actress = '【女優】\n' + '\n'.join(actress_list) if actress_list else ''
+
+    content_list = [
+        target['title'],
+        '',
+        actress,
+        '',
+        '【ジャンル】\n' + '\n'.join(['#' + category['data']['name'] for category in target['category']]),
+        '#140秒動画',
+        '',
+        '【詳細URL】' + target['affiliateurl'],
+    ]
+
+    status = '\n'.join(content_list)
+
+    for i in range(4):
+        if len(status) > 240:
+            del content_list[2]
+            status = '\n'.join(content_list)
+            continue
+
+        break
+
+    response = api.post_tweet(status=status, media_ids=[media_id])
+
+    if response.get('errors'):
+        pprint(response)
+
+    id_list.append(target['productid'])
+    r.set(redis_key, json.dumps(list(set(id_list))), ex=None)
+    print("SUCCESS: post_duga", account)
 
 
 def search_and_retweet(account):
@@ -1379,7 +1481,7 @@ def get_twitter_api(account, check=True):
         username = 'av_video_bot'
         password = TWITTER_PASSWORD_A
         target_list = ['fanza_sns']
-        retweet_list = ['av_actress_bot']
+        retweet_list = ['av_actress_bot', 'ero_video_bot']
 
     elif account == 'av_actress':
         access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
@@ -1388,7 +1490,7 @@ def get_twitter_api(account, check=True):
         password = TWITTER_PASSWORD_A
         target_list = ['fanza_sns']
         rakuten_query = '精力'
-        retweet_list = ['av_video_bot']
+        retweet_list = ['av_video_bot', 'ero_video_bot']
 
     elif account == "github":
         access_token = TWITTER_GITHUB_ACCESS_TOKEN
@@ -1482,9 +1584,10 @@ def get_twitter_api(account, check=True):
         password = TWITTER_PASSWORD_A
         target_list = ['RakutenJP']
 
-    elif account == 'rakuten_travel':
+    elif account == 'duga_video':
         access_token = TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN
         secret = TWITTER_RAKUTEN_TRAVEL_SECRET
+        retweet_list = ['av_video_bot', 'av_actress_bot']
 
     elif account == 'trend_video':
         access_token = TWITTER_TREND_VIDEO_ACCESS_TOKEN
@@ -1587,9 +1690,9 @@ def health_check():
         'tiktok',
         'hypnosismic',
         'rakuten_rank',
-        'rakuten_travel',
         'av_actress',
         'av_sommlier',
+        'duga_video',
         'trend_video',
         'github',
     ]

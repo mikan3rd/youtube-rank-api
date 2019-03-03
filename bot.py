@@ -29,11 +29,10 @@ def tweet_job():
     twitter.post_av_actress()
 
     twitter.retweet_user('av_sommlier')
+    twitter.retweet_user('duga_video')
 
     tweet_crawl.hypnosismic()
     tweet_crawl.smash_bros()
-
-    twitter.tweet_rakuten_travel()
 
 
 @sched.scheduled_job('cron', hour='7,12,17,20,23', minute=5)
@@ -52,7 +51,7 @@ def tweet_affiliate():
 
     twitter.retweet_user('rakuten_rank', '_rakuten_travel')
     twitter.retweet_user('av_sommlier', '_rakuten_rank')
-    twitter.retweet_user('rakuten_travel', '_rakuten_rank')
+    twitter.retweet_user('duga_video', '_rakuten_rank')
     twitter.retweet_user('trend_video', '_rakuten_rank')
     twitter.retweet_user('av_actress', '_rakuten_rank')
     twitter.retweet_user('tiktok', '_rakuten_rank')
@@ -69,9 +68,9 @@ def twitter_job():
         'tiktok',
         'hypnosismic',
         'rakuten_rank',
-        'rakuten_travel',
         'av_actress',
         'av_sommlier',
+        'duga_video',
         'trend_video',
         'github',
     ]
@@ -97,9 +96,9 @@ def twitter_favorite_job():
         'tiktok',
         'hypnosismic',
         'rakuten_rank',
-        'rakuten_travel',
         'av_actress',
         'av_sommlier',
+        'duga_video',
         'trend_video',
         'github',
     ]
@@ -115,6 +114,8 @@ def twitter_video_job():
 
     twitter.post_av_sommlier()
     twitter.tweet_tiktok_video()
+    twitter.post_duga()
+
     twitter.retweet_user('av_actress')
 
 
@@ -151,7 +152,7 @@ def oneday_job():
         'tiktok',
         'hypnosismic',
         # 'rakuten_rank',
-        'rakuten_travel',
+        'duga_video',
         # 'av_actress',
         # 'av_sommlier',
         'trend_video',
