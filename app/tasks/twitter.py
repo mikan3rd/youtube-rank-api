@@ -1168,38 +1168,18 @@ def follow_users_by_retweet(account):
         return
 
     response = api.get_home_timeline()
-    retweeter_count = 0
-    tweet_id_list = set()
-
     tweet_list = sorted(response, key=lambda k: k.get('retweet_count', 0), reverse=True)
-    for tweet in tweet_list:
 
-        if tweet.get('retweet_count', 0) <= 1:
-            continue
+    user_list = []
+    for tweet in tweet_list[:5]:
 
-        if tweet.get('lang') not in ['ja']:
-            continue
-
-        retweeter_count += tweet['retweet_count']
         tweet_id = tweet['id_str']
         if tweet.get('retweeted_status'):
             tweet_id = tweet['retweeted_status']['id_str']
 
-        tweet_id_list.add(tweet_id)
-
-        if retweeter_count > 5:
-            break
-
-    user_id_list = set()
-    for tweet_id in tweet_id_list:
         response = api.get_retweet_user(tweet_id=tweet_id)
 
-        if isinstance(response, dict) and response.get('errors'):
-            pprint(response)
-            continue
-
-        tweet_list = sorted(response, key=lambda k: k['user'].get('friends_count', 0), reverse=True)
-        for tweet in tweet_list:
+        for tweet in response:
             user = tweet['user']
 
             if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
@@ -1208,19 +1188,16 @@ def follow_users_by_retweet(account):
             if user.get('lang') not in ['ja']:
                 continue
 
-            user_id_list.add(user['screen_name'])
+            user_list.append(user)
 
-    for num, user_id in enumerate(list(user_id_list)[:3], 1):
-        response = api.post_follow(screen_name=user_id)
+    user_list = sorted(user_list, key=lambda k: k['friends_count'], reverse=True)
+    user_name_list = [user['screen_name'] for user in user_list]
 
-        if response.get('errors'):
-            pprint(response)
-            break
-
-        print("SUCCESS:%s follow:%s" % (num, user_id))
-
-        sleep_time = randint(1, 10)
-        print("sleep_time:", sleep_time)
+    LIMIT = randint(4, 8)
+    for num, screen_name in enumerate(user_name_list[:LIMIT], 1):
+        print(num, screen_name)
+        response = api.post_follow(screen_name=screen_name)
+        sleep_time = randint(1, 5)
         sleep(sleep_time)
 
     print("SUCCESS: twitter:follow_users_by_retweet %s" % (account))
@@ -1338,7 +1315,7 @@ def follow_target_user(account):
     ))
     users = sorted(users, key=lambda k: k['friends_count'], reverse=True)
 
-    LIMIT = randint(5, 10)
+    LIMIT = randint(4, 8)
     for num, user in enumerate(users[:LIMIT], 1):
         print(num, user['screen_name'])
         response = api.post_follow(screen_name=user['screen_name'])
