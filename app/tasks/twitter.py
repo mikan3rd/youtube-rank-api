@@ -1167,6 +1167,14 @@ def follow_users_by_retweet(account):
     except Exception:
         return
 
+    response = api.get_account()
+    account_id = response['id_str']
+
+    friends_count = response['friends_count']
+    followers_count = response['followers_count']
+    if friends_count >= 4950 and friends_count - followers_count > 0:
+        return
+
     response = api.get_home_timeline()
     tweet_list = sorted(response, key=lambda k: k.get('retweet_count', 0), reverse=True)
 
@@ -1185,12 +1193,18 @@ def follow_users_by_retweet(account):
             if user.get('following') or user.get('follow_request_sent') or user.get('blocked_by'):
                 continue
 
-            if user.get('lang') not in ['ja']:
+            if user.get('lang') != 'ja':
+                continue
+
+            if user.get('id_str') == account_id:
+                continue
+
+            if user['followers_count'] == 0:
                 continue
 
             user_list.append(user)
 
-    user_list = sorted(user_list, key=lambda k: k['friends_count'], reverse=True)
+    user_list = sorted(user_list, key=lambda k: k['friends_count'] / k['followers_count'], reverse=True)
     user_name_list = [user['screen_name'] for user in user_list]
 
     LIMIT = randint(4, 8)
@@ -1310,10 +1324,11 @@ def follow_target_user(account):
         not user.get('follow_request_sent') and
         not user.get('blocked_by') and
         user.get('id_str') != account_id and
+        user['followers_count'] != 0 and
         user.get('lang') == 'ja',
         response['users']
     ))
-    users = sorted(users, key=lambda k: k['friends_count'], reverse=True)
+    users = sorted(users, key=lambda k: k['friends_count'] / k['followers_count'], reverse=True)
 
     LIMIT = randint(4, 8)
     for num, user in enumerate(users[:LIMIT], 1):
