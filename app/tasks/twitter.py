@@ -1549,7 +1549,7 @@ def get_twitter_api(account, check=True):
         password = TWITTER_PASSWORD_B
 
         hashtag = '#スマブラSP'
-        query = '(#スマブラSP OR #SmashBrosSP) (filter:images OR filter:videos) min_retweets:10'
+        query = '(#スマブラSP OR #SmashBrosSP OR #SSBU) (filter:images OR filter:videos) min_retweets:10'
         rakuten_query = 'カービィ'
         exclude_genre_id_list = ['566404', '566406', '566420']
         target_list = ['SmashBrosJP']
