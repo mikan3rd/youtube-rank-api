@@ -58,7 +58,29 @@ def tweet_affiliate():
 
 
 @sched.scheduled_job('cron', hour='*/6', minute=30)
-def twitter_job():
+def twitter_remove_job():
+    print('START: Remove')
+
+    account_list = [
+        'vtuber',
+        'splatoon',
+        'smash_bros',
+        'tiktok',
+        'hypnosismic',
+        'rakuten_rank',
+        'av_actress',
+        'av_sommlier',
+        'duga_video',
+        'trend_video',
+        'github',
+    ]
+
+    for account in account_list:
+        twitter.remove_follow(account)
+
+
+@sched.scheduled_job('cron', hour='*/8', minute=30)
+def twitter_follow_job():
     print('START: Follow')
 
     account_list = [
@@ -76,13 +98,9 @@ def twitter_job():
     ]
 
     for account in account_list:
-
-        twitter.remove_follow(account)
         # twitter.follow_users_by_follower(account)
         twitter.follow_target_user(account)
         twitter.follow_users_by_retweet(account)
-
-        print('FINISH: Twitter', account)
 
 
 @sched.scheduled_job('cron', hour='*/8', minute=10)
