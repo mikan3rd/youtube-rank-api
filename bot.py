@@ -122,7 +122,7 @@ def twitter_favorite_job():
     ]
 
     for account in account_list:
-        # twitter.favorite_tweet(account)
+        twitter.favorite_tweet(account)
         twitter.check_favorite(account)
 
 
