@@ -57,7 +57,7 @@ def tweet_affiliate():
     twitter.retweet_user('tiktok', '_rakuten_rank')
 
 
-@sched.scheduled_job('cron', hour='*/6', minute=30)
+@sched.scheduled_job('cron', hour='0')
 def twitter_remove_job():
     print('START: Remove')
 
