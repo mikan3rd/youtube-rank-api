@@ -212,7 +212,7 @@ def post_av_sommlier():
     status = '\n'.join(content_list)
 
     for i in range(4):
-        if len(status) > 240:
+        if len(status) > 230:
             del content_list[2]
             status = '\n'.join(content_list)
             continue
