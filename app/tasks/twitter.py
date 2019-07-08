@@ -1340,6 +1340,8 @@ def follow_target_user(account):
     print("SUCCESS: twitter:follow_target_user %s" % (account))
 
 
+
+
 def remove_follow(account):
     try:
         api = get_twitter_api(account)
@@ -1479,16 +1481,12 @@ def get_twitter_api(account, check=True):
         username = 'av_video_bot'
         password = TWITTER_PASSWORD_A
         target_list = ['fanza_sns']
-        retweet_list = ['av_actress_bot', 'ero_video_bot']
+        retweet_list = ['ero_video_bot']
 
-    elif account == 'av_actress':
-        access_token = TWITTER_AV_ACTRESS_ACCESS_TOKEN
-        secret = TWITTER_AV_ACTRESS_SECRET
-        username = 'av_actress_bot'
-        password = TWITTER_PASSWORD_A
-        target_list = ['fanza_sns']
-        rakuten_query = '精力'
-        retweet_list = ['av_video_bot', 'ero_video_bot']
+    elif account == 'duga_video':
+        access_token = TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN
+        secret = TWITTER_RAKUTEN_TRAVEL_SECRET
+        retweet_list = ['av_video_bot']
 
     elif account == "github":
         access_token = TWITTER_GITHUB_ACCESS_TOKEN
@@ -1582,10 +1580,6 @@ def get_twitter_api(account, check=True):
         password = TWITTER_PASSWORD_A
         target_list = ['RakutenJP']
 
-    elif account == 'duga_video':
-        access_token = TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN
-        secret = TWITTER_RAKUTEN_TRAVEL_SECRET
-        retweet_list = ['av_video_bot', 'av_actress_bot']
 
     elif account == 'trend_video':
         access_token = TWITTER_TREND_VIDEO_ACCESS_TOKEN
