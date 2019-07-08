@@ -237,7 +237,7 @@ def post_av_sommlier():
 
 
 def post_av_actress():
-    account = 'av_actress'
+    account = 'trend_video'
     try:
         api = get_twitter_api(account)
     except Exception:
@@ -1682,7 +1682,6 @@ def health_check():
         'tiktok',
         'hypnosismic',
         'rakuten_rank',
-        'av_actress',
         'av_sommlier',
         'duga_video',
         'trend_video',
