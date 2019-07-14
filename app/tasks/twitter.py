@@ -1481,12 +1481,18 @@ def get_twitter_api(account, check=True):
         username = 'av_video_bot'
         password = TWITTER_PASSWORD_A
         target_list = ['fanza_sns']
-        retweet_list = ['ero_video_bot']
+        retweet_list = ['ero_video_bot', 'buzz_images']
 
     elif account == 'duga_video':
         access_token = TWITTER_RAKUTEN_TRAVEL_ACCESS_TOKEN
         secret = TWITTER_RAKUTEN_TRAVEL_SECRET
-        retweet_list = ['av_video_bot']
+        retweet_list = ['av_video_bot', 'buzz_images']
+
+    elif account == 'trend_video':
+        access_token = TWITTER_TREND_VIDEO_ACCESS_TOKEN
+        secret = TWITTER_TREND_VIDEO_SECRET
+        query = 'filter:videos min_retweets:1000'
+        retweet_list = ['av_video_bot', 'ero_video_bot']
 
     elif account == "github":
         access_token = TWITTER_GITHUB_ACCESS_TOKEN
@@ -1581,10 +1587,7 @@ def get_twitter_api(account, check=True):
         target_list = ['RakutenJP']
 
 
-    elif account == 'trend_video':
-        access_token = TWITTER_TREND_VIDEO_ACCESS_TOKEN
-        secret = TWITTER_TREND_VIDEO_SECRET
-        query = 'filter:videos min_retweets:1000'
+
 
     else:
         print("NO MATCH")

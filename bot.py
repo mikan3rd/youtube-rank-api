@@ -28,6 +28,7 @@ def tweet_job():
 
     twitter.retweet_user("av_sommlier")
     twitter.retweet_user("duga_video")
+    twitter.retweet_user("trend_video")
 
     tweet_crawl.hypnosismic()
     tweet_crawl.smash_bros()
