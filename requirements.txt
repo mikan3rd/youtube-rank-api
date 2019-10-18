@@ -105,6 +105,6 @@ typed-ast==1.1.0
 typing==3.6.2
 tzlocal==1.5.1
 uritemplate==3.0.0
-urllib3==1.22
+urllib3==1.24.2
 virtualenv==15.1.0
 Werkzeug==0.12.2
