@@ -107,4 +107,4 @@ tzlocal==1.5.1
 uritemplate==3.0.0
 urllib3==1.22
 virtualenv==15.1.0
-Werkzeug==0.12.2
+Werkzeug==0.15.3
