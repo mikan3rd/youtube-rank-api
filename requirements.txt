@@ -57,7 +57,7 @@ oauthlib==2.0.6
 opencv-python==3.4.5.20
 packaging==16.8
 pandas==0.20.3
-Pillow==4.2.1
+Pillow==6.2.0
 pluggy==0.5.2
 protobuf==3.6.1
 py==1.4.34
